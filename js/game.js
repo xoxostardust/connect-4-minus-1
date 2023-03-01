@@ -1,19 +1,38 @@
-let grid = [
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0]
-];
+import { GRID_COLUMNS, GRID_ROWS } from './constants';
+import { PieceType } from './enums';
 
-function setSpace(x, y, z) {
-    grid[6 - y][x - 1] = z;
+class GridPiece {
+    constructor(pieceType = PieceType.RED) {
+        this.pieceType = pieceType;
+    }
 }
 
-setSpace(1, 1, 1);
-setSpace(1, 2, 1);
-setSpace(1, 3, 1);
-setSpace(1, 4, 1);
+class Grid {
+    constructor(columns = GRID_COLUMNS, rows = GRID_ROWS) {
+        let gridArray = [];
 
-console.log(grid);
+        // Build the grid given the number of columns and rows
+        for (let i = 0; i < rows - 1; i++) {
+            let gridRow = [];
+
+            for (let j = 0; j < columns - 1; j++) {
+                gridRow.push(null);
+            }
+
+            gridArray.push(gridRow);
+        }
+
+        // gridArray will be kept private
+        this.#gridArray = gridArray;
+        console.log(gridArray);
+
+        // Give back the columns and rows for the grid
+        this.columns = columns;
+        this.rows = rows;
+    }
+
+    // Internal function to get the last empty position in a row (return -1 if full)
+    #getLastEmptyRow(column) {}
+
+    placePiece(column, gridPiece) {}
+}
