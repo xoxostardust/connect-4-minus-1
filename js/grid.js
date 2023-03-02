@@ -36,6 +36,23 @@ class GridColumn {
         return -1;
     }
 
+    #shift() {
+        const rowLength = this.#row.length;
+
+        let lastInStack;
+
+        for (let i = this.#row.length - 1; i > -1; --i) {
+            if (this.#row[i] != null) {
+                lastInStack = i;
+
+                break;
+            }
+        }
+
+        if (rowLength - 1 != lastInStack) {
+        }
+    }
+
     placePiece(gridPiece) {
         if (!(gridPiece instanceof GridPiece)) {
             throw new TypeError('gridPiece must be an instance of GridPiece');
