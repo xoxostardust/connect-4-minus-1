@@ -1,0 +1,10 @@
+* {
+    background-color: #FFF9E9;
+}
+
+.table {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto;
+    background-color: #2196F3;
+    padding: 10px;;
+}

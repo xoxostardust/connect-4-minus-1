@@ -22,6 +22,7 @@ class GridColumn {
         this.isFull = false;
     }
 
+    // Internal function used by placePiece to get the last piece in the column (sets isFull true if the column is full)
     #getLast() {
         for (let i = this.#row.length - 1; i > -1; --i) {
             if (this.#row[i] == null) {
@@ -36,23 +37,16 @@ class GridColumn {
         return -1;
     }
 
+    // Internal function used by removePiece to shift the pieces in the column to the bottom
     #shift() {
-        const rowLength = this.#row.length;
+        const firstPiece = this.#row.filter(p => p instanceof GridPiece).pop();
 
-        let lastInStack;
-
-        for (let i = this.#row.length - 1; i > -1; --i) {
-            if (this.#row[i] != null) {
-                lastInStack = i;
-
-                break;
-            }
-        }
-
-        if (rowLength - 1 != lastInStack) {
+        if (firstPiece) {
+            const index = this.#row.indexOf(firstPiece);
         }
     }
 
+    // Places a piece gridPiece in the column and drops it to the bottom
     placePiece(gridPiece) {
         if (!(gridPiece instanceof GridPiece)) {
             throw new TypeError('gridPiece must be an instance of GridPiece');
@@ -66,6 +60,20 @@ class GridColumn {
             throw new ColumnIsFullError('Cannot place gridPiece because this column is full');
         }
     }
+
+    // Removes a piece in the column and shifts the pieces in the column to the bottom
+    removePiece(i = 1) {
+        const piece = this.#row[i - 1];
+
+        this.#row[i - 1] = null;
+        this.#shift();
+
+        return piece;
+    }
+
+    asArray() {
+        return [...this.#row];
+    }
 }
 
 export class Grid {
@@ -74,7 +82,7 @@ export class Grid {
     constructor(columns = GRID_COLUMNS) {
         let gridArray = [];
 
-        for (let i = 0; i < columns; ++i) {
+        for (let i = 0; i < columns; i++) {
             gridArray.push(new GridColumn());
         }
 
@@ -82,6 +90,12 @@ export class Grid {
     }
 
     getColumn(column) {
-        return this.grid[column - 1];
+        return this.#grid[column - 1];
+    }
+
+    asArray() {
+        return [...this.#grid].map(c => c.asArray());
     }
 }
+
+// daniel says hello paul :>
