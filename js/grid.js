@@ -39,11 +39,17 @@ class GridColumn {
 
     // Internal function used by removePiece to shift the pieces in the column to the bottom
     #shift() {
-        const firstPiece = this.#row.filter(p => p instanceof GridPiece).pop();
+        const row = this.#row;
 
-        if (firstPiece) {
-            const index = this.#row.indexOf(firstPiece);
+        for (let i = row.length - 1; i > -1; --i) {
+            if (row[i] == null) {
+                delete this.#row[i];
+
+                break;
+            }
         }
+
+        row.unshift(null);
     }
 
     // Places a piece gridPiece in the column and drops it to the bottom
@@ -66,6 +72,7 @@ class GridColumn {
         const piece = this.#row[i - 1];
 
         this.#row[i - 1] = null;
+        this.isFull = false;
         this.#shift();
 
         return piece;
