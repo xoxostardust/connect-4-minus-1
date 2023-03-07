@@ -24,7 +24,7 @@ class GridColumn {
 
     // Internal function used by placePiece to get the last piece in the column (sets isFull true if the column is full)
     #getLast() {
-        for (let i = this.#row.length - 1; i > -1; --i) {
+        for (let i = this.#row.length - 1; i > -1; i--) {
             if (this.#row[i] == null) {
                 if (i == 0) {
                     this.isFull = true;
@@ -41,9 +41,9 @@ class GridColumn {
     #shift() {
         const row = this.#row;
 
-        for (let i = row.length - 1; i > -1; --i) {
+        for (let i = row.length - 1; i > -1; i--) {
             if (row[i] == null) {
-                delete this.#row[i];
+                row.splice(i, 1);
 
                 break;
             }
@@ -68,10 +68,10 @@ class GridColumn {
     }
 
     // Removes a piece in the column and shifts the pieces in the column to the bottom
-    removePiece(i = 1) {
-        const piece = this.#row[i - 1];
+    removePiece(s = 1) {
+        const piece = this.#row[s - 1];
 
-        this.#row[i - 1] = null;
+        this.#row[s - 1] = null;
         this.isFull = false;
         this.#shift();
 

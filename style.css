@@ -1,10 +1,41 @@
 * {
-    background-color: #FFF9E9;
+    background-color: #fff9e9;
 }
 
-.table {
+.grid {
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto;
-    background-color: #2196F3;
-    padding: 10px;;
+    background-color: #2196f3;
+    width: 70vw;
+    padding: 10px;
+}
+
+.grid-column {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto auto;
+    height: 400px;
+}
+
+.grid-column,
+.grid-space {
+    border: 1px solid #2196f3;
+}
+
+.grid-column:hover {
+    background-color: gray;
+}
+
+.grid-space {
+}
+
+.grid-space:hover::before {
+    content: '';
+    display: block;
+    position: relative;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    background-color: red;
 }

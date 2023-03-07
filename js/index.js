@@ -11,6 +11,6 @@ column.placePiece(new GridPiece());
 
 console.log(brandNewGrid.asArray());
 
-column.removePiece(4);
+column.removePiece(6);
 
 console.log(brandNewGrid.asArray());
