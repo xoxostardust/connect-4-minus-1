@@ -1,38 +1,118 @@
+@font-face {
+    font-family: 'Avant Garde Gothic';
+    src: url('assets/fonts/AvantGardeGothic.otf');
+}
+
+html {
+    font-family: 'Avant Garde Gothic';
+}
+
 * {
-    background-color: #fff9e9;
 }
 
 .grid {
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto;
-    background-color: #2196f3;
-    width: 70vw;
+    background-color: #3a71b5;
+    width: 700px;
     padding: 10px;
 }
 
 .grid-column {
     display: grid;
     grid-template-rows: auto auto auto auto auto auto;
-    height: 400px;
+    height: 600px;
 }
 
-.grid-column,
-.grid-space {
-    border: 1px solid #2196f3;
+.grid-column {
+    transition: background-color 200ms ease;
 }
 
 .grid-column:hover {
-    background-color: gray;
+    background-color: #376297;
 }
 
-.grid-space:hover::before {
+.grid-space {
+    margin: 5%;
+    border-radius: 50%;
+    background-color: white;
+}
+
+/* .grid-space:hover::after {
     content: '';
     display: block;
     position: relative;
-    top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 90%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background-color: red;
+    background-color: #d15d5d;
+} */
+
+.flex {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.game-logo {
+    max-width: 100%;
+    height: 70vh;
+}
+
+.red-piece::before {
+    content: '';
+    display: block;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #d15d5d;
+}
+
+.yellow-piece::before {
+    content: '';
+    display: block;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #eabc64;
+}
+
+.flex-50 {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10vh;
+}
+
+.start {
+    background-color: black;
+    color: white;
+    font-family: 'Avant Garde Gothic';
+    box-shadow: 0 0 0 6px white, 0 0 0 18px black;
+    border-radius: 15px;
+}
+
+#start {
+    width: 8vw;
+    height: 9vh;
+    font-size: 50px;
+}
+
+#player {
+    width: 14vw;
+    height: auto;
+    font-size: 50px;
+}
+
+#reset {
+    padding-block: 0.5em;
+    padding-inline: 1em;
 }

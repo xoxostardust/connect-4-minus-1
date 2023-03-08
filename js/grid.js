@@ -2,14 +2,18 @@ import { GRID_COLUMNS, GRID_ROWS } from './constants.js';
 import { PieceType } from './enums.js';
 import { ColumnIsFullError } from './errors.js';
 
+// Creates a unique grid piece given a PieceType
 export class GridPiece {
     constructor(pieceType = PieceType.RED) {
         this.pieceType = pieceType;
     }
 }
 
+// Class to initialize grid column for Grid
 class GridColumn {
     #row;
+    #onPiecePlaced;
+    #onPieceRemoved;
 
     constructor(rows = GRID_ROWS) {
         let rowArray = [];
@@ -65,7 +69,7 @@ class GridColumn {
 
         if (last > -1) {
             this.#row[last] = gridPiece;
-            this.#onPiecePlaced(gridPiece);
+            this.#onPiecePlaced(gridPiece, last + 1);
         } else {
             throw new ColumnIsFullError('Cannot place gridPiece because this column is full');
         }
@@ -83,16 +87,19 @@ class GridColumn {
         return piece;
     }
 
+    // Returns the column as an array
     asArray() {
         return [...this.#row];
     }
 
+    // Called after a piece GridPiece is placed into the column
     onPiecePlaced(f) {
         this.#onPiecePlaced = f;
 
         return this.#onPiecePlaced;
     }
 
+    // Called after a piece GridPiece is removed from the column (passes the position where the piece was removed and piece removed)
     onPieceRemoved(f) {
         this.#onPieceRemoved = f;
 
@@ -114,10 +121,12 @@ export class Grid {
         this.#grid = gridArray;
     }
 
+    // Directly interfaces with the GridColumns
     getColumn(column) {
         return this.#grid[column - 1];
     }
 
+    // Returns the whole grid and GridColumns as an array
     asArray() {
         return [...this.#grid].map(c => c.asArray());
     }
