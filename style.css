@@ -5,7 +5,7 @@
 .grid {
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto;
-    background-color: #2196f3;
+    background-color: #3A71B5;
     width: 70vw;
     padding: 10px;
 }
@@ -18,7 +18,7 @@
 
 .grid-column,
 .grid-space {
-    border: 1px solid #2196f3;
+    border: 1px solid #3A71B5;
 }
 
 .grid-column:hover {
@@ -34,5 +34,5 @@
     width: 90%;
     height: 90%;
     border-radius: 50%;
-    background-color: red;
+    background-color: #D15D5D;
 }
