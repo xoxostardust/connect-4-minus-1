@@ -18,7 +18,10 @@ class GridColumn {
             rowArray.push(null);
         }
 
+        this.rows = rows;
         this.#row = rowArray;
+        this.#onPiecePlaced = () => {};
+        this.#onPieceRemoved = () => {};
         this.isFull = false;
     }
 
@@ -62,6 +65,7 @@ class GridColumn {
 
         if (last > -1) {
             this.#row[last] = gridPiece;
+            this.#onPiecePlaced(gridPiece);
         } else {
             throw new ColumnIsFullError('Cannot place gridPiece because this column is full');
         }
@@ -74,12 +78,25 @@ class GridColumn {
         this.#row[s - 1] = null;
         this.isFull = false;
         this.#shift();
+        this.#onPieceRemoved(s, piece);
 
         return piece;
     }
 
     asArray() {
         return [...this.#row];
+    }
+
+    onPiecePlaced(f) {
+        this.#onPiecePlaced = f;
+
+        return this.#onPiecePlaced;
+    }
+
+    onPieceRemoved(f) {
+        this.#onPieceRemoved = f;
+
+        return this.#onPieceRemoved;
     }
 }
 
@@ -93,6 +110,7 @@ export class Grid {
             gridArray.push(new GridColumn());
         }
 
+        this.columns = columns;
         this.#grid = gridArray;
     }
 
