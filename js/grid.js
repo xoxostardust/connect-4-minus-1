@@ -18,6 +18,7 @@ class GridColumn {
             rowArray.push(null);
         }
 
+        this.rows = rows;
         this.#row = rowArray;
         this.#onPiecePlaced = () => {};
         this.#onPieceRemoved = () => {};
@@ -109,6 +110,7 @@ export class Grid {
             gridArray.push(new GridColumn());
         }
 
+        this.columns = columns;
         this.#grid = gridArray;
     }
 
