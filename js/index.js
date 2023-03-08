@@ -1,16 +1,5 @@
 import { Grid, GridPiece } from './grid.js';
 
-const brandNewGrid = new Grid();
-
-const column = brandNewGrid.getColumn(3);
-
-column.placePiece(new GridPiece());
-column.placePiece(new GridPiece());
-column.placePiece(new GridPiece());
-column.placePiece(new GridPiece());
-
-console.log(brandNewGrid.asArray());
-
-column.removePiece(6);
-
-console.log(brandNewGrid.asArray());
+document.addEventListener('DOMContentLoaded', ev => {
+    const gridElement = document.getElementById('grid');
+});
