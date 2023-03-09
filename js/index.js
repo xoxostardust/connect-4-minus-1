@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', ev => {
 
     for (const gridColumn of gridColumns) {
         const columnData = gridColumn.dataset.column;
+
         const column = grid.getColumn(columnData);
 
         column.onPiecePlaced((piece, row) => {
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', ev => {
             }
         });
     }
+
     resetButton.addEventListener('click', ev => {
         window.location.reload();
     });
