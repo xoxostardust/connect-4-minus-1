@@ -28,6 +28,10 @@ html {
     transition: background-color 200ms ease;
 }
 
+.grid-column {
+    border-radius: 1rem;
+}
+
 .grid-column:hover {
     background-color: #376297;
 }
