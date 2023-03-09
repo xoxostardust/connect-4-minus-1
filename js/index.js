@@ -8,22 +8,21 @@ document.addEventListener('DOMContentLoaded', ev => {
     const grid = new Grid();
 
     let canBeRedPiece = Math.random() > 0.5 ? true : false;
+
     for (const gridColumn of gridColumns) {
         const columnData = gridColumn.dataset.column;
         const column = grid.getColumn(columnData);
+
         column.onPiecePlaced((piece, row) => {
-            const gridRow = gridColumn.querySelector(`[data-row="${row}"]`);
-            if (gridRow != null) {
-                if (piece.pieceType == PieceType.RED) {
-                    gridRow.classList.add('red-piece');
-                } else {
-                    gridRow.classList.add('yellow-piece');
-                }
-            }
+            const gridRow = gridColumn.querySelector(`[data-row='${row}']`);
+
+            gridRow.classList.add(piece.pieceType == PieceType.RED ? 'red-piece' : 'yellow-piece');
         });
+
         gridColumn.addEventListener('click', () => {
             if (!column.isFull) {
-                column.placePiece(canBeRedPiece ? new GridPiece() : new GridPiece(PieceType.YELLOW));
+                column.placePiece(new GridPiece(canBeRedPiece ? PieceType.RED : PieceType.YELLOW));
+
                 canBeRedPiece = !canBeRedPiece;
             }
         });
