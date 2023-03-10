@@ -9,6 +9,9 @@ const room = joinRoom(config, 'yoyodyne');
 room.onPeerJoin(peerId => console.log(`${peerId} joined`));
 
 document.addEventListener('DOMContentLoaded', ev => {
+    const gridElement = document.getElementById('grid');
+    const start = document.getElementById('start');
+    const typeSelect = document.getElementById('type-select');
     const resetButton = document.getElementById('reset');
     const twoPlayers = document.getElementById('two-players');
     const gridColumns = document.getElementsByClassName('grid-column');
@@ -37,11 +40,16 @@ document.addEventListener('DOMContentLoaded', ev => {
         });
     }
 
-    if (resetButton != null) {
-        resetButton.addEventListener('click', ev => {
-            window.location.reload();
-        });
-    }
+    typeSelect.style.display = 'none';
+
+    start.addEventListener('click', ev => {
+        start.style.display = 'none';
+        typeSelect.style.display = null;
+    });
+
+    resetButton.addEventListener('click', ev => {
+        window.location.reload();
+    });
 
     twoPlayers.addEventListener('click', ev => {
         alert('Not implemented');
