@@ -1,17 +1,22 @@
 import { RED_PIECE_COUNT, YELLOW_PIECE_COUNT } from './constants.js';
 import { GameType, PieceType, PlayerTeam } from './enums.js';
+import { PlayerAlreadyUsedAbilityError, PlayerHasNoPiecesError } from './errors.js';
 import { Grid, GridPiece } from './grid.js';
 
 export class Player {
     #team;
     #pieces;
     #piecePile;
+    #usedSpecial;
 
     constructor(team = PlayerTeam.RED) {
         this.#team = team;
         this.#pieces = [];
         // This array stores the pieces that the player has removed
         this.#piecePile = [];
+
+        // This determines whether or not the player has removed a piece yet
+        this.#usedSpecial = false;
 
         const pieces = this.#pieces;
 
@@ -40,6 +45,10 @@ export class Player {
 
     // Interface with the grid to place or remove pieces
     placePiece(grid, column) {
+        if (!this.getRemainingPieces().length > 0) {
+            throw new PlayerHasNoPiecesError('The player has no pieces to place');
+        }
+
         const piece = this.#pieces.pop();
         const gridColumn = grid.getColumn(column);
 
@@ -47,11 +56,20 @@ export class Player {
     }
 
     removePiece(grid, column, s) {
+        if (!this.canRemovePiece()) {
+            throw new PlayerAlreadyUsedAbilityError('The player cannot remove another piece');
+        }
+
         const gridColumn = grid.getColumn(column);
 
         const piece = gridColumn.removePiece(s);
 
         this.#piecePile.push(piece);
+    }
+
+    // Determines whether or not the player can remove a piece
+    canRemovePiece() {
+        return !this.#usedSpecial;
     }
 
     // Returns an array of the remaining pieces the player has
