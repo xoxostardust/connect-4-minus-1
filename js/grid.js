@@ -14,6 +14,7 @@ class GridColumn {
     #row;
     #onPiecePlaced;
     #onPieceRemoved;
+    #isFull;
 
     constructor(rows = GRID_ROWS) {
         let rowArray = [];
@@ -26,7 +27,11 @@ class GridColumn {
         this.#row = rowArray;
         this.#onPiecePlaced = () => {};
         this.#onPieceRemoved = () => {};
-        this.isFull = false;
+        this.#isFull = false;
+    }
+
+    get isFull() {
+        return this.#isFull;
     }
 
     // Internal function used by placePiece to get the last piece in the column (sets isFull true if the column is full)
@@ -34,7 +39,7 @@ class GridColumn {
         for (let i = this.#row.length - 1; i > -1; i--) {
             if (this.#row[i] == null) {
                 if (i == 0) {
-                    this.isFull = true;
+                    this.#isFull = true;
                 }
 
                 return i;
@@ -80,7 +85,7 @@ class GridColumn {
         const piece = this.#row[s - 1];
 
         this.#row[s - 1] = null;
-        this.isFull = false;
+        this.#isFull = false;
         this.#shift();
         this.#onPieceRemoved(s, piece);
 
