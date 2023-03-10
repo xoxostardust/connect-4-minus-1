@@ -116,7 +116,7 @@ html {
     color: white;
     font-family: 'Avant Garde Gothic';
     box-shadow: 0 0 0 4px white, 0 0 0 12px black;
-    border-radius: 80px;
+    border-radius: 25px;
 }
 
 #reset {
