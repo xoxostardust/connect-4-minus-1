@@ -1,8 +1,16 @@
+import { joinRoom } from 'https://cdn.skypack.dev/trystero';
+
 import { PieceType } from './enums.js';
 import { Grid, GridPiece } from './grid.js';
 
+const config = { appId: 'san_narciso_3d' };
+const room = joinRoom(config, 'yoyodyne');
+
+room.onPeerJoin(peerId => console.log(`${peerId} joined`));
+
 document.addEventListener('DOMContentLoaded', ev => {
     const resetButton = document.getElementById('reset');
+    const twoPlayers = document.getElementById('two-players');
     const gridColumns = document.getElementsByClassName('grid-column');
 
     const grid = new Grid();
@@ -29,7 +37,13 @@ document.addEventListener('DOMContentLoaded', ev => {
         });
     }
 
-    resetButton.addEventListener('click', ev => {
-        window.location.reload();
+    if (resetButton != null) {
+        resetButton.addEventListener('click', ev => {
+            window.location.reload();
+        });
+    }
+
+    twoPlayers.addEventListener('click', ev => {
+        alert('Not implemented');
     });
 });
