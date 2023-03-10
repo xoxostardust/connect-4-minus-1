@@ -5,10 +5,13 @@ import { Grid, GridPiece } from './grid.js';
 export class Player {
     #team;
     #pieces;
+    #piecePile;
 
     constructor(team = PlayerTeam.RED) {
         this.#team = team;
         this.#pieces = [];
+        // This array stores the pieces that the player has removed
+        this.#piecePile = [];
 
         const pieces = this.#pieces;
 
@@ -33,6 +36,22 @@ export class Player {
 
     get team() {
         return this.#team;
+    }
+
+    // Interface with the grid to place or remove pieces
+    placePiece(grid, column) {
+        const piece = this.#pieces.pop();
+        const gridColumn = grid.getColumn(column);
+
+        gridColumn.placePiece(piece);
+    }
+
+    removePiece(grid, column, s) {
+        const gridColumn = grid.getColumn(column);
+
+        const piece = gridColumn.removePiece(s);
+
+        this.#piecePile.push(piece);
     }
 
     // Returns an array of the remaining pieces the player has
