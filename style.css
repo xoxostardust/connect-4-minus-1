@@ -112,6 +112,11 @@ html {
     height: auto;
     font-size: 35px;
     padding: 0.5rem 1rem;
+    background-color: black;
+    color: white;
+    font-family: 'Avant Garde Gothic';
+    box-shadow: 0 0 0 4px white, 0 0 0 12px black;
+    border-radius: 80px;
 }
 
 #reset {
