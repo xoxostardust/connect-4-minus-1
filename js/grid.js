@@ -131,5 +131,3 @@ export class Grid {
         return [...this.#grid].map(c => c.asArray());
     }
 }
-
-// daniel says hello paul :>
