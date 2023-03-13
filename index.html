@@ -11,23 +11,17 @@
 </head>
 
 <body>
+    <img id="rules" class="rules-text hide" src="img/rulebook_draft.png" alt="connect 4 minus 1 game rules">
     <section id="main-menu">
-        <button class="rules" onclick="show()" id="rulebutton">
-            <img class="rulebook" src="img/rulebook_logo.png" alt="rulebook logo illustration" id="rulebook">
-            <img class="hide" src="img/rulebook_draft.png" alt="connect 4 minus 1 game rules" onclick="hide()"
-                id="rulestext">
+        <button class="rules" id="rule-book">
+            <img src="img/rulebook_logo.png" alt="rulebook logo illustration">
         </button>
 
-        <div class="flex">
-            <!-- the above is a test -->
-            <img class="game-logo" src="img/game_logo_v3.png" alt="Connect 4 Minus 1 logo">
-        </div>
-        <div class="flex">
-            <button class="start" id="start">
-                <B>START</B>
-            </button>
-        </div>
-        <div id="type-select" class="flex-50">
+        <img class="game-logo" src="img/game_logo_v3.png" alt="Connect 4 Minus 1 logo">
+        <button class="start" id="start">
+            <B>START</B>
+        </button>
+        <div id="type-select" class="type-select flex-50 hide">
             <button class="players" id="one-player">
                 ONE PLAYER
                 <img src="img/one_player.svg" alt="one-player">
@@ -38,7 +32,7 @@
             </button>
         </div>
     </section>
-    <div class="grid-container">
+    <div id="grid-container" class="grid-container hide">
         <div class="grid" id="grid">
             <div data-column="1" class="grid-column">
                 <div data-row="1" class="grid-space"></div>
