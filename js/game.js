@@ -92,6 +92,7 @@ export class AI extends Player {
 
 // The game will feature two players only (one may be an AI)
 export class Game {
+    #grid;
     #gameType;
     #playerOne;
     #playerTwo;
