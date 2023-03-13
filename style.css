@@ -107,6 +107,17 @@ html {
     letter-spacing: 0.05em;
 } */
 
+.rules {
+    height: auto;
+    margin:20px;
+    padding: 0.5rem;
+    background-color: black;
+    color: white;
+    font-family: 'Avant Garde Gothic';
+    box-shadow: 0 0 0 4px white, 0 0 0 12px black;
+    border-radius: 25px;
+}
+
 .players {
     height: auto;
     font-size: 35px;
@@ -121,4 +132,17 @@ html {
 #reset {
     padding-block: 0.5em;
     padding-inline: 1em;
+}
+
+.hide {
+    display:none;
+}
+
+.show {
+    display:block;
+}
+
+
+.rulebook {
+    height:10vh;
 }
