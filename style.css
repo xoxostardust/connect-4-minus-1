@@ -138,11 +138,13 @@ html {
     display:none;
 }
 
-.show {
-    display:block;
+.rules > :first-child {
+    height:10vh;
 }
 
-
-.rulebook {
-    height:10vh;
+.rules-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
 }

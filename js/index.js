@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', ev => {
     const typeSelect = document.getElementById('type-select');
     const resetButton = document.getElementById('reset');
     const twoPlayers = document.getElementById('two-players');
+    const ruleBook = document.getElementById('rule-book');
+    const rulesText = document.getElementById('rules-text');
     const gridColumns = document.getElementsByClassName('grid-column');
 
     const grid = new Grid();
@@ -54,4 +56,8 @@ document.addEventListener('DOMContentLoaded', ev => {
     twoPlayers.addEventListener('click', ev => {
         alert('Not implemented');
     });
+
+    ruleBook.addEventListener('click', ev => {
+        rulesText.classList.toggle('hide')
+    })
 });
