@@ -68,22 +68,16 @@ document.addEventListener('DOMContentLoaded', ev => {
     const onePlayer = document.getElementById('one-player');
     const twoPlayers = document.getElementById('two-players');
     // Game
-    const grid = document.getElementById('grid');
+    const gridContainer = document.getElementById('grid-container');
     const reset = document.getElementById('reset');
 
-    typeSelect.style.display = 'none';
-    grid.style.display = 'none';
-    reset.style.display = 'none';
-
     function showGrid() {
-        typeSelect.style.display = 'none';
-        grid.style.display = null;
-        reset.style.display = null;
+        gridContainer.classList.toggle('hide', false);
     }
 
     start.addEventListener('click', ev => {
-        start.style.display = 'none';
-        typeSelect.style.display = null;
+        start.classList.toggle('hide', true);
+        typeSelect.classList.toggle('hide', false);
     });
 
     onePlayer.addEventListener('click', ev => showGrid());
