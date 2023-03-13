@@ -4,12 +4,14 @@ import { PlayerAlreadyUsedAbilityError, PlayerHasNoPiecesError } from './errors.
 import { Grid, GridPiece } from './grid.js';
 
 export class Player {
+    #name;
     #team;
     #pieces;
     #piecePile;
     #usedSpecial;
 
-    constructor(team = PlayerTeam.RED) {
+    constructor(name, team = PlayerTeam.RED) {
+        this.#name = name;
         this.#team = team;
         this.#pieces = [];
         // This array stores the pieces that the player has removed
@@ -37,6 +39,10 @@ export class Player {
             default:
                 break;
         }
+    }
+
+    get name() {
+        return this.#name;
     }
 
     get team() {
@@ -79,28 +85,8 @@ export class Player {
 }
 
 export class AI extends Player {
-    #name;
-    #rank;
-    #profile;
-
-    constructor(team, name = 'Anonymous', rank = 1, profile = '') {
-        super(team);
-
-        this.#name = name;
-        this.#rank = rank;
-        this.#profile = profile;
-    }
-
-    get name() {
-        return this.#name;
-    }
-
-    get rank() {
-        return this.#rank;
-    }
-
-    get profile() {
-        return this.#profile;
+    constructor(name = 'Random Bot', team) {
+        super(name, team);
     }
 }
 
@@ -134,6 +120,10 @@ export class Game {
 
     get gameType() {
         return this.#gameType;
+    }
+
+    get grid() {
+        return this.#grid;
     }
 
     getPlayerOne() {

@@ -1,26 +1,21 @@
-import { joinRoom } from 'https://cdn.skypack.dev/trystero';
+import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 
 import { PieceType } from './enums.js';
 import { Grid, GridPiece } from './grid.js';
 
-const config = { appId: 'san_narciso_3d' };
-const room = joinRoom(config, 'yoyodyne');
+const config = { appId: 'connect-4-minus-1' };
+const room = joinRoom(config, 'game');
+
+const [placePiece, getPiecePlaced] = room.makeAction('placePiece');
+const [removePiece, getPieceRemoved] = room.makeAction('removePiece');
 
 room.onPeerJoin(peerId => console.log(`${peerId} joined`));
+room.onPeerLeave(peerId => console.log(`${peerId} left`));
 
-document.addEventListener('DOMContentLoaded', ev => {
-    const gridElement = document.getElementById('grid');
-    const start = document.getElementById('start');
-    const typeSelect = document.getElementById('type-select');
-    const resetButton = document.getElementById('reset');
-    const twoPlayers = document.getElementById('two-players');
-    const ruleBook = document.getElementById('rule-book');
-    const rulesText = document.getElementById('rules-text');
-    const gridColumns = document.getElementsByClassName('grid-column');
-
+function createGrid() {
     const grid = new Grid();
 
-    let canBeRedPiece = Math.random() > 0.5 ? true : false;
+    const gridColumns = document.getElementsByClassName('grid-column');
 
     for (const gridColumn of gridColumns) {
         const columnData = gridColumn.dataset.column;
@@ -30,34 +25,71 @@ document.addEventListener('DOMContentLoaded', ev => {
         column.onPiecePlaced((piece, row) => {
             const gridRow = gridColumn.querySelector(`[data-row='${row}']`);
 
-            gridRow.classList.add(piece.pieceType == PieceType.RED ? 'red-piece' : 'yellow-piece');
-        });
+            const classList = gridRow.classList;
 
-        gridColumn.addEventListener('click', () => {
-            if (!column.isFull) {
-                column.placePiece(new GridPiece(canBeRedPiece ? PieceType.RED : PieceType.YELLOW));
+            switch (piece.pieceType) {
+                case PieceType.RED:
+                    classList.toggle('red-piece', true);
+                    break;
 
-                canBeRedPiece = !canBeRedPiece;
+                case PieceType.YELLOW:
+                    classList.toggle('yellow-piece', true);
+                    break;
+
+                default:
+                    break;
             }
         });
     }
+}
+
+function resetGrid() {
+    const grid = document.getElementById('grid');
+
+    const redPieces = grid.getElementsByClassName('red-piece');
+    const yellowPieces = grid.getElementsByClassName('yellow-piece');
+
+    for (const redPiece of redPieces) {
+        redPiece.classList.toggle('red-piece', false);
+    }
+
+    for (const yellowPiece of yellowPieces) {
+        yellowPiece.classList.toggle('yellow-piece', false);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', ev => {
+    // Main menu
+    const start = document.getElementById('start');
+    const ruleBook = document.getElementById('rule-book');
+    const rules = document.getElementById('rules');
+    // Type select
+    const typeSelect = document.getElementById('type-select');
+    const onePlayer = document.getElementById('one-player');
+    const twoPlayers = document.getElementById('two-players');
+    // Game
+    const grid = document.getElementById('grid');
+    const reset = document.getElementById('reset');
 
     typeSelect.style.display = 'none';
+    grid.style.display = 'none';
+    reset.style.display = 'none';
+
+    function showGrid() {
+        typeSelect.style.display = 'none';
+        grid.style.display = null;
+        reset.style.display = null;
+    }
 
     start.addEventListener('click', ev => {
         start.style.display = 'none';
         typeSelect.style.display = null;
     });
 
-    resetButton.addEventListener('click', ev => {
-        window.location.reload();
-    });
-
-    twoPlayers.addEventListener('click', ev => {
-        alert('Not implemented');
-    });
+    onePlayer.addEventListener('click', ev => showGrid());
+    twoPlayers.addEventListener('click', ev => showGrid());
 
     ruleBook.addEventListener('click', ev => {
-        rulesText.classList.toggle('hide')
-    })
+        rules.classList.toggle('hide');
+    });
 });

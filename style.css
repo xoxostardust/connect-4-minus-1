@@ -127,6 +127,7 @@ html {
     font-family: 'Avant Garde Gothic';
     box-shadow: 0 0 0 4px white, 0 0 0 12px black;
     border-radius: 25px;
+    transition: transform 120ms ease-out;
 }
 
 #reset {
@@ -147,4 +148,10 @@ html {
     top: 50%;
     left: 50%;
     translate: -50% -50%;
+}
+
+
+
+.players:hover {
+    transform: scale(1.2);
 }
