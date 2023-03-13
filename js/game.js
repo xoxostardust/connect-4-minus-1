@@ -8,6 +8,7 @@ export class Player {
     #team;
     #pieces;
     #piecePile;
+    #onTurn;
     #usedSpecial;
 
     constructor(name, team = PlayerTeam.RED) {
@@ -16,6 +17,8 @@ export class Player {
         this.#pieces = [];
         // This array stores the pieces that the player has removed
         this.#piecePile = [];
+        // This determines whether or not it is th player's turn
+        this.#onTurn = true;
 
         // This determines whether or not the player has removed a piece yet
         this.#usedSpecial = false;
@@ -51,6 +54,10 @@ export class Player {
 
     // Interface with the grid to place or remove pieces
     placePiece(grid, column) {
+        if (!this.#onTurn) {
+            return;
+        }
+
         if (!this.getRemainingPieces().length > 0) {
             throw new PlayerHasNoPiecesError('The player has no pieces to place');
         }
@@ -59,9 +66,15 @@ export class Player {
         const gridColumn = grid.getColumn(column);
 
         gridColumn.placePiece(piece);
+
+        this.#onTurn = !this.#onTurn;
     }
 
     removePiece(grid, column, s) {
+        if (!this.#onTurn) {
+            return;
+        }
+
         if (!this.canRemovePiece()) {
             throw new PlayerAlreadyUsedAbilityError('The player cannot remove another piece');
         }
