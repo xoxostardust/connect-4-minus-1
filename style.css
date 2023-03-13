@@ -3,6 +3,10 @@
     src: url('assets/fonts/AvantGardeGothic.otf');
 }
 
+body {
+    background-color: #FFF9E9;
+}
+
 html {
     font-family: 'Avant Garde Gothic';
 }
