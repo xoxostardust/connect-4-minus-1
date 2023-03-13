@@ -1,6 +1,7 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 
-import { PieceType } from './enums.js';
+import { GameType, PieceType } from './enums.js';
+import { Game } from './game.js';
 import { Grid, GridPiece } from './grid.js';
 
 const config = { appId: 'connect-4-minus-1' };
@@ -41,6 +42,8 @@ function createGrid() {
             }
         });
     }
+
+    return grid;
 }
 
 function resetGrid() {
@@ -60,6 +63,7 @@ function resetGrid() {
 
 document.addEventListener('DOMContentLoaded', ev => {
     // Main menu
+    const mainMenu = document.getElementById('main-menu');
     const start = document.getElementById('start');
     const ruleBook = document.getElementById('rule-book');
     const rules = document.getElementById('rules');
@@ -72,6 +76,7 @@ document.addEventListener('DOMContentLoaded', ev => {
     const reset = document.getElementById('reset');
 
     function showGrid() {
+        mainMenu.classList.toggle('hide', true);
         gridContainer.classList.toggle('hide', false);
     }
 
@@ -81,9 +86,25 @@ document.addEventListener('DOMContentLoaded', ev => {
     });
 
     onePlayer.addEventListener('click', ev => showGrid());
-    twoPlayers.addEventListener('click', ev => showGrid());
+    twoPlayers.addEventListener('click', ev => {
+        const grid = createGrid();
+
+        showGrid();
+
+        const game = new Game(GameType.TWO_PLAYERS, grid);
+
+        let you;
+
+        if (room.getPeers().length == 0) {
+            you = game.getPlayerOne();
+        } else {
+            you = game.getPlayerTwo();
+        }
+    });
 
     ruleBook.addEventListener('click', ev => {
         rules.classList.toggle('hide');
     });
+
+    reset.addEventListener('click', ev => resetGrid());
 });
