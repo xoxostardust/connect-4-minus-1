@@ -197,3 +197,35 @@ html {
 .players:hover {
     transform: scale(1.2);
 }
+
+.game-stats-you {
+    position: absolute;
+    left:0 ;
+    bottom: 0;
+}
+
+.left-stats-counter {
+    align-items: center;
+    gap: 1rem;
+    font-size: 80px;
+}
+
+.red {
+    padding-left: 4rem;
+}
+
+.game-stats-enemy {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.right-stats-counter {
+    align-items: center;
+    gap: 1rem;
+    font-size: 80px;
+}
+
+.yellow {
+    padding-right: 4rem;
+}
