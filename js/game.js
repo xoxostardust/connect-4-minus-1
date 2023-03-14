@@ -162,10 +162,14 @@ export class Game {
         this.#grid = grid;
 
         this.#playerOne.played(() => {
+            console.log('player one played');
+
             this.#playerTwo.play();
         });
 
         this.#playerTwo.played(() => {
+            console.log('player two played');
+
             this.#playerOne.play();
         });
 

@@ -15,52 +15,117 @@ function createGame(peer, peerTwo) {
     peer = peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer;
     peerTwo = peerTwo instanceof Uint8Array ? new TextDecoder().decode(peerTwo) : peerTwo;
 
+    console.log(`%c${peer} vs ${peerTwo}; ${selfId}`, 'color: orange');
+
     menu.leave();
 
     const gameRoom = joinRoom({ appId: 'connect-4-minus-1' }, peer + peerTwo);
 
-    gameRoom.onPeerJoin(peerId => console.log(`${peerId} joined`));
-    gameRoom.onPeerLeave(peerId => console.log(`${peerId} left`));
+    const [allJoin, allJoined] = gameRoom.makeAction('allJoin');
+    const [determinePlayers, determinedPlayers] = gameRoom.makeAction('detPlayers');
 
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('placePiece');
     // const [removePiece, getPieceRemoved] = gameRoom.makeAction('removePiece');
 
-    const grid = createGrid();
-
-    const playerOne = new Player(peer == selfId ? 'You' : peer, PlayerTeam.RED);
-    const playerTwo = new Player(peerTwo == selfId ? 'You' : peerTwo, PlayerTeam.YELLOW);
-
-    const you = playerOne.name == 'You' ? playerOne : playerTwo;
-
-    console.log(you);
-    console.log(playerOne);
-    console.log(playerTwo);
-
-    const game = new Game(playerOne, playerTwo, grid);
-
-    getPiecePlaced((player, column, peerId) => {
-        console.log(peerId);
-
-        player.placePiece(grid, column);
+    allJoined((_, peerId) => {
+        runGame();
     });
 
-    if (you.isPlaying()) {
-        console.log('you is playing');
+    function runGame() {
+        showGrid();
+
+        const grid = createGrid();
+
+        const playerOne = new Player(peer, PlayerTeam.RED);
+        const playerTwo = new Player(peerTwo, PlayerTeam.YELLOW);
+
+        console.log(selfId, playerOne.name, playerTwo.name);
+
+        let you;
+
+        switch (selfId) {
+            case playerOne.name:
+                console.log('player one');
+                you = playerOne;
+                break;
+
+            case playerTwo.name:
+                console.log('player two');
+                you = playerTwo;
+                break;
+
+            default:
+                break;
+        }
+
+        playerOne.played(() => {
+            console.log('player one played');
+
+            playerTwo.play();
+        });
+
+        playerTwo.played(() => {
+            console.log('player two played');
+
+            playerOne.play();
+        });
+
+        playerOne.play();
+
+        console.log(playerOne.isPlaying(), playerTwo.isPlaying());
+
+        getPiecePlaced(([id, column], peerId) => {
+            console.log('placed');
+
+            let them;
+
+            switch (id) {
+                case playerOne.name:
+                    console.log('player one');
+                    them = playerOne;
+                    break;
+
+                case playerTwo.name:
+                    console.log('player two');
+                    them = playerTwo;
+                    break;
+
+                default:
+                    break;
+            }
+
+            them.placePiece(grid, column);
+        });
 
         const gridColumns = document.getElementsByClassName('grid-column');
 
         for (const gridColumn of gridColumns) {
-            gridColumn.addEventListener(
-                'click',
-                ev => {
-                    console.log('i');
-                    placePiece(you, gridColumn.dataset.column);
-                    you.placePiece(grid, gridColumn.dataset.column);
-                },
-                { once: true }
-            );
+            gridColumn.addEventListener('click', ev => {
+                if (!you.isPlaying()) {
+                    console.log('not your turn');
+                    return;
+                }
+                console.log('your turn', selfId);
+                console.log(selfId, gridColumn.dataset.column.toString())
+                placePiece([selfId, gridColumn.dataset.column]);
+                you.placePiece(grid, gridColumn.dataset.column);
+            });
         }
+
+        function test() {
+            console.log(playerOne.isPlaying(), playerTwo.isPlaying());
+        }
+        setInterval(test, 1000);
     }
+
+    gameRoom.onPeerJoin(peerId => {
+        console.log(`${peerId} joined`);
+
+        allJoin();
+        runGame();
+    });
+
+    gameRoom.onPeerLeave(peerId => console.log(`${peerId} left`));
 }
 
 function createGrid() {
@@ -149,7 +214,7 @@ gameStarted((peer, peerId) => {
 
     if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
 
-    showGrid();
+    mainMenu.classList.toggle('hide', true);
     createGame(peer, peerId);
     // createGrid();
 });
@@ -171,11 +236,14 @@ ruleBook.addEventListener('click', ev => {
     rules.classList.toggle('hide');
 });
 
+let isQueuing = false;
+
 onePlayer.addEventListener('click', ev => showGrid(), { once: true });
 twoPlayers.addEventListener('click', ev => {
     console.log('click');
 
     queue('queue');
+    isQueuing = true;
 
     console.log('after queue');
 
