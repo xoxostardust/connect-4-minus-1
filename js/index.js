@@ -4,18 +4,64 @@ import { GameType, PieceType, PlayerTeam } from './enums.js';
 import { Game, Player } from './game.js';
 import { Grid, GridPiece } from './grid.js';
 
-const config = { appId: 'connect-4-minus-1' };
-const menu = joinRoom(config, 'menu');
+const menu = joinRoom({ appId: 'connect-4-minus-1' }, 'menu');
 
 const [queue, queued] = menu.makeAction('queue');
 const [removeFromQueue, removedFromQueue] = menu.makeAction('queueRemove');
 
 const [startGame, gameStarted] = menu.makeAction('startGame');
 
-// const [placePiece, getPiecePlaced] = menu.makeAction('placePiece');
-// const [removePiece, getPieceRemoved] = menu.makeAction('removePiece');
+function createGame(peer, peerTwo) {
+    peer = peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer;
+    peerTwo = peerTwo instanceof Uint8Array ? new TextDecoder().decode(peerTwo) : peerTwo;
 
-function createGame() {}
+    menu.leave();
+
+    const gameRoom = joinRoom({ appId: 'connect-4-minus-1' }, peer + peerTwo);
+
+    gameRoom.onPeerJoin(peerId => console.log(`${peerId} joined`));
+    gameRoom.onPeerLeave(peerId => console.log(`${peerId} left`));
+
+    const [placePiece, getPiecePlaced] = gameRoom.makeAction('placePiece');
+    // const [removePiece, getPieceRemoved] = gameRoom.makeAction('removePiece');
+
+    const grid = createGrid();
+
+    const playerOne = new Player(peer == selfId ? 'You' : peer, PlayerTeam.RED);
+    const playerTwo = new Player(peerTwo == selfId ? 'You' : peerTwo, PlayerTeam.YELLOW);
+
+    const you = playerOne.name == 'You' ? playerOne : playerTwo;
+
+    console.log(you);
+    console.log(playerOne);
+    console.log(playerTwo);
+
+    const game = new Game(playerOne, playerTwo, grid);
+
+    getPiecePlaced((player, column, peerId) => {
+        console.log(peerId);
+
+        player.placePiece(grid, column);
+    });
+
+    if (you.isPlaying()) {
+        console.log('you is playing');
+
+        const gridColumns = document.getElementsByClassName('grid-column');
+
+        for (const gridColumn of gridColumns) {
+            gridColumn.addEventListener(
+                'click',
+                ev => {
+                    console.log('i');
+                    placePiece(you, gridColumn.dataset.column);
+                    you.placePiece(grid, gridColumn.dataset.column);
+                },
+                { once: true }
+            );
+        }
+    }
+}
 
 function createGrid() {
     console.log('Creating grid');
@@ -93,7 +139,9 @@ queued((_, peerId) => {
 });
 
 removedFromQueue((peer, peerId) => {
-    peerQueue.pop(peer);
+    console.log('%c' + peer, 'color: purple');
+
+    console.log(peerQueue.pop(peer));
 });
 
 gameStarted((peer, peerId) => {
@@ -102,7 +150,7 @@ gameStarted((peer, peerId) => {
     if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
 
     showGrid();
-    createGame();
+    createGame(peer, peerId);
     // createGrid();
 });
 
@@ -136,12 +184,13 @@ twoPlayers.addEventListener('click', ev => {
     if (typeof peer != 'undefined') {
         console.log('%c' + peer, 'color: yellow');
 
+        removeFromQueue(peer);
         startGame(peer);
 
         console.log('start the game');
 
         showGrid();
-        createGrid();
+        createGame(peer, selfId);
     }
 });
 
