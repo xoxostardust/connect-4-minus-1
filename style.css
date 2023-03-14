@@ -263,3 +263,8 @@ html {
 .yellow {
     padding-right: 4rem;
 }
+
+.removing {
+    color: white;
+    background-color: #d15d5d;
+}

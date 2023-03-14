@@ -11,6 +11,7 @@ export class Player {
     #playing;
     #removing;
     #played;
+    #remove;
     #onPlaying;
     #onRemoving;
     #usedSpecial;
@@ -114,6 +115,12 @@ export class Player {
         this.#playing = true;
 
         this.#onPlaying.forEach(f => f());
+    }
+
+    remove() {
+        this.#remove = true;
+
+        this.#onRemoving.forEach(f => f());
     }
 
     played(f) {
