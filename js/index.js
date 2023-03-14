@@ -4,6 +4,19 @@ import { GameType, PieceType, PlayerTeam } from './enums.js';
 import { Game, Player } from './game.js';
 import { Grid, GridPiece } from './grid.js';
 
+const config = { appId: 'connect-4-minus-1' };
+const menu = joinRoom(config, 'menu');
+
+const [queue, queued] = menu.makeAction('queue');
+const [removeFromQueue, removedFromQueue] = menu.makeAction('queueRemove');
+
+const [startGame, gameStarted] = menu.makeAction('startGame');
+
+// const [placePiece, getPiecePlaced] = menu.makeAction('placePiece');
+// const [removePiece, getPieceRemoved] = menu.makeAction('removePiece');
+
+function createGame() {}
+
 function createGrid() {
     console.log('Creating grid');
 
@@ -56,65 +69,100 @@ function resetGrid() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', ev => {
-    // Main menu
-    const mainMenu = document.getElementById('main-menu');
-    const start = document.getElementById('start');
-    const ruleBook = document.getElementById('rule-book');
-    const rules = document.getElementById('rules');
-    const online = document.getElementById('online');
-    // Type select
-    const typeSelect = document.getElementById('type-select');
-    const onePlayer = document.getElementById('one-player');
-    const twoPlayers = document.getElementById('two-players');
-    // Game
-    const gridContainer = document.getElementById('grid-container');
-    const pieceCount = document.getElementById('piece-count');
-    const opponent = document.getElementById('opponent');
-    const reset = document.getElementById('reset');
-    const remove = document.getElementById('remove');
+// Main menu
+const mainMenu = document.getElementById('main-menu');
+const start = document.getElementById('start');
+const ruleBook = document.getElementById('rule-book');
+const rules = document.getElementById('rules');
+const online = document.getElementById('online');
+// Type select
+const typeSelect = document.getElementById('type-select');
+const onePlayer = document.getElementById('one-player');
+const twoPlayers = document.getElementById('two-players');
+// Game
+const gridContainer = document.getElementById('grid-container');
+const pieceCount = document.getElementById('piece-count');
+const opponent = document.getElementById('opponent');
+const reset = document.getElementById('reset');
+const remove = document.getElementById('remove');
 
-    const config = { appId: 'connect-4-minus-1' };
-    const room = joinRoom(config, 'game');
+let peerQueue = [];
 
-    const [queue, queued] = room.makeAction('queue');
-    const [placePiece, getPiecePlaced] = room.makeAction('placePiece');
-    const [removePiece, getPieceRemoved] = room.makeAction('removePiece');
+queued((_, peerId) => {
+    peerQueue.push(peerId);
+});
 
-    let peerQueue = {};
+removedFromQueue((peer, peerId) => {
+    peerQueue.pop(peer);
+});
 
-    room.onPeerJoin(peerId => {
-        console.log(`${peerId} joined. Total peers: ${room.getPeers().length}`);
+gameStarted((peer, peerId) => {
+    console.log('%c' + (peer instanceof Uint8Array ? new TextDecoder().decode(peer) + ' (decoded)' : peer), 'color: yellow');
 
-        // updateOnlineCount();
-    });
+    if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
 
-    room.onPeerLeave(peerId => {
-        console.log(`${peerId} left. Total peers: ${room.getPeers().length}`);
-    });
+    showGrid();
+    createGame();
+    // createGrid();
+});
 
-    function showGrid() {
-        resetGrid();
+function showGrid() {
+    resetGrid();
 
-        mainMenu.classList.toggle('hide', true);
-        gridContainer.classList.toggle('hide', false);
-    }
+    mainMenu.classList.toggle('hide', true);
+    gridContainer.classList.toggle('hide', false);
+}
 
-    start.addEventListener('click', ev => {
-        start.classList.toggle('hide', true);
-        ruleBook.classList.toggle('hide', true);
-        typeSelect.classList.toggle('hide', false);
-    });
+start.addEventListener('click', ev => {
+    start.classList.toggle('hide', true);
+    ruleBook.classList.toggle('hide', true);
+    typeSelect.classList.toggle('hide', false);
+});
 
-    ruleBook.addEventListener('click', ev => {
-        rules.classList.toggle('hide');
-    });
+ruleBook.addEventListener('click', ev => {
+    rules.classList.toggle('hide');
+});
 
-    onePlayer.addEventListener('click', ev => showGrid());
-    twoPlayers.addEventListener('click', ev => {
+onePlayer.addEventListener('click', ev => showGrid(), { once: true });
+twoPlayers.addEventListener('click', ev => {
+    console.log('click');
+
+    queue('queue');
+
+    console.log('after queue');
+
+    const peer = peerQueue.pop();
+
+    if (typeof peer != 'undefined') {
+        console.log('%c' + peer, 'color: yellow');
+
+        startGame(peer);
+
+        console.log('start the game');
+
         showGrid();
         createGrid();
-    });
+    }
+});
 
-    reset.addEventListener('click', ev => resetGrid());
+reset.addEventListener('click', ev => resetGrid());
+
+menu.onPeerJoin(peerId => {
+    const peers = menu.getPeers();
+
+    console.log(`${peerId} joined. ${peers.length} peer(s) online. I am ${selfId}.`);
+
+    twoPlayers.classList.toggle('hide', false);
+
+    // updateOnlineCount();
+});
+
+menu.onPeerLeave(peerId => {
+    const peers = menu.getPeers();
+
+    console.log(`${peerId} left. ${peers.length} peer(s) online. I am ${selfId}.`);
+
+    if (!peers.length > 0) {
+        twoPlayers.classList.toggle('hide', true);
+    }
 });
