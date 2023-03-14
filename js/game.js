@@ -8,24 +8,33 @@ export class Player {
     #team;
     #pieces;
     #piecePile;
-    #onTurn;
+    #playing;
+    #removing;
+    #played;
+    #onPlaying;
+    #onRemoving;
     #usedSpecial;
 
-    constructor(name, team = PlayerTeam.RED) {
+    constructor(name = 'Anonymous Player', team = PlayerTeam.RED) {
         this.#name = name;
         this.#team = team;
         this.#pieces = [];
         // This array stores the pieces that the player has removed
         this.#piecePile = [];
-        // This determines whether or not it is th player's turn
-        this.#onTurn = true;
+        // This determines whether or not it is the player's turn
+        this.#playing = false;
+        this.#removing = false;
+
+        this.#played = [];
+        this.#onPlaying = [];
+        this.#onRemoving = [];
 
         // This determines whether or not the player has removed a piece yet
         this.#usedSpecial = false;
 
         const pieces = this.#pieces;
 
-        // Each player will receive 21 pieces of their team
+        // Each player will receive 21 of their own team pieces
         switch (this.#team) {
             case PlayerTeam.RED:
                 for (let i = 0; i < RED_PIECE_COUNT; i++) {
@@ -54,7 +63,7 @@ export class Player {
 
     // Interface with the grid to place or remove pieces
     placePiece(grid, column) {
-        if (!this.#onTurn) {
+        if (!this.#playing) {
             return;
         }
 
@@ -67,11 +76,13 @@ export class Player {
 
         gridColumn.placePiece(piece);
 
-        this.#onTurn = !this.#onTurn;
+        this.#playing = !this.#playing;
+
+        this.#played.forEach(f => f());
     }
 
     removePiece(grid, column, s) {
-        if (!this.#onTurn) {
+        if (!this.#playing) {
             return;
         }
 
@@ -84,6 +95,8 @@ export class Player {
         const piece = gridColumn.removePiece(s);
 
         this.#piecePile.push(piece);
+
+        this.#usedSpecial = true;
     }
 
     // Determines whether or not the player can remove a piece
@@ -95,45 +108,68 @@ export class Player {
     getRemainingPieces() {
         return [...this.#pieces];
     }
+
+    // Turn functions
+    play() {
+        this.#playing = true;
+
+        this.#onPlaying.forEach(f => f());
+    }
+
+    played(f) {
+        this.#played.push(f);
+
+        return f;
+    }
+
+    onPlaying(f) {
+        this.#onPlaying.push(f);
+
+        return f;
+    }
+
+    onRemoving(f) {
+        this.#onRemoving.push(f);
+
+        return f;
+    }
+
+    isPlaying() {
+        return this.#playing;
+    }
+
+    isRemoving() {
+        return this.#removing;
+    }
 }
 
 export class AI extends Player {
-    constructor(name = 'Random Bot', team) {
+    constructor(name = 'AI', team) {
         super(name, team);
     }
 }
 
 // The game will feature two players only (one may be an AI)
 export class Game {
-    #grid;
-    #gameType;
     #playerOne;
     #playerTwo;
+    #grid;
 
-    constructor(gameType = GameType.ONE_PLAYER, grid = new Grid()) {
-        this.#gameType = gameType;
+    constructor(playerOne = new Player(PlayerTeam.RED), playerTwo = new AI(PlayerTeam.YELLOW), grid = new Grid()) {
+        this.#playerOne = playerOne;
+        this.#playerTwo = playerTwo;
+
         this.#grid = grid;
 
-        // Player 1 will always be red, and player 2 is yellow
-        this.#playerOne = new Player(PlayerTeam.RED);
+        this.#playerOne.played(() => {
+            this.#playerTwo.play();
+        });
 
-        switch (this.#gameType) {
-            case GameType.ONE_PLAYER:
-                this.#playerTwo = new AI(PlayerTeam.YELLOW);
-                break;
+        this.#playerTwo.played(() => {
+            this.#playerOne.play();
+        });
 
-            // TODO: implement trystero p2p multiplayer
-            case GameType.TWO_PLAYERS:
-                this.#playerTwo = new Player(PlayerTeam.YELLOW);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    get gameType() {
-        return this.#gameType;
+        Math.random() > 0.5 ? playerOne.play() : playerTwo.play();
     }
 
     get grid() {

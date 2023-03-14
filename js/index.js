@@ -1,19 +1,12 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 
-import { GameType, PieceType } from './enums.js';
-import { Game } from './game.js';
+import { GameType, PieceType, PlayerTeam } from './enums.js';
+import { Game, Player } from './game.js';
 import { Grid, GridPiece } from './grid.js';
 
-const config = { appId: 'connect-4-minus-1' };
-const room = joinRoom(config, 'game');
-
-const [placePiece, getPiecePlaced] = room.makeAction('placePiece');
-const [removePiece, getPieceRemoved] = room.makeAction('removePiece');
-
-room.onPeerJoin(peerId => console.log(`${peerId} joined`));
-room.onPeerLeave(peerId => console.log(`${peerId} left`));
-
 function createGrid() {
+    console.log('Creating grid');
+
     const grid = new Grid();
 
     const gridColumns = document.getElementsByClassName('grid-column');
@@ -47,6 +40,8 @@ function createGrid() {
 }
 
 function resetGrid() {
+    console.log('Resetting grid');
+
     const grid = document.getElementById('grid');
 
     const redPieces = grid.getElementsByClassName('red-piece');
@@ -67,43 +62,58 @@ document.addEventListener('DOMContentLoaded', ev => {
     const start = document.getElementById('start');
     const ruleBook = document.getElementById('rule-book');
     const rules = document.getElementById('rules');
+    const online = document.getElementById('online');
     // Type select
     const typeSelect = document.getElementById('type-select');
     const onePlayer = document.getElementById('one-player');
     const twoPlayers = document.getElementById('two-players');
     // Game
     const gridContainer = document.getElementById('grid-container');
+    const pieceCount = document.getElementById('piece-count');
+    const opponent = document.getElementById('opponent');
     const reset = document.getElementById('reset');
+    const remove = document.getElementById('remove');
+
+    const config = { appId: 'connect-4-minus-1' };
+    const room = joinRoom(config, 'game');
+
+    const [queue, queued] = room.makeAction('queue');
+    const [placePiece, getPiecePlaced] = room.makeAction('placePiece');
+    const [removePiece, getPieceRemoved] = room.makeAction('removePiece');
+
+    let peerQueue = {};
+
+    room.onPeerJoin(peerId => {
+        console.log(`${peerId} joined. Total peers: ${room.getPeers().length}`);
+
+        // updateOnlineCount();
+    });
+
+    room.onPeerLeave(peerId => {
+        console.log(`${peerId} left. Total peers: ${room.getPeers().length}`);
+    });
 
     function showGrid() {
+        resetGrid();
+
         mainMenu.classList.toggle('hide', true);
         gridContainer.classList.toggle('hide', false);
     }
 
     start.addEventListener('click', ev => {
         start.classList.toggle('hide', true);
+        ruleBook.classList.toggle('hide', true);
         typeSelect.classList.toggle('hide', false);
-    });
-
-    onePlayer.addEventListener('click', ev => showGrid());
-    twoPlayers.addEventListener('click', ev => {
-        const grid = createGrid();
-
-        showGrid();
-
-        const game = new Game(GameType.TWO_PLAYERS, grid);
-
-        let you;
-
-        if (room.getPeers().length == 0) {
-            you = game.getPlayerOne();
-        } else {
-            you = game.getPlayerTwo();
-        }
     });
 
     ruleBook.addEventListener('click', ev => {
         rules.classList.toggle('hide');
+    });
+
+    onePlayer.addEventListener('click', ev => showGrid());
+    twoPlayers.addEventListener('click', ev => {
+        showGrid();
+        createGrid();
     });
 
     reset.addEventListener('click', ev => resetGrid());
