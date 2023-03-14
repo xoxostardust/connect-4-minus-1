@@ -183,7 +183,8 @@ html {
 
 .rules {
     height: 10vh;
-    width:5vw;
+    min-width:6vw;
+    width:fit-content;
     position:relative;
     display:inline-block;
     transition:transform 120ms ease-out;
@@ -197,11 +198,14 @@ html {
 
 .rules:hover {
     transform: scale(1.1);
+    
 }
 
 .rules:hover .rule-hover {
     display:inline;
-    height:10vh;
+    height:8vh;
+    position:relative;
+    padding:10px;
 }
 
 .rules:hover .rule-default {
