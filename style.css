@@ -181,9 +181,39 @@ html {
     display: none;
 }
 
-.rules > :first-child {
+.rules {
     height: 10vh;
+    width:5vw;
+    position:relative;
+    display:inline-block;
+    transition:transform 120ms ease-out;
 }
+
+.rules .rule-default {
+    height:8vh;
+    padding:10px;
+    padding-bottom:0.5vh;
+}
+
+.rules:hover {
+    transform: scale(1.1);
+}
+
+.rules:hover .rule-hover {
+    display:inline;
+    height:10vh;
+}
+
+.rules:hover .rule-default {
+    display:none;
+}
+
+.rules .rule-hover {
+    position:absolute;
+    display:none;
+    top:0;
+    left:0;
+} 
 
 .rules-text {
     position: absolute;
