@@ -156,6 +156,22 @@ html {
     border-radius: 2em;
 }
 
+.back {
+    position: absolute;
+    top: 2em;
+    left: 2em;
+    background-color: black;
+    color: white;
+    font-family: 'Avant Garde Gothic';
+    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
+    border-radius: 2em;
+    padding: 1rem;
+}
+
+.back:hover {
+    transform: scale(1.1);
+}
+
 .players {
     display: flex;
     justify-content: center;
@@ -180,7 +196,7 @@ html {
 }
 
 .hide {
-    display: none;
+    display: none !important;
 }
 
 .rules {
@@ -248,7 +264,7 @@ html {
 
 .game-stats-you {
     position: absolute;
-    left: 0;
+    left: 2rem;
     bottom: 2rem;
 }
 
@@ -261,6 +277,7 @@ html {
 .red-move-tool {
     align-items: center;
     gap: 1rem; 
+    justify-content: start;
 }
 
 .red {
@@ -279,7 +296,7 @@ html {
 
 .game-stats-enemy {
     position: absolute;
-    right: 0;
+    right: 2rem;
     bottom: 2rem;
 }
 
@@ -296,23 +313,10 @@ html {
 
 .piece-spin {
     display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.piece-spin:first-child {
-    margin-left: 2rem;
-}
-
-.piece-spin:last-child {
-    margin-right: 2rem;
-}
-
-.piece-spin > :first-child {
     animation: pieceSpin 750ms linear infinite;
 }
 
-[class$='-piece-number'] {
+.red-move-tool, .yellow-move-tool {
     font-size: 40px;
 }
 
@@ -338,4 +342,12 @@ html {
 
 .power-button {
     height: 1em;
+}
+
+.connecting  {
+    position: absolute;
+    bottom: 0;
+    font-size: 50px;
+    align-items: center;
+    bottom: 25%;
 }
