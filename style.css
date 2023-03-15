@@ -277,7 +277,13 @@ html {
     position: absolute;
     left: 0;
     bottom: 0;
-    font-size: 50px;
+    font-size: 28px;
     padding: 1rem 3rem;
-    pad
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.power-button {
+    height: 1em;
 }
