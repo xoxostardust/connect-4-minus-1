@@ -27,7 +27,7 @@ html {
     grid-template-columns: auto auto auto auto auto auto auto;
     background-color: #3a71b5;
     width: 50%;
-    max-width: 960px;
+    max-width: 720px;
     padding: 1%;
     border-radius: 1em;
     box-shadow: 0 1em 3em rgba(0, 0, 0, 0.5);
@@ -183,41 +183,40 @@ html {
 
 .rules {
     height: 10vh;
-    min-width:6vw;
-    width:fit-content;
-    position:relative;
-    display:inline-block;
-    transition:transform 120ms ease-out;
+    min-width: 6vw;
+    width: fit-content;
+    position: relative;
+    display: inline-block;
+    transition: transform 120ms ease-out;
 }
 
 .rules .rule-default {
-    height:8vh;
-    padding:10px;
-    padding-bottom:0.5vh;
+    height: 8vh;
+    padding: 10px;
+    padding-bottom: 0.5vh;
 }
 
 .rules:hover {
     transform: scale(1.1);
-    
 }
 
 .rules:hover .rule-hover {
-    display:inline;
-    height:8vh;
-    position:relative;
-    padding:10px;
+    display: inline;
+    height: 8vh;
+    position: relative;
+    padding: 10px;
 }
 
 .rules:hover .rule-default {
-    display:none;
+    display: none;
 }
 
 .rules .rule-hover {
-    position:absolute;
-    display:none;
-    top:0;
-    left:0;
-} 
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+}
 
 .rules-text {
     position: absolute;
@@ -234,8 +233,8 @@ html {
 
 .game-stats-you {
     position: absolute;
-    left:0 ;
-    bottom: 0;
+    left: 0;
+    bottom: 1rem;
 }
 
 .left-stats-counter {
@@ -244,14 +243,10 @@ html {
     font-size: 80px;
 }
 
-.red {
-    padding-left: 4rem;
-}
-
 .game-stats-enemy {
     position: absolute;
     right: 0;
-    bottom: 0;
+    bottom: 1rem;
 }
 
 .right-stats-counter {
@@ -264,15 +259,42 @@ html {
     text-align: end;
 }
 
-.yellow {
-    padding-right: 4rem;
-}
-
 .removing {
     color: white;
     background-color: #d15d5d;
 }
 
+.piece-spin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.piece-spin:first-child {
+    margin-left: 1rem;
+}
+
+.piece-spin:last-child {
+    margin-right: 1rem;
+}
+
+.piece-spin > :first-child {
+    animation: pieceSpin 750ms linear infinite;
+}
+
+[class$=-piece-number] {
+    font-size: 40px;
+}
+
+@keyframes pieceSpin {
+    from {
+        transform: rotateY(45deg);
+        
+    }
+    to {
+        transform: rotateY(225deg);
+    }
+}
 .online-count {
     position: absolute;
     left: 0;
