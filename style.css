@@ -156,6 +156,22 @@ html {
     border-radius: 2em;
 }
 
+.back {
+    position: absolute;
+    top: 2em;
+    left: 2em;
+    background-color: black;
+    color: white;
+    font-family: 'Avant Garde Gothic';
+    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
+    border-radius: 2em;
+    padding: 1rem;
+}
+
+.back:hover {
+    transform: scale(1.1);
+}
+
 .players {
     display: flex;
     justify-content: center;
@@ -178,7 +194,7 @@ html {
 }
 
 .hide {
-    display: none;
+    display: none !important;
 }
 
 .rules {
@@ -323,4 +339,12 @@ html {
 
 .power-button {
     height: 1em;
+}
+
+.connecting  {
+    position: absolute;
+    bottom: 0;
+    font-size: 50px;
+    align-items: center;
+    bottom: 25%;
 }
