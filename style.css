@@ -295,3 +295,10 @@ html {
         transform: rotateY(225deg);
     }
 }
+.online-count {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    font-size: 50px;
+    padding: 1rem 3rem;
+}
