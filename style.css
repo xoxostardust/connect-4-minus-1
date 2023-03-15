@@ -121,9 +121,9 @@ html {
 
 .type-select {
     position: absolute;
-    top: 50%;
+    bottom: 10%;
     left: 50%;
-    translate: -50% 175%;
+    translate: -50% -50%;
 }
 
 .start {
@@ -131,14 +131,14 @@ html {
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
-    border-radius: 0.5em;
+    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
+    border-radius: 4vh;
     padding: 0.2rem 1.5rem;
-    font-size: 80px;
+    font-size: 5vh;
     transition: transform 120ms ease-out;
-    top: 50%;
+    bottom: 10%;
     left: 50%;
-    translate: -50% 175%;
+    translate: -50% -50%;
 }
 
 /* .start B {
@@ -167,8 +167,8 @@ html {
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
-    border-radius: 2em;
+    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
+    border-radius: 4vh;
     padding: 1rem;
 }
 
@@ -182,14 +182,19 @@ html {
     align-items: center;
     gap: 0.5em;
     height: auto;
-    font-size: 35px;
+    /* font-size: 35px; */
+    font-size: 4vh;
     padding: 0.5em;
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
-    border-radius: 1em;
+    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
+    border-radius: 4vh;
     transition: transform 120ms ease-out;
+}
+
+.players img {
+    height: 2em;
 }
 
 #reset {
