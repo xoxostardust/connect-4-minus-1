@@ -175,6 +175,8 @@ html {
 #reset {
     padding-block: 0.5em;
     padding-inline: 1em;
+    background-color: transparent;
+
 }
 
 .hide {
@@ -216,6 +218,19 @@ html {
     display: none;
     top: 0;
     left: 0;
+}
+
+
+#remove {
+    background-color: transparent;
+    padding-block: 0.5em;
+    padding-inline: 1em;
+    float:right;
+}
+
+#remove-logo,
+#reset-logo {
+    height:9em;
 }
 
 .rules-text {
