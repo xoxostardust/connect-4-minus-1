@@ -234,7 +234,7 @@ html {
 .game-stats-you {
     position: absolute;
     left: 0;
-    bottom: 1rem;
+    bottom: 2rem;
 }
 
 .left-stats-counter {
@@ -246,7 +246,7 @@ html {
 .game-stats-enemy {
     position: absolute;
     right: 0;
-    bottom: 1rem;
+    bottom: 2rem;
 }
 
 .right-stats-counter {
@@ -271,30 +271,30 @@ html {
 }
 
 .piece-spin:first-child {
-    margin-left: 1rem;
+    margin-left: 2rem;
 }
 
 .piece-spin:last-child {
-    margin-right: 1rem;
+    margin-right: 2rem;
 }
 
 .piece-spin > :first-child {
     animation: pieceSpin 750ms linear infinite;
 }
 
-[class$=-piece-number] {
+[class$='-piece-number'] {
     font-size: 40px;
 }
 
 @keyframes pieceSpin {
     from {
         transform: rotateY(45deg);
-        
     }
     to {
         transform: rotateY(225deg);
     }
 }
+
 .online-count {
     position: absolute;
     left: 0;
