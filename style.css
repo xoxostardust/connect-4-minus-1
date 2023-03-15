@@ -146,14 +146,18 @@ html {
 } */
 
 .rules {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     top: 2em;
     left: 2em;
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.25rem white, 0 0 0 0.75rem black;
-    border-radius: 2em;
+    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
+    border-radius: 4vh;
+    transition: transform 120ms ease-out;
 }
 
 .back {
@@ -199,19 +203,11 @@ html {
     display: none !important;
 }
 
-.rules {
-    height: 10vh;
-    min-width: 6vw;
-    width: fit-content;
-    position: relative;
-    display: inline-block;
-    transition: transform 120ms ease-out;
-}
-
-.rules .rule-default {
-    height: 8vh;
-    padding: 10px;
-    padding-bottom: 0.5vh;
+.rules .rule-default,
+.rules .rule-hover {
+    height: 12vh;
+    aspect-ratio: 1;
+    padding: 2vh;
 }
 
 .rules:hover {
@@ -219,10 +215,7 @@ html {
 }
 
 .rules:hover .rule-hover {
-    display: inline;
-    height: 8vh;
-    position: relative;
-    padding: 10px;
+    display: inline-block;
 }
 
 .rules:hover .rule-default {
@@ -230,10 +223,7 @@ html {
 }
 
 .rules .rule-hover {
-    position: absolute;
     display: none;
-    top: 0;
-    left: 0;
 }
 
 
