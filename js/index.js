@@ -4,6 +4,21 @@ import { GameType, PieceType, PlayerTeam } from './enums.js';
 import { Game, Player } from './game.js';
 import { Grid, GridPiece } from './grid.js';
 
+// Main menu
+const mainMenu = document.getElementById('main-menu');
+const start = document.getElementById('start');
+const ruleBook = document.getElementById('rule-book');
+const rules = document.getElementById('rules');
+const online = document.getElementById('online');
+// Type select
+const typeSelect = document.getElementById('type-select');
+const onePlayer = document.getElementById('one-player');
+const twoPlayers = document.getElementById('two-players');
+// Game
+const gridContainer = document.getElementById('grid-container');
+const reset = document.getElementById('reset');
+const remove = document.getElementById('remove');
+
 const menu = joinRoom({ appId: 'connect-4-minus-1' }, 'menu');
 
 const [queue, queued] = menu.makeAction('queue');
@@ -199,23 +214,6 @@ function resetGrid() {
     }
 }
 
-// Main menu
-const mainMenu = document.getElementById('main-menu');
-const start = document.getElementById('start');
-const ruleBook = document.getElementById('rule-book');
-const rules = document.getElementById('rules');
-const online = document.getElementById('online');
-// Type select
-const typeSelect = document.getElementById('type-select');
-const onePlayer = document.getElementById('one-player');
-const twoPlayers = document.getElementById('two-players');
-// Game
-const gridContainer = document.getElementById('grid-container');
-const pieceCount = document.getElementById('piece-count');
-const opponent = document.getElementById('opponent');
-const reset = document.getElementById('reset');
-const remove = document.getElementById('remove');
-
 let peerQueue = [];
 
 queued((_, peerId) => {
@@ -286,6 +284,9 @@ menu.onPeerJoin(peerId => {
 
     console.log(`${peerId} joined. ${peers.length} peer(s) online. I am ${selfId}.`);
 
+    online.parentElement.classList.toggle('hide', false);
+    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
+
     twoPlayers.classList.toggle('hide', false);
 
     // updateOnlineCount();
@@ -295,6 +296,8 @@ menu.onPeerLeave(peerId => {
     const peers = menu.getPeers();
 
     console.log(`${peerId} left. ${peers.length} peer(s) online. I am ${selfId}.`);
+
+    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
 
     if (!peers.length > 0) {
         twoPlayers.classList.toggle('hide', true);
