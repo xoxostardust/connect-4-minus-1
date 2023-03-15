@@ -18,6 +18,13 @@
             <img src="img/rulebook_logo_2.png" class="rule-hover" alt="rulebook logo illustration">
         </button>
 
+        <div class="online-count flex">
+            <img class="power-button" src="/img/Frame 8.svg" alt="power-button">
+            <div class="player-count" id="online">
+                Players online
+            </div>
+        </div>
+
         <img class="game-logo" src="img/game_logo_v3.png" alt="Connect 4 Minus 1 logo">
         <button class="start" id="start">
             <B>START</B>
@@ -96,8 +103,11 @@
         <div class="game-stats-you">
 
             <div class="left-stats-counter flex">
+                <div class="piece-spin">
 
-                <img class="red" src="/img/Frame 6.svg" alt="red-piece">
+                    <img class="red" src="/img/Frame 6.svg" alt="red-piece">
+                </div>
+
 
                 <div class="you-counter">
                     <div class="you" id="you">You</div>
@@ -109,6 +119,8 @@
         </div>
 
         <button id="reset">Reset</button>
+        <button id="remove">Remove</button>
+
 
         <div class="game-stats-enemy">
             <div class="right-stats-counter flex">
@@ -117,8 +129,8 @@
 
                     <div class="enemy-piece-number" id="enemy-piece-count">21</div>
                 </div>
-                <img class="yellow" src="/img/Frame 7.svg" alt="yellow-piece">
-                <div>
+                <div class="piece-spin">
+                    <img class="yellow" src="/img/Frame 7.svg" alt="yellow-piece">
                 </div>
             </div>
         </div>

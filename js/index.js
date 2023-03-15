@@ -22,10 +22,10 @@ function createGame(peer, peerTwo) {
     const gameRoom = joinRoom({ appId: 'connect-4-minus-1' }, peer + peerTwo);
 
     const [allJoin, allJoined] = gameRoom.makeAction('allJoin');
-    const [determinePlayers, determinedPlayers] = gameRoom.makeAction('detPlayers');
 
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('placePiece');
-    // const [removePiece, getPieceRemoved] = gameRoom.makeAction('removePiece');
+    const [removePiece, getPieceRemoved] = gameRoom.makeAction('removePiece');
+    const [doRemove, removed] = gameRoom.makeAction('remove');
 
     allJoined((_, peerId) => {
         runGame();
@@ -97,7 +97,13 @@ function createGame(peer, peerTwo) {
             them.placePiece(grid, column);
         });
 
+        removed((id, peerId) => {
+            remove.classList.toggle('removing', true);
+            remove.setAttribute('disabled', '');
+        });
+
         const gridColumns = document.getElementsByClassName('grid-column');
+        const gridSpaces = document.getElementsByClassName('grid-space');
 
         for (const gridColumn of gridColumns) {
             gridColumn.addEventListener('click', ev => {
@@ -106,22 +112,35 @@ function createGame(peer, peerTwo) {
                     return;
                 }
                 console.log('your turn', selfId);
-                console.log(selfId, gridColumn.dataset.column.toString())
+                console.log(selfId, gridColumn.dataset.column.toString());
                 placePiece([selfId, gridColumn.dataset.column]);
                 you.placePiece(grid, gridColumn.dataset.column);
             });
         }
 
-        function test() {
-            console.log(playerOne.isPlaying(), playerTwo.isPlaying());
+        for (const gridSpace of gridSpaces) {
+            gridSpace.addEventListener('click', ev => {
+                if (!you.isRemoving()) {
+                    return;
+                }
+                const parent = gridSpace.parentElement;
+                removePiece([selfId, parent.dataset.column, gridSpace.dataset.row]);
+                you.removePiece(grid, parent.dataset.column, gridSpace.dataset.row);
+            });
         }
-        setInterval(test, 1000);
+
+        remove.addEventListener('click', ev => {
+            if (!you.isPlaying()) return;
+            doRemove(you.name);
+            you.remove();
+            remove.classList.toggle('removing', true);
+        });
     }
 
     gameRoom.onPeerJoin(peerId => {
         console.log(`${peerId} joined`);
 
-        allJoin();
+        allJoin('allJoin');
         runGame();
     });
 
@@ -261,8 +280,6 @@ twoPlayers.addEventListener('click', ev => {
         createGame(peer, selfId);
     }
 });
-
-reset.addEventListener('click', ev => resetGrid());
 
 menu.onPeerJoin(peerId => {
     const peers = menu.getPeers();
