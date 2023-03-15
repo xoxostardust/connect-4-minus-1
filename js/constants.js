@@ -7,7 +7,7 @@ export const RED_PIECE_COUNT = 21;
 export const YELLOW_PIECE_COUNT = 21;
 
 //Default winning rows for the grid
-const winningArrays = [
+export const winningArrays = [
     [1,2,3,4],
     [2,3,4,5],
     [3,4,5,6],

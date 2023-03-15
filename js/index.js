@@ -300,3 +300,34 @@ menu.onPeerLeave(peerId => {
         twoPlayers.classList.toggle('hide', true);
     }
 });
+
+
+// function checkWin() {
+//     for (let y = 0; y < winningArrays.length; y++) {
+//         const piece1 = pieces[winningArrays[y][1]]
+//         const piece2 = pieces[winningArrays[y][2]]
+//         const piece3 = pieces[winningArrays[y][3]]
+//         const piece4 = pieces[winningArrays[y][4]]
+
+//         if (
+//             piece1.classList.contains('playerOne') &&
+//             piece2.classList.contains('playerOne') &&
+//             piece3.classList.contains('playerOne') &&
+//             piece4.classList.contains('playerOne') 
+//         )
+        
+//         { 
+//             alert("Player One wins tee hee?")
+//         }
+//         if (
+//             piece1.classList.contains('playerTwo') &&
+//             piece2.classList.contains('playerTwo') &&
+//             piece3.classList.contains('playerTwo') &&
+//             piece4.classList.contains('playerTwo') 
+//         )
+        
+//         { 
+//             alert("Player two wins tee hee?")
+//         }
+//     }
+// }
