@@ -27,6 +27,20 @@ const [removeFromQueue, removedFromQueue] = menu.makeAction('queueRemove');
 
 const [startGame, gameStarted] = menu.makeAction('startGame');
 
+const sounds = {
+    bass: new Audio('assets/sounds/bass.wav'),
+    button: new Audio('assets/sounds/button.wav'),
+    clickfast: new Audio('assets/sounds/clickfast.wav'),
+    collide: new Audio('assets/sounds/collide.wav'),
+    electronicpingshort: new Audio('assets/sounds/electronicpingshort.wav'),
+    glassbreak: new Audio('assets/sounds/glassbreak.wav'),
+    Kerplunk: new Audio('assets/sounds/Kerplunk.wav'),
+    'Kid saying ouch': new Audio('assets/sounds/Kid saying ouch.wav'),
+    pageturn: new Audio('assets/sounds/pageturn.wav'),
+    splat: new Audio('assets/sounds/splat.wav'),
+    victory: new Audio('assets/sounds/victory.wav')
+};
+
 let peerQueue = [];
 
 queued((_, peerId) => {
@@ -274,14 +288,36 @@ start.addEventListener('click', ev => {
     ruleBook.classList.toggle('hide', true);
     typeSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
+
+    sounds.clickfast.play();
 });
+
+let rulesHidden = true;
 
 ruleBook.addEventListener('click', ev => {
-    rules.classList.toggle('hide');
+    rulesHidden = !rulesHidden;
+
+    rules.classList.toggle('hide', rulesHidden);
+
+    const pageturn = sounds.pageturn;
+
+    if (rulesHidden) {
+        pageturn.pause();
+        pageturn.currentTime = 0;
+    } else {
+        pageturn.play();
+    }
 });
 
-onePlayer.addEventListener('click', ev => showGrid(), { once: true });
+onePlayer.addEventListener('click', ev => {
+    sounds.clickfast.play();
+
+    showGrid();
+});
+
 twoPlayers.addEventListener('click', ev => {
+    sounds.clickfast.play();
+
     console.log('click');
 
     queue('queue');
@@ -308,7 +344,9 @@ goBack.addEventListener('click', ev => {
     ruleBook.classList.toggle('hide', false);
     typeSelect.classList.toggle('hide', true);
     goBack.classList.toggle('hide', true);
-})
+
+    sounds.button.play();
+});
 
 // function checkWin() {
 //     for (let y = 0; y < winningArrays.length; y++) {
