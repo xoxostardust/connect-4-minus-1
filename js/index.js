@@ -14,6 +14,7 @@ const online = document.getElementById('online');
 const typeSelect = document.getElementById('type-select');
 const onePlayer = document.getElementById('one-player');
 const twoPlayers = document.getElementById('two-players');
+const goBack = document.getElementById('go-back');
 // Game
 const gridContainer = document.getElementById('grid-container');
 const reset = document.getElementById('reset');
@@ -25,6 +26,53 @@ const [queue, queued] = menu.makeAction('queue');
 const [removeFromQueue, removedFromQueue] = menu.makeAction('queueRemove');
 
 const [startGame, gameStarted] = menu.makeAction('startGame');
+
+let peerQueue = [];
+
+queued((_, peerId) => {
+    peerQueue.push(peerId);
+});
+
+removedFromQueue((peer, peerId) => {
+    console.log('%c' + peer, 'color: purple');
+
+    console.log(peerQueue.pop(peer));
+});
+
+gameStarted((peer, peerId) => {
+    console.log('%c' + (peer instanceof Uint8Array ? new TextDecoder().decode(peer) + ' (decoded)' : peer), 'color: yellow');
+
+    if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
+
+    mainMenu.classList.toggle('hide', true);
+    createGame(peer, peerId);
+    // createGrid();
+});
+
+menu.onPeerJoin(peerId => {
+    const peers = menu.getPeers();
+
+    console.log(`${peerId} joined. ${peers.length} peer(s) online. I am ${selfId}.`);
+
+    online.parentElement.classList.toggle('hide', false);
+    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
+
+    twoPlayers.classList.toggle('hide', false);
+
+    // updateOnlineCount();
+});
+
+menu.onPeerLeave(peerId => {
+    const peers = menu.getPeers();
+
+    console.log(`${peerId} left. ${peers.length} peer(s) online. I am ${selfId}.`);
+
+    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
+
+    if (!peers.length > 0) {
+        twoPlayers.classList.toggle('hide', true);
+    }
+});
 
 function createGame(peer, peerTwo) {
     peer = peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer;
@@ -214,28 +262,6 @@ function resetGrid() {
     }
 }
 
-let peerQueue = [];
-
-queued((_, peerId) => {
-    peerQueue.push(peerId);
-});
-
-removedFromQueue((peer, peerId) => {
-    console.log('%c' + peer, 'color: purple');
-
-    console.log(peerQueue.pop(peer));
-});
-
-gameStarted((peer, peerId) => {
-    console.log('%c' + (peer instanceof Uint8Array ? new TextDecoder().decode(peer) + ' (decoded)' : peer), 'color: yellow');
-
-    if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
-
-    mainMenu.classList.toggle('hide', true);
-    createGame(peer, peerId);
-    // createGrid();
-});
-
 function showGrid() {
     resetGrid();
 
@@ -247,20 +273,18 @@ start.addEventListener('click', ev => {
     start.classList.toggle('hide', true);
     ruleBook.classList.toggle('hide', true);
     typeSelect.classList.toggle('hide', false);
+    goBack.classList.toggle('hide', false);
 });
 
 ruleBook.addEventListener('click', ev => {
     rules.classList.toggle('hide');
 });
 
-let isQueuing = false;
-
 onePlayer.addEventListener('click', ev => showGrid(), { once: true });
 twoPlayers.addEventListener('click', ev => {
     console.log('click');
 
     queue('queue');
-    isQueuing = true;
 
     console.log('after queue');
 
@@ -279,31 +303,12 @@ twoPlayers.addEventListener('click', ev => {
     }
 });
 
-menu.onPeerJoin(peerId => {
-    const peers = menu.getPeers();
-
-    console.log(`${peerId} joined. ${peers.length} peer(s) online. I am ${selfId}.`);
-
-    online.parentElement.classList.toggle('hide', false);
-    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
-
-    twoPlayers.classList.toggle('hide', false);
-
-    // updateOnlineCount();
-});
-
-menu.onPeerLeave(peerId => {
-    const peers = menu.getPeers();
-
-    console.log(`${peerId} left. ${peers.length} peer(s) online. I am ${selfId}.`);
-
-    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
-
-    if (!peers.length > 0) {
-        twoPlayers.classList.toggle('hide', true);
-    }
-});
-
+goBack.addEventListener('click', ev => {
+    start.classList.toggle('hide', false);
+    ruleBook.classList.toggle('hide', false);
+    typeSelect.classList.toggle('hide', true);
+    goBack.classList.toggle('hide', true);
+})
 
 // function checkWin() {
 //     for (let y = 0; y < winningArrays.length; y++) {
@@ -316,20 +321,20 @@ menu.onPeerLeave(peerId => {
 //             piece1.classList.contains('playerOne') &&
 //             piece2.classList.contains('playerOne') &&
 //             piece3.classList.contains('playerOne') &&
-//             piece4.classList.contains('playerOne') 
+//             piece4.classList.contains('playerOne')
 //         )
-        
-//         { 
+
+//         {
 //             alert("Player One wins tee hee?")
 //         }
 //         if (
 //             piece1.classList.contains('playerTwo') &&
 //             piece2.classList.contains('playerTwo') &&
 //             piece3.classList.contains('playerTwo') &&
-//             piece4.classList.contains('playerTwo') 
+//             piece4.classList.contains('playerTwo')
 //         )
-        
-//         { 
+
+//         {
 //             alert("Player two wins tee hee?")
 //         }
 //     }
