@@ -1,379 +1,141 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 
-import { GameType, PieceType, PlayerTeam } from './enums.js';
-import { Game, Player } from './game.js';
-import { Grid, GridPiece } from './grid.js';
+const config = { appId: 'connect-4-minus-1' };
 
-// Main menu
-const mainMenu = document.getElementById('main-menu');
-const start = document.getElementById('start');
-const ruleBook = document.getElementById('rule-book');
-const rules = document.getElementById('rules');
-const online = document.getElementById('online');
-// Type select
-const typeSelect = document.getElementById('type-select');
-const onePlayer = document.getElementById('one-player');
-const twoPlayers = document.getElementById('two-players');
-const goBack = document.getElementById('go-back');
-// Game
-const gridContainer = document.getElementById('grid-container');
-const reset = document.getElementById('reset');
-const remove = document.getElementById('remove');
+const mainMenu = joinRoom(config, 'main-menu');
 
-const menu = joinRoom({ appId: 'connect-4-minus-1' }, 'menu');
+const byId = document.getElementById.bind(document);
 
-const [queue, queued] = menu.makeAction('queue');
-const [removeFromQueue, removedFromQueue] = menu.makeAction('queueRemove');
+const online = byId('online');
 
-const [startGame, gameStarted] = menu.makeAction('startGame');
+// const decode = new TextDecoder().decode;
 
-const sounds = {
-    bass: new Audio('assets/sounds/bass.wav'),
-    button: new Audio('assets/sounds/button.wav'),
-    clickfast: new Audio('assets/sounds/clickfast.wav'),
-    collide: new Audio('assets/sounds/collide.wav'),
-    electronicpingshort: new Audio('assets/sounds/electronicpingshort.wav'),
-    glassbreak: new Audio('assets/sounds/glassbreak.wav'),
-    Kerplunk: new Audio('assets/sounds/Kerplunk.wav'),
-    'Kid saying ouch': new Audio('assets/sounds/Kid saying ouch.wav'),
-    pageturn: new Audio('assets/sounds/pageturn.wav'),
-    splat: new Audio('assets/sounds/splat.wav'),
-    victory: new Audio('assets/sounds/victory.wav')
-};
+console.log(`My name is ${selfId}!`);
 
-let peerQueue = [];
+init();
 
-queued((_, peerId) => {
-    peerQueue.push(peerId);
-});
-
-removedFromQueue((peer, peerId) => {
-    console.log('%c' + peer, 'color: purple');
-
-    console.log(peerQueue.pop(peer));
-});
-
-gameStarted((peer, peerId) => {
-    console.log('%c' + (peer instanceof Uint8Array ? new TextDecoder().decode(peer) + ' (decoded)' : peer), 'color: yellow');
-
-    if (selfId != (peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer) && selfId != peerId) return;
-
-    mainMenu.classList.toggle('hide', true);
-    createGame(peer, peerId);
-    // createGrid();
-});
-
-menu.onPeerJoin(peerId => {
-    const peers = menu.getPeers();
-
-    console.log(`${peerId} joined. ${peers.length} peer(s) online. I am ${selfId}.`);
-
-    online.parentElement.classList.toggle('hide', false);
-    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
-
-    twoPlayers.classList.toggle('hide', false);
-
-    // updateOnlineCount();
-});
-
-menu.onPeerLeave(peerId => {
-    const peers = menu.getPeers();
-
-    console.log(`${peerId} left. ${peers.length} peer(s) online. I am ${selfId}.`);
-
-    online.innerText = `${peers.length} ${peers.length == 1 ? 'person is' : 'people are'} online.`;
-
-    if (!peers.length > 0) {
-        twoPlayers.classList.toggle('hide', true);
-    }
-});
-
-function createGame(peer, peerTwo) {
-    peer = peer instanceof Uint8Array ? new TextDecoder().decode(peer) : peer;
-    peerTwo = peerTwo instanceof Uint8Array ? new TextDecoder().decode(peerTwo) : peerTwo;
-
-    console.log(`%c${peer} vs ${peerTwo}; ${selfId}`, 'color: orange');
-
-    menu.leave();
-
-    const gameRoom = joinRoom({ appId: 'connect-4-minus-1' }, peer + peerTwo);
-
-    const [allJoin, allJoined] = gameRoom.makeAction('allJoin');
-
-    const [placePiece, getPiecePlaced] = gameRoom.makeAction('placePiece');
-    const [removePiece, getPieceRemoved] = gameRoom.makeAction('removePiece');
-    const [doRemove, removed] = gameRoom.makeAction('remove');
-
-    allJoined((_, peerId) => {
-        runGame();
-    });
-
-    function runGame() {
-        showGrid();
-
-        const grid = createGrid();
-
-        const playerOne = new Player(peer, PlayerTeam.RED);
-        const playerTwo = new Player(peerTwo, PlayerTeam.YELLOW);
-
-        console.log(selfId, playerOne.name, playerTwo.name);
-
-        let you;
-
-        switch (selfId) {
-            case playerOne.name:
-                console.log('player one');
-                you = playerOne;
-                break;
-
-            case playerTwo.name:
-                console.log('player two');
-                you = playerTwo;
-                break;
-
-            default:
-                break;
-        }
-
-        playerOne.played(() => {
-            console.log('player one played');
-
-            playerTwo.play();
-        });
-
-        playerTwo.played(() => {
-            console.log('player two played');
-
-            playerOne.play();
-        });
-
-        playerOne.play();
-
-        console.log(playerOne.isPlaying(), playerTwo.isPlaying());
-
-        getPiecePlaced(([id, column], peerId) => {
-            console.log('placed');
-
-            let them;
-
-            switch (id) {
-                case playerOne.name:
-                    console.log('player one');
-                    them = playerOne;
-                    break;
-
-                case playerTwo.name:
-                    console.log('player two');
-                    them = playerTwo;
-                    break;
-
-                default:
-                    break;
-            }
-
-            them.placePiece(grid, column);
-        });
-
-        removed((id, peerId) => {
-            remove.classList.toggle('removing', true);
-            remove.setAttribute('disabled', '');
-        });
-
-        const gridColumns = document.getElementsByClassName('grid-column');
-        const gridSpaces = document.getElementsByClassName('grid-space');
-
-        for (const gridColumn of gridColumns) {
-            gridColumn.addEventListener('click', ev => {
-                if (!you.isPlaying()) {
-                    console.log('not your turn');
-                    return;
-                }
-                console.log('your turn', selfId);
-                console.log(selfId, gridColumn.dataset.column.toString());
-                placePiece([selfId, gridColumn.dataset.column]);
-                you.placePiece(grid, gridColumn.dataset.column);
-            });
-        }
-
-        for (const gridSpace of gridSpaces) {
-            gridSpace.addEventListener('click', ev => {
-                if (!you.isRemoving()) {
-                    return;
-                }
-                const parent = gridSpace.parentElement;
-                removePiece([selfId, parent.dataset.column, gridSpace.dataset.row]);
-                you.removePiece(grid, parent.dataset.column, gridSpace.dataset.row);
-            });
-        }
-
-        remove.addEventListener('click', ev => {
-            if (!you.isPlaying()) return;
-            doRemove(you.name);
-            you.remove();
-            remove.classList.toggle('removing', true);
-        });
-    }
-
-    gameRoom.onPeerJoin(peerId => {
-        console.log(`${peerId} joined`);
-
-        allJoin('allJoin');
-        runGame();
-    });
-
-    gameRoom.onPeerLeave(peerId => console.log(`${peerId} left`));
+function joinGame(firstPlayer, secondPlayer) {
+    console.log(`First player: ${firstPlayer}; second player: ${secondPlayer}.`);
 }
 
-function createGrid() {
-    console.log('Creating grid');
+function updateOnline() {
+    const numberOfPeers = mainMenu.getPeers().length;
 
-    const grid = new Grid();
-
-    const gridColumns = document.getElementsByClassName('grid-column');
-
-    for (const gridColumn of gridColumns) {
-        const columnData = gridColumn.dataset.column;
-
-        const column = grid.getColumn(columnData);
-
-        column.onPiecePlaced((piece, row) => {
-            const gridRow = gridColumn.querySelector(`[data-row='${row}']`);
-
-            const classList = gridRow.classList;
-
-            switch (piece.pieceType) {
-                case PieceType.RED:
-                    classList.toggle('red-piece', true);
-                    break;
-
-                case PieceType.YELLOW:
-                    classList.toggle('yellow-piece', true);
-                    break;
-
-                default:
-                    break;
-            }
-        });
-    }
-
-    return grid;
+    online.innerText = `${numberOfPeers} ${numberOfPeers == 1 ? 'player is' : 'players are'} online.`;
 }
 
-function resetGrid() {
-    console.log('Resetting grid');
+function toggleRules() {
+    const rules = byId('rules');
 
-    const grid = document.getElementById('grid');
-
-    const redPieces = grid.getElementsByClassName('red-piece');
-    const yellowPieces = grid.getElementsByClassName('yellow-piece');
-
-    for (const redPiece of redPieces) {
-        redPiece.classList.toggle('red-piece', false);
-    }
-
-    for (const yellowPiece of yellowPieces) {
-        yellowPiece.classList.toggle('yellow-piece', false);
-    }
+    rules.classList.toggle('hide');
 }
 
-function showGrid() {
-    resetGrid();
+function showConnecting() {
+    const connecting = byId('connecting');
+    const playerSelect = byId('player-select');
+    const goBack = byId('go-back');
 
-    mainMenu.classList.toggle('hide', true);
-    gridContainer.classList.toggle('hide', false);
+    playerSelect.classList.toggle('hide', true);
+    goBack.classList.toggle('hide', true);
+    connecting.classList.toggle('hide', false);
 }
 
-start.addEventListener('click', ev => {
+function showPlayerSelect() {
+    const start = byId('start');
+    const ruleBook = byId('rule-book');
+    const rules = byId('rules');
+    const playerSelect = byId('player-select');
+    const goBack = byId('go-back');
+
     start.classList.toggle('hide', true);
+    rules.classList.toggle('hide', true);
     ruleBook.classList.toggle('hide', true);
-    typeSelect.classList.toggle('hide', false);
+    playerSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
+}
 
-    sounds.clickfast.play();
-});
+function showStart() {
+    const start = byId('start');
+    const ruleBook = byId('rule-book');
+    const playerSelect = byId('player-select');
+    const goBack = byId('go-back');
 
-let rulesHidden = true;
-
-ruleBook.addEventListener('click', ev => {
-    rulesHidden = !rulesHidden;
-
-    rules.classList.toggle('hide', rulesHidden);
-
-    const pageturn = sounds.pageturn;
-
-    if (rulesHidden) {
-        pageturn.pause();
-        pageturn.currentTime = 0;
-    } else {
-        pageturn.play();
-    }
-});
-
-onePlayer.addEventListener('click', ev => {
-    sounds.clickfast.play();
-
-    showGrid();
-});
-
-twoPlayers.addEventListener('click', ev => {
-    sounds.clickfast.play();
-
-    console.log('click');
-
-    queue('queue');
-
-    console.log('after queue');
-
-    const peer = peerQueue.pop();
-
-    if (typeof peer != 'undefined') {
-        console.log('%c' + peer, 'color: yellow');
-
-        removeFromQueue(peer);
-        startGame(peer);
-
-        console.log('start the game');
-
-        showGrid();
-        createGame(peer, selfId);
-    }
-});
-
-goBack.addEventListener('click', ev => {
+    playerSelect.classList.toggle('hide', true);
+    goBack.classList.toggle('hide', true);
     start.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    typeSelect.classList.toggle('hide', true);
-    goBack.classList.toggle('hide', true);
+}
 
-    sounds.button.play();
+function init() {
+    const start = byId('start');
+    const ruleBook = byId('rule-book');
+    const onePlayer = byId('one-player');
+    const twoPlayers = byId('two-players');
+    const goBack = byId('go-back');
+
+    start.addEventListener('click', ev => showPlayerSelect());
+    ruleBook.addEventListener('click', ev => toggleRules());
+
+    twoPlayers.addEventListener('click', ev => {
+        showConnecting();
+
+        mainMenu.leave();
+
+        const queue = joinRoom(config, 'queue');
+
+        let queuedFirst = false;
+
+        function joinPlayer() {
+            const players = queue.getPeers();
+
+            const player = players.shift();
+
+            if (player) {
+                queue.leave();
+
+                const firstPlayer = queuedFirst ? selfId : player;
+                const secondPlayer = firstPlayer == selfId ? player : selfId;
+
+                joinGame(firstPlayer, secondPlayer);
+
+                return;
+            }
+
+            queuedFirst = true;
+        }
+
+        joinPlayer();
+
+        queue.onPeerJoin(peerId => {
+            joinPlayer();
+        });
+
+        queue.onPeerLeave(peerId => {
+            joinPlayer();
+        });
+    });
+
+    goBack.addEventListener('click', ev => showStart());
+}
+
+mainMenu.onPeerJoin(peerId => {
+    const numberOfPeers = mainMenu.getPeers().length;
+
+    console.log(`${peerId} has joined the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
+
+    online.classList.toggle('hide', false);
+
+    updateOnline();
 });
 
-// function checkWin() {
-//     for (let y = 0; y < winningArrays.length; y++) {
-//         const piece1 = pieces[winningArrays[y][1]]
-//         const piece2 = pieces[winningArrays[y][2]]
-//         const piece3 = pieces[winningArrays[y][3]]
-//         const piece4 = pieces[winningArrays[y][4]]
+mainMenu.onPeerLeave(peerId => {
+    const numberOfPeers = mainMenu.getPeers().length;
 
-//         if (
-//             piece1.classList.contains('playerOne') &&
-//             piece2.classList.contains('playerOne') &&
-//             piece3.classList.contains('playerOne') &&
-//             piece4.classList.contains('playerOne')
-//         )
+    console.log(`${peerId} has left the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
 
-//         {
-//             alert("Player One wins tee hee?")
-//         }
-//         if (
-//             piece1.classList.contains('playerTwo') &&
-//             piece2.classList.contains('playerTwo') &&
-//             piece3.classList.contains('playerTwo') &&
-//             piece4.classList.contains('playerTwo')
-//         )
+    if (!(numberOfPeers > 0)) {
+        online.classList.toggle('hide', true);
+    }
 
-//         {
-//             alert("Player two wins tee hee?")
-//         }
-//     }
-// }
+    updateOnline();
+});
