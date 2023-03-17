@@ -172,14 +172,14 @@ export class AI extends Player {
     }
 
     playDumb(grid) {
-        let randomColumn = 1 + Math.floor(Math.random() * (grid.columns - 1));
+        let randomColumn = 1 + Math.floor(Math.random() * grid.columns);
 
         console.log(randomColumn);
 
-        while (grid.getColumn(randomColumn).isFull) {
-            randomColumn = 1 + Math.floor(Math.random() * (grid.columns - 1));
+        if (grid.getColumn(randomColumn).isFull) {
+            this.playDumb(grid);
 
-            console.log(randomColumn);
+            return;
         }
 
         this.placePiece(grid, randomColumn);

@@ -12,6 +12,8 @@ let gameRoom;
 
 let wins = 0;
 
+let testing = true;
+
 const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
@@ -47,11 +49,14 @@ function createSingleplayer() {
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
 
-        setTimeout(() => {
-            opponent.playRandom(grid);
+        setTimeout(
+            () => {
+                opponent.playRandom(grid);
 
-            sounds.kerplunk.play();
-        }, 1000 + Math.floor(Math.random() * 3000));
+                sounds.kerplunk.play();
+            },
+            testing ? 100 : 1000 + Math.floor(Math.random() * 3000)
+        );
 
         sounds.kerplunk.play();
     });
