@@ -9,9 +9,25 @@ let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
+let wins = 0;
+
 const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
+
+const sounds = {
+    bass: new Audio('assets/sounds/bass.wav'),
+    button: new Audio('assets/sounds/button.wav'),
+    clickfast: new Audio('assets/sounds/clickfast.wav'),
+    collide: new Audio('assets/sounds/collide.wav'),
+    glassbreak: new Audio('assets/sounds/glassbreak.wav'),
+    kerplunk: new Audio('assets/sounds/kerplunk.wav'),
+    ouch: new Audio('assets/sounds/ouch.wav'),
+    pageturn: new Audio('assets/sounds/pageturn.wav'),
+    ping: new Audio('assets/sounds/ping.wav'),
+    splat: new Audio('assets/sounds/splat.wav'),
+    victory: new Audio('assets/sounds/victory.wav')
+};
 
 function createMultiplayer(firstPlayer, secondPlayer) {
     const mainMenu = byId('main-menu');
@@ -56,10 +72,14 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     playerOne.played(() => {
         playerTwo.play();
+
+        sounds.kerplunk.play();
     });
 
     playerTwo.played(() => {
         playerOne.play();
+
+        sounds.kerplunk.play();
     });
 
     you.played(() => {
@@ -86,6 +106,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             }
 
             const column = gridColumn.dataset.column;
+
+            if (grid.getColumn(column).isFull) {
+                sounds.clickfast.play();
+
+                return;
+            }
 
             placePiece(column);
 
@@ -121,6 +147,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             enemy.innerText = peerId.substring(0, 5);
         }
 
+        youPieceCount.innerText = you.getRemainingPieces().length;
+        enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
+
         youPieceSpin.classList.toggle('red', youTeam == PlayerTeam.RED);
         youPieceSpin.classList.toggle('yellow', youTeam == PlayerTeam.YELLOW);
         enemyPieceSpin.classList.toggle('red', enemyTeam == PlayerTeam.RED);
@@ -133,10 +162,17 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     gameRoom.onPeerLeave(() => {
+        wins++;
+
+        sounds.victory.play();
+
         alert('Your opponent has left the game. Game over!');
 
         setTimeout(() => {
             gameRoom.leave();
+
+            youPieceSpin.classList.toggle('piece-spin', true);
+            enemyPieceSpin.classList.toggle('piece-spin', true);
 
             toggleGrid(true);
             resetGrid();
@@ -157,15 +193,16 @@ function toggleGrid(force) {
 function resetGrid() {
     const grid = byId('grid');
 
-    const redPieces = grid.getElementsByClassName('red-piece');
-    const yellowPieces = grid.getElementsByClassName('yellow-piece');
+    const gridColumns = grid.getElementsByClassName('grid-column');
 
-    for (const redPiece of redPieces) {
-        redPiece.classList.toggle('red-piece', false);
-    }
+    for (const gridColumn of gridColumns) {
+        const clone = gridColumn.cloneNode(true);
 
-    for (const yellowPiece of yellowPieces) {
-        yellowPiece.classList.toggle('yellow-piece', false);
+        gridColumn.parentElement.replaceChild(clone, gridColumn);
+
+        for (const space of clone.children) {
+            space.classList.remove('red-piece', 'yellow-piece');
+        }
     }
 }
 
@@ -180,9 +217,9 @@ function createGrid() {
         const column = grid.getColumn(columnData);
 
         column.onPiecePlaced((piece, row) => {
-            const gridRow = gridColumn.querySelector(`[data-row='${row}']`);
+            const space = gridColumn.querySelector(`[data-row='${row}']`);
 
-            const classList = gridRow.classList;
+            const classList = space.classList;
 
             switch (piece.pieceType) {
                 case PieceType.RED:
@@ -343,8 +380,21 @@ const onePlayer = byId('one-player');
 const twoPlayers = byId('two-players');
 const goBack = byId('go-back');
 
-start.addEventListener('click', () => showPlayerSelect());
-ruleBook.addEventListener('click', () => toggleRules());
+start.addEventListener('click', () => {
+    showPlayerSelect();
+
+    sounds.clickfast.play();
+});
+
+ruleBook.addEventListener('click', () => {
+    const pageturn = sounds.pageturn;
+
+    toggleRules();
+
+    pageturn.pause();
+    pageturn.currentTime = 0;
+    pageturn.play();
+});
 
 twoPlayers.addEventListener('click', () => {
     showConnecting();
@@ -352,6 +402,8 @@ twoPlayers.addEventListener('click', () => {
     mainMenuRoom.leave();
 
     joinQueue();
+
+    sounds.clickfast.play();
 });
 
 goBack.addEventListener('click', () => {
@@ -361,6 +413,8 @@ goBack.addEventListener('click', () => {
     } else {
         showStart();
     }
+
+    sounds.button.play();
 });
 
 joinMainMenu();
