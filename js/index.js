@@ -360,6 +360,22 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 }
 
+function checkGrid(grid) {
+    const array = grid.asArray();
+
+    for (let i = 0; i < grid.length; i++) {
+        const column = array[i];
+
+        for (let j = 0; j < column.length; j++) {
+            const space = column[j];
+
+            for (let s = 1; s < s + 3; s++) {
+                
+            }
+        }
+    }
+}
+
 function toggleGrid(force) {
     const gridContainer = byId('grid-container');
 
