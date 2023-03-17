@@ -1,7 +1,8 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
+import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
-import { Player } from './game.js';
-import { Grid } from './grid.js';
+import { AI, Player } from './game.js';
+import { Grid, GridPiece } from './grid.js';
 
 const config = { appId: 'connect-4-minus-1' };
 
@@ -15,19 +16,144 @@ const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
 
-const sounds = {
-    bass: new Audio('assets/sounds/bass.wav'),
-    button: new Audio('assets/sounds/button.wav'),
-    clickfast: new Audio('assets/sounds/clickfast.wav'),
-    collide: new Audio('assets/sounds/collide.wav'),
-    glassbreak: new Audio('assets/sounds/glassbreak.wav'),
-    kerplunk: new Audio('assets/sounds/kerplunk.wav'),
-    ouch: new Audio('assets/sounds/ouch.wav'),
-    pageturn: new Audio('assets/sounds/pageturn.wav'),
-    ping: new Audio('assets/sounds/ping.wav'),
-    splat: new Audio('assets/sounds/splat.wav'),
-    victory: new Audio('assets/sounds/victory.wav')
-};
+function createSingleplayer() {
+    const mainMenu = byId('main-menu');
+    const enemy = byId('enemy');
+    const youMoveTool = byId('you-move-tool');
+    const enemyMoveTool = byId('enemy-move-tool');
+    const youPieceCount = byId('you-piece-count');
+    const enemyPieceCount = byId('enemy-piece-count');
+    const remove = byId('remove');
+
+    const youPieceSpin = youMoveTool.querySelector('.piece-spin');
+    const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
+
+    let removeMode = false;
+    let removeTimeout;
+
+    const grid = createGrid();
+
+    const you = new Player(selfId, PlayerTeam.RED);
+    const opponent = new AI('Jason', PlayerTeam.YELLOW);
+
+    const youTeam = you.team;
+    const opponentTeam = opponent.team;
+
+    you.played(() => {
+        opponent.play();
+
+        youPieceCount.innerText = you.getRemainingPieces().length;
+
+        youPieceSpin.classList.toggle('piece-spin', false);
+        enemyPieceSpin.classList.toggle('piece-spin', true);
+
+        setTimeout(() => {
+            opponent.playRandom(grid);
+
+            sounds.kerplunk.play();
+        }, 1000 + Math.floor(Math.random() * 3000));
+
+        sounds.kerplunk.play();
+    });
+
+    you.removed(() => {
+        disableRemove();
+
+        sounds.collide.play();
+    });
+
+    opponent.played(() => {
+        you.play();
+
+        enemyPieceCount.innerText = opponent.getRemainingPieces().length;
+
+        youPieceSpin.classList.toggle('piece-spin', true);
+        enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        sounds.kerplunk.play();
+    });
+
+    opponent.removed(() => {
+        sounds.collide.play();
+    });
+
+    const gridColumns = document.getElementsByClassName('grid-column');
+    const gridSpaces = document.getElementsByClassName('grid-space');
+
+    function disableRemove() {
+        setTimeout(() => {
+            removeMode = false;
+        }, 0);
+
+        remove.classList.toggle('reset-used', true);
+
+        remove.removeEventListener('click', clickReset);
+    }
+
+    function clickReset() {
+        if (!you.canRemovePiece() || !you.isPlaying()) {
+            return;
+        }
+
+        you.remove();
+
+        removeMode = true;
+
+        removeTimeout = setTimeout(disableRemove, 10000);
+    }
+
+    for (const gridColumn of gridColumns) {
+        gridColumn.addEventListener('click', () => {
+            if (!you.isPlaying() || removeMode) {
+                return;
+            }
+
+            const column = gridColumn.dataset.column;
+
+            if (grid.getColumn(column).isFull) {
+                sounds.clickfast.play();
+
+                return;
+            }
+
+            you.placePiece(grid, column);
+        });
+    }
+
+    for (const gridSpace of gridSpaces) {
+        gridSpace.addEventListener('click', () => {
+            if (!removeMode) {
+                return;
+            }
+
+            const row = gridSpace.dataset.row;
+            const column = gridSpace.parentElement.dataset.column;
+
+            you.removePiece(grid, column, row);
+        });
+    }
+
+    remove.addEventListener('click', clickReset);
+
+    you.play();
+
+    enemy.innerText = opponent.name;
+
+    mainMenu.classList.toggle('hide', true);
+
+    youPieceCount.innerText = you.getRemainingPieces().length;
+    enemyPieceCount.innerText = opponent.getRemainingPieces().length;
+
+    youPieceSpin.classList.toggle('red', youTeam == PlayerTeam.RED);
+    youPieceSpin.classList.toggle('yellow', youTeam == PlayerTeam.YELLOW);
+    enemyPieceSpin.classList.toggle('red', opponentTeam == PlayerTeam.RED);
+    enemyPieceSpin.classList.toggle('yellow', opponentTeam == PlayerTeam.YELLOW);
+
+    youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
+    enemyPieceSpin.classList.toggle('piece-spin', opponent.isPlaying());
+
+    setTimeout(toggleGrid, 0, false);
+}
 
 function createMultiplayer(firstPlayer, secondPlayer) {
     const mainMenu = byId('main-menu');
@@ -36,9 +162,13 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const enemyMoveTool = byId('enemy-move-tool');
     const youPieceCount = byId('you-piece-count');
     const enemyPieceCount = byId('enemy-piece-count');
+    const remove = byId('remove');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
+
+    let removeMode = false;
+    let removeTimeout;
 
     queueRoom.leave();
 
@@ -76,10 +206,18 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         sounds.kerplunk.play();
     });
 
+    playerOne.removed(() => {
+        sounds.collide.play();
+    });
+
     playerTwo.played(() => {
         playerOne.play();
 
         sounds.kerplunk.play();
+    });
+
+    playerTwo.removed(() => {
+        sounds.collide.play();
     });
 
     you.played(() => {
@@ -87,6 +225,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
+    });
+
+    you.removed(() => {
+        disableRemove();
     });
 
     enemyPlayer.played(() => {
@@ -99,9 +241,31 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const gridColumns = document.getElementsByClassName('grid-column');
     const gridSpaces = document.getElementsByClassName('grid-space');
 
+    function disableRemove() {
+        setTimeout(() => {
+            removeMode = false;
+        }, 0);
+
+        remove.classList.toggle('reset-used', true);
+
+        remove.removeEventListener('click', clickReset);
+    }
+
+    function clickReset() {
+        if (!you.canRemovePiece() || !you.isPlaying()) {
+            return;
+        }
+
+        you.remove();
+
+        removeMode = true;
+
+        removeTimeout = setTimeout(disableRemove, 10000);
+    }
+
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (!you.isPlaying()) {
+            if (!you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -121,7 +285,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     for (const gridSpace of gridSpaces) {
         gridSpace.addEventListener('click', () => {
-            if (!you.canRemovePiece() && !you.isRemoving()) {
+            if (!removeMode) {
                 return;
             }
 
@@ -133,6 +297,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             you.removePiece(grid, column, row);
         });
     }
+
+    remove.addEventListener('click', clickReset);
 
     playerOne.play();
 
@@ -158,11 +324,13 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
         enemyPieceSpin.classList.toggle('piece-spin', enemyPlayer.isPlaying());
 
-        setTimeout(toggleGrid, 100, false);
+        setTimeout(toggleGrid, 0, false);
     });
 
     gameRoom.onPeerLeave(() => {
         wins++;
+
+        clearTimeout(removeTimeout);
 
         sounds.victory.play();
 
@@ -170,6 +338,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         setTimeout(() => {
             gameRoom.leave();
+
+            remove.removeEventListener('click', clickReset);
+            remove.classList.toggle('reset-used', false);
 
             youPieceSpin.classList.toggle('piece-spin', true);
             enemyPieceSpin.classList.toggle('piece-spin', true);
@@ -180,7 +351,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             joinMainMenu();
 
             showStart();
-        }, 100);
+        }, 0);
     });
 }
 
@@ -234,6 +405,40 @@ function createGrid() {
                     break;
             }
         });
+
+        column.onPieceRemoved((s, piece) => {
+            const columnArray = column.asArray();
+
+            for (let i = 0; i < columnArray.length; i++) {
+                const space = gridColumn.querySelector(`[data-row='${i + 1}']`);
+
+                const classList = space.classList;
+
+                classList.toggle('red-piece', false);
+                classList.toggle('yellow-piece', false);
+
+                const gridPiece = columnArray[i];
+
+                if (gridPiece == null) {
+                    continue;
+                }
+
+                switch (gridPiece.pieceType) {
+                    case PieceType.RED:
+                        classList.toggle('red-piece', true);
+                        classList.toggle('yellow-piece', false);
+                        break;
+
+                    case PieceType.YELLOW:
+                        classList.toggle('yellow-piece', true);
+                        classList.toggle('red-piece', false);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     return grid;
@@ -271,7 +476,7 @@ function joinQueue() {
         const playerOne = now < firstTimestamp ? selfId : firstPlayer;
         const playerTwo = playerOne == selfId ? firstPlayer : selfId;
 
-        setTimeout(createMultiplayer, 100, playerOne, playerTwo);
+        setTimeout(createMultiplayer, 0, playerOne, playerTwo);
     });
 
     queueRoom.onPeerJoin(peerId => {
@@ -394,6 +599,14 @@ ruleBook.addEventListener('click', () => {
     pageturn.pause();
     pageturn.currentTime = 0;
     pageturn.play();
+});
+
+onePlayer.addEventListener('click', () => {
+    mainMenuRoom.leave();
+
+    createSingleplayer();
+
+    sounds.clickfast.play();
 });
 
 twoPlayers.addEventListener('click', () => {

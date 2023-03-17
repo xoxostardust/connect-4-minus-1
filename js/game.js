@@ -16,7 +16,7 @@ export class Player {
     #onRemoving;
     #usedSpecial;
 
-    constructor(name = 'Anonymous Player', team = PlayerTeam.RED) {
+    constructor(name = 'You', team = PlayerTeam.RED) {
         this.#name = name;
         this.#team = team;
         this.#pieces = [];
@@ -100,6 +100,8 @@ export class Player {
 
         this.#usedSpecial = true;
 
+        this.#removing = !this.#removing;
+
         this.#removed.forEach(f => f(column, s));
     }
 
@@ -162,5 +164,32 @@ export class Player {
 export class AI extends Player {
     constructor(name = 'AI', team) {
         super(name, team);
+    }
+
+    playSmart(grid) {
+        // lol
+        return this.playDumb(grid);
+    }
+
+    playDumb(grid) {
+        let randomColumn = 1 + Math.floor(Math.random() * (grid.columns - 1));
+
+        console.log(randomColumn);
+
+        while (grid.getColumn(randomColumn).isFull) {
+            randomColumn = 1 + Math.floor(Math.random() * (grid.columns - 1));
+
+            console.log(randomColumn);
+        }
+
+        this.placePiece(grid, randomColumn);
+    }
+
+    playRandom(grid) {
+        if (Math.random() > 0.5) {
+            this.playSmart(grid);
+        } else {
+            this.playDumb(grid);
+        }
     }
 }

@@ -349,3 +349,7 @@ html {
     align-items: center;
     bottom: 25%;
 }
+
+.reset-used {
+    filter: grayscale(100%);
+}
