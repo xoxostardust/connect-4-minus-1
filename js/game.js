@@ -1,7 +1,7 @@
 import { RED_PIECE_COUNT, YELLOW_PIECE_COUNT } from './constants.js';
-import { GameType, PieceType, PlayerTeam } from './enums.js';
+import { PieceType, PlayerTeam } from './enums.js';
 import { PlayerAlreadyUsedAbilityError, PlayerHasNoPiecesError } from './errors.js';
-import { Grid, GridPiece } from './grid.js';
+import { GridPiece } from './grid.js';
 
 export class Player {
     #name;
@@ -11,7 +11,7 @@ export class Player {
     #playing;
     #removing;
     #played;
-    #remove;
+    #removed;
     #onPlaying;
     #onRemoving;
     #usedSpecial;
@@ -27,6 +27,7 @@ export class Player {
         this.#removing = false;
 
         this.#played = [];
+        this.#removed = [];
         this.#onPlaying = [];
         this.#onRemoving = [];
 
@@ -79,7 +80,7 @@ export class Player {
 
         this.#playing = !this.#playing;
 
-        this.#played.forEach(f => f());
+        this.#played.forEach(f => f(column));
     }
 
     removePiece(grid, column, s) {
@@ -98,6 +99,8 @@ export class Player {
         this.#piecePile.push(piece);
 
         this.#usedSpecial = true;
+
+        this.#removed.forEach(f => f(column, s));
     }
 
     // Determines whether or not the player can remove a piece
@@ -118,13 +121,19 @@ export class Player {
     }
 
     remove() {
-        this.#remove = true;
+        this.#removing = true;
 
         this.#onRemoving.forEach(f => f());
     }
 
     played(f) {
         this.#played.push(f);
+
+        return f;
+    }
+
+    removed(f) {
+        this.#removed.push(f);
 
         return f;
     }
@@ -155,45 +164,3 @@ export class AI extends Player {
         super(name, team);
     }
 }
-
-// The game will feature two players only (one may be an AI)
-export class Game {
-    #playerOne;
-    #playerTwo;
-    #grid;
-
-    constructor(playerOne = new Player(PlayerTeam.RED), playerTwo = new AI(PlayerTeam.YELLOW), grid = new Grid()) {
-        this.#playerOne = playerOne;
-        this.#playerTwo = playerTwo;
-
-        this.#grid = grid;
-
-        this.#playerOne.played(() => {
-            console.log('player one played');
-
-            this.#playerTwo.play();
-        });
-
-        this.#playerTwo.played(() => {
-            console.log('player two played');
-
-            this.#playerOne.play();
-        });
-
-        Math.random() > 0.5 ? playerOne.play() : playerTwo.play();
-    }
-
-    get grid() {
-        return this.#grid;
-    }
-
-    getPlayerOne() {
-        return this.#playerOne;
-    }
-
-    getPlayerTwo() {
-        return this.#playerTwo;
-    }
-}
-
-

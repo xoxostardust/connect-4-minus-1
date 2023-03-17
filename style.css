@@ -147,7 +147,8 @@ html {
     letter-spacing: 0.05em;
 } */
 
-.rules, .back {
+.rules,
+.back {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -190,7 +191,6 @@ html {
     padding-block: 0.5em;
     padding-inline: 1em;
     background-color: transparent;
-
 }
 
 .hide {
@@ -221,17 +221,16 @@ html {
     display: none;
 }
 
-
 #remove {
     background-color: transparent;
     padding-block: 0.5em;
     padding-inline: 1em;
-    float:right;
+    float: right;
 }
 
 #remove-logo,
 #reset-logo {
-    height:9em;
+    height: 9em;
 }
 
 .rules-text {
@@ -263,16 +262,27 @@ html {
 
 .red-move-tool {
     align-items: center;
-    gap: 1rem; 
+    gap: 1rem;
     justify-content: start;
 }
 
 .red {
+    background: center / contain no-repeat url('img/Frame\ 6.svg');
     height: 1em;
+    aspect-ratio: 1;
 }
 
 .yellow {
+    background: center / contain no-repeat url('img/Frame\ 7.svg');
     height: 1em;
+    aspect-ratio: 1;
+}
+
+.jason {
+    background: center / contain no-repeat url('img/jason.jpg');
+    height: 1em;
+    aspect-ratio: 1;
+    border-radius: 50%;
 }
 
 .left-stats-counter {
@@ -300,10 +310,11 @@ html {
 
 .piece-spin {
     display: flex;
-    animation: pieceSpin 750ms linear infinite;
+    animation: pieceSpin 1s linear infinite;
 }
 
-.red-move-tool, .yellow-move-tool {
+.red-move-tool,
+.yellow-move-tool {
     font-size: 40px;
 }
 
@@ -331,7 +342,7 @@ html {
     height: 1em;
 }
 
-.connecting  {
+.connecting {
     position: absolute;
     bottom: 0;
     font-size: 50px;

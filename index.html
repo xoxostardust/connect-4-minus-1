@@ -39,7 +39,7 @@
                 TWO PLAYERS
             </button>
         </div>
-        <div class="connecting flex hide" id="connecting"></div>
+        <div class="connecting flex hide" id="connecting">Looking for players...</div>
     </section>
     <div id="grid-container" class="grid-container hide">
         <div class="grid" id="grid">
@@ -104,10 +104,8 @@
         <div class="game-stats-you">
             <div class="left-stats-counter">
                 <div class="you" id="you">You</div>
-                <div class="red-move-tool flex">
-                    <div class="piece-spin">
-                        <img class="red" src="/img/Frame 6.svg" alt="red-piece">
-                    </div>
+                <div id="you-move-tool" class="red-move-tool flex">
+                    <div class="piece-spin red"></div>
                     <div class="you-piece-number" id="you-piece-count">21</div>
                 </div>
             </div>
@@ -123,11 +121,9 @@
         <div class="game-stats-enemy">
             <div class="right-stats-counter">
                 <div class="enemy" id="enemy">Enemy</div>
-                <div class="yellow-move-tool flex">
+                <div id="enemy-move-tool" class="yellow-move-tool flex">
                     <div class="enemy-piece-number" id="enemy-piece-count">21</div>
-                    <div class="piece-spin">
-                        <img class="yellow" src="/img/Frame 7.svg" alt="yellow-piece">
-                    </div>
+                    <div class="piece-spin red"></div>
                 </div>
             </div>
         </div>
