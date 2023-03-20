@@ -117,6 +117,12 @@ function createSingleplayer() {
 
         playSound('kerplunk');
 
+        if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
+            lose();
+
+            return;
+        }
+
         if (winner != null) {
             if (you.team == winner) {
                 win();
@@ -355,9 +361,15 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     playerOne.played(() => {
-        playerTwo.play();
-
         playSound('kerplunk');
+
+        if (playerOne.getRemainingPieces().length == 0 && playerTwo.getRemainingPieces().length == 0) {
+            lose();
+
+            return;
+        }
+
+        playerTwo.play();
     });
 
     playerOne.removed(() => {
@@ -365,9 +377,15 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     playerTwo.played(() => {
-        playerOne.play();
-
         playSound('kerplunk');
+
+        if (playerTwo.getRemainingPieces().length == 0 && playerOne.getRemainingPieces().length == 0) {
+            lose();
+
+            return;
+        }
+
+        playerOne.play();
     });
 
     playerTwo.removed(() => {
@@ -509,6 +527,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         setInterval(leave, 0);
     });
+}
+
+function toggleAlert(toggle) {
+    const win = byId('win');
+
+    win.parentElement.classList.toggle('hide', !toggle)
 }
 
 function getWinner(grid) {
@@ -936,6 +960,7 @@ const ruleBook = byId('rule-book');
 const onePlayer = byId('one-player');
 const twoPlayers = byId('two-players');
 const goBack = byId('go-back');
+const ok = byId('ok');
 
 start.addEventListener('click', () => {
     showPlayerSelect();
@@ -977,5 +1002,7 @@ goBack.addEventListener('click', () => {
 
     playSound('button');
 });
+
+win.addEventListener('click', () => toggleWin(false));
 
 joinMainMenu();

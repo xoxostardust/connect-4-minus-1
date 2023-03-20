@@ -353,35 +353,3 @@ html {
 .reset-used {
     filter: grayscale(100%);
 }
-
-.victory {
-    font-size: 36px;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    top: 1.5%;
-    position: absolute;
-    z-index: 2;
-    background: rgb(63, 101, 148);
-    width: fit-content;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5em;
-    border-radius: 0.5em;
-    color: white;
-    box-shadow: 0 3px 9px #FFF9e950;
-    gap: 0.2em;
-}
-
-.ok-button {
-    padding: 0.9rem;
-    align-self: center;
-    cursor: pointer;
-    text-align: center;
-    background-color: #b0d3ef;
-    font-family: 'Avant Garde Gothic';
-    font-size: 20px;
-    border-radius:25% ;
-}
-
