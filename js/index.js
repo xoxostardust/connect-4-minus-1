@@ -2,7 +2,7 @@ import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
 import { AI, Player } from './game.js';
-import { Grid, GridPiece } from './grid.js';
+import { Grid } from './grid.js';
 
 const config = { appId: 'connect-4-minus-1' };
 
@@ -18,6 +18,28 @@ const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
 
+function playSound(name) {
+    const sound = sounds[name];
+
+    if (!sound) {
+        return;
+    }
+
+    if (!sound.paused) {
+        sound.pause();
+    }
+
+    sound.currentTime = 0;
+
+    const promise = sound.play();
+
+    if (promise !== undefined) {
+        promise.catch(error => {
+            console.log(`${name} was interrupted!`);
+        });
+    }
+}
+
 function createSingleplayer() {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
@@ -30,60 +52,149 @@ function createSingleplayer() {
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
 
+    const gridColumns = document.getElementsByClassName('grid-column');
+    const gridSpaces = document.getElementsByClassName('grid-space');
+
     let removeMode = false;
     let removeTimeout;
 
     const grid = createGrid();
 
     const you = new Player(selfId, PlayerTeam.RED);
-    const opponent = new AI('Jason', PlayerTeam.YELLOW);
+    const opponent = new AI(Math.random() < 0.99 ? 'Jason' : 'Mr. Quick', PlayerTeam.YELLOW);
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
 
+    function leave() {
+        remove.removeEventListener('click', clickReset);
+        remove.classList.toggle('reset-used', false);
+
+        youPieceSpin.classList.toggle('piece-spin', true);
+        enemyPieceSpin.classList.toggle('piece-spin', true);
+
+        toggleGrid(false);
+        resetGrid();
+
+        joinMainMenu();
+
+        showStart();
+    }
+
+    function win() {
+        // wins++;
+
+        clearTimeout(removeTimeout);
+
+        playSound('victory');
+
+        setTimeout(() => {
+            alert('You win! Game over.');
+
+            leave();
+        }, 1000);
+    }
+
+    function lose() {
+        clearTimeout(removeTimeout);
+
+        playSound('glassbreak');
+
+        setTimeout(() => {
+            alert('You lost! Game over.');
+
+            leave();
+        }, 1000);
+    }
+
     you.played(() => {
-        opponent.play();
+        const winner = getWinner(grid);
 
         youPieceCount.innerText = you.getRemainingPieces().length;
 
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
 
+        playSound('kerplunk');
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+
+        opponent.play();
+
         setTimeout(
             () => {
                 opponent.playRandom(grid);
 
-                sounds.kerplunk.play();
+                playSound('kerplunk');
             },
             testing ? 100 : 1000 + Math.floor(Math.random() * 3000)
         );
-
-        sounds.kerplunk.play();
     });
 
     you.removed(() => {
+        const winner = getWinner(grid);
+
         disableRemove();
 
-        sounds.collide.play();
+        playSound('collide');
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
     });
 
     opponent.played(() => {
-        you.play();
+        const winner = getWinner(grid);
 
         enemyPieceCount.innerText = opponent.getRemainingPieces().length;
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
 
-        sounds.kerplunk.play();
+        playSound('kerplunk');
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+
+        you.play();
     });
 
     opponent.removed(() => {
-        sounds.collide.play();
-    });
+        const winner = getWinner(grid);
 
-    const gridColumns = document.getElementsByClassName('grid-column');
-    const gridSpaces = document.getElementsByClassName('grid-space');
+        playSound('collide');
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+    });
 
     function disableRemove() {
         setTimeout(() => {
@@ -116,7 +227,7 @@ function createSingleplayer() {
             const column = gridColumn.dataset.column;
 
             if (grid.getColumn(column).isFull) {
-                sounds.clickfast.play();
+                playSound('clickfast');
 
                 return;
             }
@@ -157,7 +268,7 @@ function createSingleplayer() {
     youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
     enemyPieceSpin.classList.toggle('piece-spin', opponent.isPlaying());
 
-    setTimeout(toggleGrid, 0, false);
+    setTimeout(toggleGrid, 0, true);
 }
 
 function createMultiplayer(firstPlayer, secondPlayer) {
@@ -171,6 +282,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
+
+    const gridColumns = document.getElementsByClassName('grid-column');
+    const gridSpaces = document.getElementsByClassName('grid-space');
 
     let removeMode = false;
     let removeTimeout;
@@ -193,6 +307,41 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const youTeam = you.team;
     const enemyTeam = enemyPlayer.team;
 
+    function leave() {
+        gameRoom.leave();
+
+        remove.removeEventListener('click', clickReset);
+        remove.classList.toggle('reset-used', false);
+
+        youPieceSpin.classList.toggle('piece-spin', true);
+        enemyPieceSpin.classList.toggle('piece-spin', true);
+
+        toggleGrid(false);
+        resetGrid();
+
+        joinMainMenu();
+
+        showStart();
+    }
+
+    function win() {
+        wins++;
+
+        clearTimeout(removeTimeout);
+
+        playSound('victory');
+
+        setTimeout(leave, 1000);
+    }
+
+    function lose() {
+        clearTimeout(removeTimeout);
+
+        playSound('glassbreak');
+
+        setTimeout(leave, 1000);
+    }
+
     getPiecePlaced((column, peerId) => {
         const player = playerOne.name == peerId ? playerOne : playerTwo;
 
@@ -208,28 +357,40 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     playerOne.played(() => {
         playerTwo.play();
 
-        sounds.kerplunk.play();
+        playSound('kerplunk');
     });
 
     playerOne.removed(() => {
-        sounds.collide.play();
+        playSound('collide');
     });
 
     playerTwo.played(() => {
         playerOne.play();
 
-        sounds.kerplunk.play();
+        playSound('kerplunk');
     });
 
     playerTwo.removed(() => {
-        sounds.collide.play();
+        playSound('collide');
     });
 
     you.played(() => {
+        const winner = getWinner(grid);
+
         youPieceCount.innerText = you.getRemainingPieces().length;
 
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
     });
 
     you.removed(() => {
@@ -237,14 +398,23 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     enemyPlayer.played(() => {
+        const winner = getWinner(grid);
+
         enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
-    });
 
-    const gridColumns = document.getElementsByClassName('grid-column');
-    const gridSpaces = document.getElementsByClassName('grid-space');
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+    });
 
     function disableRemove() {
         setTimeout(() => {
@@ -277,7 +447,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             const column = gridColumn.dataset.column;
 
             if (grid.getColumn(column).isFull) {
-                sounds.clickfast.play();
+                playSound('clickfast');
 
                 return;
             }
@@ -329,57 +499,218 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
         enemyPieceSpin.classList.toggle('piece-spin', enemyPlayer.isPlaying());
 
-        setTimeout(toggleGrid, 0, false);
+        setTimeout(toggleGrid, 0, true);
     });
 
     gameRoom.onPeerLeave(() => {
-        wins++;
-
         clearTimeout(removeTimeout);
 
-        sounds.victory.play();
+        // alert('Your opponent has left the game. Game over!');
 
-        alert('Your opponent has left the game. Game over!');
-
-        setTimeout(() => {
-            gameRoom.leave();
-
-            remove.removeEventListener('click', clickReset);
-            remove.classList.toggle('reset-used', false);
-
-            youPieceSpin.classList.toggle('piece-spin', true);
-            enemyPieceSpin.classList.toggle('piece-spin', true);
-
-            toggleGrid(true);
-            resetGrid();
-
-            joinMainMenu();
-
-            showStart();
-        }, 0);
+        setInterval(leave, 0);
     });
 }
 
-function checkGrid(grid) {
-    const array = grid.asArray();
+function getWinner(grid) {
+    const win = checkGrid(grid);
 
-    for (let i = 0; i < grid.length; i++) {
-        const column = array[i];
+    if (win.length > 0) {
+        showWin(win);
 
-        for (let j = 0; j < column.length; j++) {
-            const space = column[j];
+        return determineWinner(win);
+    }
 
-            for (let s = 1; s < s + 3; s++) {
-                
+    return;
+}
+
+function determineWinner(win) {
+    const gridSpaces = document.getElementsByClassName('grid-space');
+
+    for (const [gridColumn, row] of win) {
+        for (const gridSpace of gridSpaces) {
+            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+                return gridSpace.classList.contains('red-piece') ? PlayerTeam.RED : PlayerTeam.YELLOW;
             }
         }
     }
 }
 
-function toggleGrid(force) {
+function showWin(win) {
+    const gridSpaces = document.getElementsByClassName('grid-space');
+
+    for (const [gridColumn, row] of win) {
+        for (const gridSpace of gridSpaces) {
+            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+                gridSpace.classList.toggle('piece-spin', true);
+            }
+        }
+    }
+}
+
+// Check the grid for a win passing an instance of Grid as an argument (TODO: make this more efficient)
+function checkGrid(grid) {
+    const array = grid.asArray();
+
+    const largestColumn = grid
+        .asArray()
+        .sort((a, b) => a.length > b.length)
+        .shift();
+
+    // Check for a Connect 4 in columns first
+    for (let i = 0; i < array.length; i++) {
+        const column = array[i];
+
+        for (let j = 0; j < column.length; j++) {
+            const space = column[j];
+
+            if (space == null) {
+                continue;
+            }
+
+            let matches = [];
+
+            for (let k = j + 1; k < j + 4; k++) {
+                const nextSpace = column[k];
+
+                if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                    matches.push([i + 1, k + 1]);
+                } else {
+                    matches = [];
+                }
+            }
+
+            // We got ourselves a Connect 4
+            if (matches.length >= 3) {
+                return [[i + 1, j + 1], ...matches];
+            }
+        }
+    }
+
+    // Check for rows second
+    for (let i = 0; i < largestColumn.length; i++) {
+        for (let j = 0; j < array.length; j++) {
+            const space = array[j][i];
+
+            if (!space) {
+                continue;
+            }
+
+            let matches = [];
+
+            for (let k = j + 1; k < j + 4; k++) {
+                if (array[k] == undefined) {
+                    continue;
+                }
+
+                const nextSpace = array[k][i];
+
+                if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                    matches.push([k + 1, i + 1]);
+                } else {
+                    matches = [];
+                }
+            }
+
+            // We got ourselves a Connect 4
+            if (matches.length >= 3) {
+                return [[j + 1, i + 1], ...matches];
+            }
+        }
+    }
+
+    // Check for positive-sloped diagonals next
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < largestColumn.length; j++) {
+            const column = array[i];
+
+            if (column == undefined) {
+                continue;
+            }
+
+            const space = column[j];
+
+            if (space == undefined) {
+                continue;
+            }
+
+            let matches = [];
+
+            let x = 1;
+            for (let k = i + 1; k < i + 4; k++) {
+                const nextColumn = array[k];
+
+                if (nextColumn == undefined) {
+                    continue;
+                }
+
+                const nextSpace = nextColumn[j - x];
+
+                if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                    matches.push([k + 1, j + 1 - x]);
+                } else {
+                    matches = [];
+                }
+
+                // We got ourselves a Connect 4
+                if (matches.length >= 3) {
+                    return [[i + 1, j + 1], ...matches];
+                }
+
+                x++;
+            }
+        }
+    }
+
+    // Check for negative-sloped diagonals last
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < largestColumn.length; j++) {
+            const column = array[i];
+
+            if (column == undefined) {
+                continue;
+            }
+
+            const space = column[j];
+
+            if (space == undefined) {
+                continue;
+            }
+
+            let matches = [];
+
+            let x = 1;
+            for (let k = i + 1; k < i + 4; k++) {
+                const nextColumn = array[k];
+
+                if (nextColumn == undefined) {
+                    continue;
+                }
+
+                const nextSpace = nextColumn[j + x];
+
+                if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                    matches.push([k + 1, j + 1 + x]);
+                } else {
+                    matches = [];
+                }
+
+                // We got ourselves a Connect 4
+                if (matches.length >= 3) {
+                    return [[i + 1, j + 1], ...matches];
+                }
+
+                x++;
+            }
+        }
+    }
+
+    return [];
+}
+
+function toggleGrid(toggle) {
     const gridContainer = byId('grid-container');
 
-    gridContainer.classList.toggle('hide', force);
+    gridContainer.classList.toggle('hide', !toggle);
 }
 
 function resetGrid() {
@@ -393,7 +724,7 @@ function resetGrid() {
         gridColumn.parentElement.replaceChild(clone, gridColumn);
 
         for (const space of clone.children) {
-            space.classList.remove('red-piece', 'yellow-piece');
+            space.classList.remove('red-piece', 'yellow-piece', 'piece-spin');
         }
     }
 }
@@ -497,7 +828,7 @@ function joinQueue() {
         const playerOne = now < firstTimestamp ? selfId : firstPlayer;
         const playerTwo = playerOne == selfId ? firstPlayer : selfId;
 
-        setTimeout(createMultiplayer, 0, playerOne, playerTwo);
+        setTimeout(createMultiplayer, 100, playerOne, playerTwo);
     });
 
     queueRoom.onPeerJoin(peerId => {
@@ -609,17 +940,13 @@ const goBack = byId('go-back');
 start.addEventListener('click', () => {
     showPlayerSelect();
 
-    sounds.clickfast.play();
+    playSound('clickfast');
 });
 
 ruleBook.addEventListener('click', () => {
-    const pageturn = sounds.pageturn;
-
     toggleRules();
 
-    pageturn.pause();
-    pageturn.currentTime = 0;
-    pageturn.play();
+    playSound('pageturn');
 });
 
 onePlayer.addEventListener('click', () => {
@@ -627,7 +954,7 @@ onePlayer.addEventListener('click', () => {
 
     createSingleplayer();
 
-    sounds.clickfast.play();
+    playSound('clickfast');
 });
 
 twoPlayers.addEventListener('click', () => {
@@ -637,7 +964,7 @@ twoPlayers.addEventListener('click', () => {
 
     joinQueue();
 
-    sounds.clickfast.play();
+    playSound('clickfast');
 });
 
 goBack.addEventListener('click', () => {
@@ -648,7 +975,7 @@ goBack.addEventListener('click', () => {
         showStart();
     }
 
-    sounds.button.play();
+    playSound('button');
 });
 
 joinMainMenu();
