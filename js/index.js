@@ -1,23 +1,28 @@
+// Main entry point
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
 import { AI, Player } from './game.js';
 import { Grid } from './grid.js';
 
+// Trystero config
 const config = { appId: 'connect-4-minus-1' };
 
+// Trystero rooms
 let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
 let wins = 0;
 
-let testing = true;
+// Singleplayer testing
+let testing = false;
 
 const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
 
+// Plays a sound given a name
 function playSound(name) {
     const sound = sounds[name];
 
@@ -40,6 +45,7 @@ function playSound(name) {
     }
 }
 
+// Creates a local singleplayer game
 function createSingleplayer() {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
@@ -277,6 +283,7 @@ function createSingleplayer() {
     setTimeout(toggleGrid, 0, true);
 }
 
+// Creates a P2P multiplayer game
 function createMultiplayer(firstPlayer, secondPlayer) {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
@@ -1003,6 +1010,6 @@ goBack.addEventListener('click', () => {
     playSound('button');
 });
 
-win.addEventListener('click', () => toggleWin(false));
+ok.addEventListener('click', () => toggleAlert(false));
 
 joinMainMenu();
