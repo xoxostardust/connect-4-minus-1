@@ -301,6 +301,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let removeMode = false;
     let removeTimeout;
 
+    let abruptlyEnded = false;
+
     queueRoom.leave();
 
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
@@ -337,6 +339,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function win() {
+        abruptlyEnded = false;
+
         wins++;
 
         clearTimeout(removeTimeout);
@@ -347,6 +351,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function lose() {
+        abruptlyEnded = false;
+
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
@@ -527,6 +533,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     gameRoom.onPeerLeave(() => {
+        if (!abruptlyEnded) {
+            return;
+        }
+
         clearTimeout(removeTimeout);
 
         // alert('Your opponent has left the game. Game over!');
