@@ -4,8 +4,10 @@ import { PieceType, PlayerTeam } from './enums.js';
 import { AI, Player } from './game.js';
 import { Grid } from './grid.js';
 
+let searchParams = new URL(document.location).searchParams;
+
 // Trystero config
-const config = { appId: 'connect-4-minus-1' };
+const config = { appId: searchParams.get('appId') || 'connect-4-minus-1' };
 
 // Trystero rooms
 let mainMenuRoom;
@@ -425,6 +427,18 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     you.removed(() => {
         disableRemove();
+
+        const winner = getWinner(grid);
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
     });
 
     enemyPlayer.played(() => {
@@ -434,6 +448,20 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+    });
+
+    enemyPlayer.removed(() => {
+        const winner = getWinner(grid);
 
         if (winner != null) {
             if (you.team == winner) {
