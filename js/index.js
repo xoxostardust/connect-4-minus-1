@@ -17,7 +17,7 @@ let gameRoom;
 let wins = 0;
 
 // Singleplayer testing
-let testing = false;
+let testing = searchParams.get('testing') || false;
 
 const byId = document.getElementById.bind(document);
 
@@ -50,6 +50,8 @@ function playSound(name) {
 function createSingleplayer() {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
+    const leftStats = byId('left-stats');
+    const rightStats = byId('right-stats');
     const youMoveTool = byId('you-move-tool');
     const enemyMoveTool = byId('enemy-move-tool');
     const youPieceCount = byId('you-piece-count');
@@ -298,6 +300,8 @@ function createSingleplayer() {
 function createMultiplayer(firstPlayer, secondPlayer) {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
+    const leftStats = byId('left-stats');
+    const rightStats = byId('right-stats');
     const youMoveTool = byId('you-move-tool');
     const enemyMoveTool = byId('enemy-move-tool');
     const youPieceCount = byId('you-piece-count');
@@ -429,6 +433,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
 
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+
         if (winner != null) {
             if (you.team == winner) {
                 win();
@@ -463,6 +470,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
 
         if (winner != null) {
             if (you.team == winner) {
@@ -571,6 +581,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
         enemyPieceSpin.classList.toggle('piece-spin', enemyPlayer.isPlaying());
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
 
         setTimeout(toggleGrid, 0, true);
     });
