@@ -1,4 +1,3 @@
-// Main entry point
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
@@ -302,6 +301,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let removeMode = false;
     let removeTimeout;
 
+    let abruptlyEnded = false;
+
     queueRoom.leave();
 
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
@@ -338,6 +339,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function win() {
+        abruptlyEnded = false;
+
         wins++;
 
         clearTimeout(removeTimeout);
@@ -348,6 +351,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function lose() {
+        abruptlyEnded = false;
+
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
@@ -528,6 +533,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     gameRoom.onPeerLeave(() => {
+        if (!abruptlyEnded) {
+            return;
+        }
+
         clearTimeout(removeTimeout);
 
         // alert('Your opponent has left the game. Game over!');
@@ -539,9 +548,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 function toggleAlert(toggle) {
     const win = byId('win');
 
-    win.parentElement.classList.toggle('hide', !toggle)
+    win.parentElement.classList.toggle('hide', !toggle);
 }
 
+// Checks the grid for a win and returns the determined winner if there happens to be one
 function getWinner(grid) {
     const win = checkGrid(grid);
 
@@ -554,6 +564,7 @@ function getWinner(grid) {
     return;
 }
 
+// Used by getWinner to determine the winner
 function determineWinner(win) {
     const gridSpaces = document.getElementsByClassName('grid-space');
 
@@ -566,6 +577,7 @@ function determineWinner(win) {
     }
 }
 
+// Function that spins the winning pieces on the grid
 function showWin(win) {
     const gridSpaces = document.getElementsByClassName('grid-space');
 
@@ -744,6 +756,7 @@ function toggleGrid(toggle) {
     gridContainer.classList.toggle('hide', !toggle);
 }
 
+// Clears the grid of pieces and removes all active event listeners
 function resetGrid() {
     const grid = byId('grid');
 
@@ -760,6 +773,7 @@ function resetGrid() {
     }
 }
 
+// Creates the grid and sets up connections for placing and removing pieces on the grid
 function createGrid() {
     const grid = new Grid();
 
@@ -770,6 +784,7 @@ function createGrid() {
 
         const column = grid.getColumn(columnData);
 
+        // The grid will reflect a piece placed on the Grid class
         column.onPiecePlaced((piece, row) => {
             const space = gridColumn.querySelector(`[data-row='${row}']`);
 
@@ -789,6 +804,7 @@ function createGrid() {
             }
         });
 
+        // The grid will reflect a piece removed on the Grid class
         column.onPieceRemoved((s, piece) => {
             const columnArray = column.asArray();
 
@@ -824,62 +840,80 @@ function createGrid() {
         });
     }
 
+    // Return the grid to be used in games
     return grid;
 }
 
+// Leave the queue and return to the main menu
 function leaveQueue() {
     queueRoom.leave();
 
     joinMainMenu();
 }
 
+// Joins a multiplayer queue
 function joinQueue() {
     const connecting = byId('connecting');
     const goBack = byId('go-back');
 
+    // Join the queue room
     queueRoom = joinRoom(config, 'queue');
 
+    // Make an action for queuing
     const [queue, queued] = queueRoom.makeAction('queue');
 
+    // Creates a timestamp to determine who plays first
     const now = Date.now();
 
+    // Stores other players queuing with the timestamp they first queued
     let queuing = {};
 
+    // When another player queues
     queued((timestamp, peerId) => {
+        // Do not flood our queue with duplicates
         if (queuing[peerId]) {
             return;
         }
 
+        // Put the player in the queue with their queue timestamp
         queuing[peerId] = timestamp;
 
+        // Get the first player who queued first
         const [firstPlayer, firstTimestamp] = Object.entries(queuing)
             .sort((a, b) => a[a.length - 1] - b[b.length - 1])
             .shift();
 
+        // Determine who is player one and player two
         const playerOne = now < firstTimestamp ? selfId : firstPlayer;
         const playerTwo = playerOne == selfId ? firstPlayer : selfId;
 
+        // Create the multiplayer game for the two players
         setTimeout(createMultiplayer, 100, playerOne, playerTwo);
     });
 
+    // When another player joins the queue
     queueRoom.onPeerJoin(peerId => {
         console.log(`${peerId} has joined the queue.`);
 
         connecting.innerText = 'Joining...';
         goBack.classList.toggle('hide', true);
 
+        // Join the queue
         queue(now);
     });
 }
 
+// Joins the main menu room
 function joinMainMenu() {
     const mainMenu = byId('main-menu');
     const online = byId('online');
 
     mainMenu.classList.toggle('hide', false);
 
+    // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
+    // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
         const numberOfPeers = mainMenuRoom.getPeers().length;
 
@@ -903,6 +937,7 @@ function joinMainMenu() {
     });
 }
 
+// Updates the online count
 function updateOnline() {
     const numberOfPeers = mainMenuRoom.getPeers().length;
 
@@ -915,6 +950,7 @@ function toggleRules() {
     rules.classList.toggle('hide');
 }
 
+// Show the connecting screen
 function showConnecting() {
     const connecting = byId('connecting');
     const playerSelect = byId('player-select');
@@ -930,6 +966,7 @@ function showConnecting() {
     goBack.classList.toggle('hide', false);
 }
 
+// Show the player select screen
 function showPlayerSelect() {
     const connecting = byId('connecting');
     const start = byId('start');
@@ -947,6 +984,7 @@ function showPlayerSelect() {
     goBack.classList.toggle('go-back-to-player-select', false);
 }
 
+// Show start screen
 function showStart() {
     const start = byId('start');
     const ruleBook = byId('rule-book');
@@ -962,6 +1000,7 @@ function showStart() {
     ruleBook.classList.toggle('hide', false);
 }
 
+// Setup default event listeners for the main menu
 const start = byId('start');
 const ruleBook = byId('rule-book');
 const onePlayer = byId('one-player');
@@ -1012,4 +1051,5 @@ goBack.addEventListener('click', () => {
 
 ok.addEventListener('click', () => toggleAlert(false));
 
+// Join the main menu
 joinMainMenu();
