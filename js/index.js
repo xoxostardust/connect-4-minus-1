@@ -62,6 +62,7 @@ function createSingleplayer() {
 
     let removeMode = false;
     let removeTimeout;
+    let nukeOnMove;
 
     const grid = createGrid();
 
@@ -212,6 +213,8 @@ function createSingleplayer() {
             removeMode = false;
         }, 0);
 
+        document.removeEventListener('mousemove', moveAndNuke);
+
         remove.classList.toggle('reset-used', true);
 
         remove.removeEventListener('click', clickReset);
@@ -222,11 +225,18 @@ function createSingleplayer() {
             return;
         }
 
+        document.addEventListener('mousemove', moveAndNuke);
+
         you.remove();
 
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
+    }
+
+    function moveAndNuke(p) {
+        nuke([p.pageX, p.pageY]);
+        console.log(p.pageX, p.pageY);
     }
 
     for (const gridColumn of gridColumns) {
@@ -308,6 +318,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
 
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('place');
+    const [nuke, nuking] = gameRoom.makeAction('nuke');
     const [removePiece, getPieceRemoved] = gameRoom.makeAction('remove');
 
     const grid = createGrid();
@@ -370,6 +381,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         const player = playerOne.name == peerId ? playerOne : playerTwo;
 
         player.removePiece(grid, column, row);
+    });
+
+    nuking(([x, y]) => {
+        console.log(x, y);
     });
 
     playerOne.played(() => {
