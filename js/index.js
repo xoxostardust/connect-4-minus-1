@@ -1,23 +1,21 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
-import { AI, Player } from './game.js';
+import { AI, Jason, MrQuick, Player, Timmy } from './game.js';
 import { Grid } from './grid.js';
 
-let searchParams = new URL(document.location).searchParams;
-
 // Trystero config
-const config = { appId: searchParams.get('appId') || 'connect-4-minus-1' };
+const config = { appId: 'connect-4-minus-1' };
 
 // Trystero rooms
 let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
-let wins = 0;
+let wins = 5;
 
-// Singleplayer testing
-let testing = searchParams.get('testing') || false;
+// Testing
+let testing = false;
 
 const byId = document.getElementById.bind(document);
 
@@ -71,7 +69,24 @@ function createSingleplayer() {
     const grid = createGrid();
 
     const you = new Player(selfId, PlayerTeam.RED);
-    const opponent = new AI(Math.random() < 0.99 ? 'Jason' : 'Mr. Quick', PlayerTeam.YELLOW);
+
+    const opponentList = [
+        // ['Timmy', Timmy, () => wins <= 3],
+        ['Jason', Jason, () => wins > 3 && wins <= 7],
+        ['Mr. Quick', MrQuick, () => wins > 8]
+    ];
+
+    let selectedOpponent;
+
+    for (const opp of opponentList) {
+        if (opp[2]()) {
+            selectedOpponent = opp;
+
+            break;
+        }
+    }
+
+    const opponent = new selectedOpponent[1](selectedOpponent[0], PlayerTeam.YELLOW);
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
@@ -148,14 +163,11 @@ function createSingleplayer() {
 
         opponent.play();
 
-        setTimeout(
-            () => {
-                opponent.playRandom(grid);
+        setTimeout(() => {
+            opponent.playMove(grid);
 
-                playSound('kerplunk');
-            },
-            testing ? 100 : 1000 + Math.floor(Math.random() * 3000)
-        );
+            playSound('kerplunk');
+        }, 1000);
     });
 
     you.removed(() => {

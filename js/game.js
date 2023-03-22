@@ -1,4 +1,4 @@
-import { RED_PIECE_COUNT, YELLOW_PIECE_COUNT } from './constants.js';
+import { GRID_COLUMNS, RED_PIECE_COUNT, YELLOW_PIECE_COUNT } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
 import { PlayerAlreadyUsedAbilityError, PlayerHasNoPiecesError } from './errors.js';
 import { GridPiece } from './grid.js';
@@ -166,30 +166,255 @@ export class AI extends Player {
         super(name, team);
     }
 
-    playSmart(grid) {
-        // lol
-        return this.playDumb(grid);
+    playMove(grid) {}
+}
+
+export class Timmy extends AI {
+    constructor(name = 'Timmy', team) {
+        super(name, team);
     }
 
-    playDumb(grid) {
-        let randomColumn = 1 + Math.floor(Math.random() * grid.columns);
+    playMove(grid) {
+        const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
 
         // console.log(randomColumn);
 
         if (grid.getColumn(randomColumn).isFull) {
-            this.playDumb(grid);
+            this.play(grid);
 
             return;
         }
 
         this.placePiece(grid, randomColumn);
     }
+}
 
-    playRandom(grid) {
-        if (Math.random() > 0.5) {
-            this.playSmart(grid);
-        } else {
-            this.playDumb(grid);
+export class Jason extends AI {
+    constructor(name = 'Jason', team) {
+        super(name, team);
+    }
+
+    getPositions(grid) {
+        const array = grid.asArray();
+
+        const largestColumn = grid
+            .asArray()
+            .sort((a, b) => a.length > b.length)
+            .shift();
+
+        let allMatches = [];
+
+        // Check for a Connect 4 in columns first
+        for (let i = 0; i < array.length; i++) {
+            const column = array[i];
+
+            for (let j = 0; j < column.length; j++) {
+                const space = column[j];
+
+                if (space == null) {
+                    continue;
+                }
+
+                let matches = [];
+
+                for (let k = j + 1; k < j + 4; k++) {
+                    const nextSpace = column[k];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                        matches.push([i + 1, k + 1]);
+                    } else {
+                        matches = [];
+                    }
+                }
+
+                if (matches.length >= 2) {
+                    allMatches.push([i + 1, j + 1], ...matches);
+                }
+            }
         }
+
+        // Check for rows second
+        for (let i = 0; i < largestColumn.length; i++) {
+            for (let j = 0; j < array.length; j++) {
+                const space = array[j][i];
+
+                if (!space) {
+                    continue;
+                }
+
+                let matches = [];
+
+                for (let k = j + 1; k < j + 4; k++) {
+                    if (array[k] == undefined) {
+                        continue;
+                    }
+
+                    const nextSpace = array[k][i];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                        matches.push([k + 1, i + 1]);
+                    } else {
+                        matches = [];
+                    }
+                }
+
+                if (matches.length >= 2) {
+                    allMatches.push([j + 1, i + 1], ...matches);
+                }
+            }
+        }
+
+        // Check for positive-sloped diagonals next
+        for (let i = 0; i < array.length; i++) {
+            for (let j = 0; j < largestColumn.length; j++) {
+                const column = array[i];
+
+                if (column == undefined) {
+                    continue;
+                }
+
+                const space = column[j];
+
+                if (space == undefined) {
+                    continue;
+                }
+
+                let matches = [];
+
+                let x = 1;
+                for (let k = i + 1; k < i + 4; k++) {
+                    const nextColumn = array[k];
+
+                    if (nextColumn == undefined) {
+                        continue;
+                    }
+
+                    const nextSpace = nextColumn[j - x];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                        matches.push([k + 1, j + 1 - x]);
+                    } else {
+                        matches = [];
+                    }
+
+                    if (matches.length >= 2) {
+                        allMatches.push([i + 1, j + 1], ...matches);
+                    }
+
+                    x++;
+                }
+            }
+        }
+
+        // Check for negative-sloped diagonals last
+        for (let i = 0; i < array.length; i++) {
+            for (let j = 0; j < largestColumn.length; j++) {
+                const column = array[i];
+
+                if (column == undefined) {
+                    continue;
+                }
+
+                const space = column[j];
+
+                if (space == undefined) {
+                    continue;
+                }
+
+                let matches = [];
+
+                let x = 1;
+                for (let k = i + 1; k < i + 4; k++) {
+                    const nextColumn = array[k];
+
+                    if (nextColumn == undefined) {
+                        continue;
+                    }
+
+                    const nextSpace = nextColumn[j + x];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
+                        matches.push([k + 1, j + 1 + x]);
+                    } else {
+                        matches = [];
+                    }
+
+                    if (matches.length >= 2) {
+                        allMatches.push([i + 1, j + 1], ...matches);
+                    }
+
+                    x++;
+                }
+            }
+        }
+
+        return allMatches;
+    }
+
+    getLastPosition(positions) {
+        const ps = positions.map(([column, _]) => column).sort((a, b) => a - b);
+
+        let x = 0;
+
+        while (ps[x] && ps[x + 1]) {
+            a = ps[x];
+            b = ps[x + 1];
+
+            if (b - a != 1) {
+                return Math.floor((b * a) / 2);
+            }
+        }
+
+        return -1;
+    }
+
+    playMove(grid) {
+        const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
+
+        const positions = this.getPositions(grid);
+
+        if (positions.length > 0) {
+            if (this.canRemovePiece()) {
+                for (const [column, row] of positions) {
+                    const gridSpace = grid.getColumn(column).asArray()[row - 1];
+
+                    if (gridSpace.pieceType == (this.team == PlayerTeam.RED ? PieceType.RED : PieceType.YELLOW)) {
+                        const position = this.getLastPosition(positions);
+
+                        if (position != -1) {
+                            this.placePiece(grid, position);
+                        } else {
+                            this.placePiece(grid, Math.random() > 3 / 7 ? Math.max(1, Math.min(Math.random() > 0.5 ? column + 1 : column - 1, GRID_COLUMNS)) : column);
+                        }
+
+                        return;
+                    }
+
+                    this.remove();
+
+                    this.removePiece(grid, column, row);
+
+                    setTimeout(() => {
+                        this.placePiece(grid, column);
+                    }, 500);
+
+                    return;
+                }
+            } else {
+                const position = this.getLastPosition(positions);
+
+                this.placePiece(grid, Math.random() > 3 / 7 ? Math.max(1, Math.min(Math.random() > 0.5 ? position + 1 : position - 1, GRID_COLUMNS)) : position);
+            }
+        }
+
+        if (grid.getColumn(randomColumn).isFull) {
+            this.play(grid);
+
+            return;
+        }
+
+        this.placePiece(grid, randomColumn);
     }
 }
+
+export class MrQuick extends AI {}
