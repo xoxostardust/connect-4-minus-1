@@ -125,6 +125,9 @@ function createSingleplayer() {
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
 
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
+        rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+
         playSound('kerplunk');
 
         if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
@@ -180,6 +183,9 @@ function createSingleplayer() {
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+        rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
 
         playSound('kerplunk');
 
@@ -292,6 +298,9 @@ function createSingleplayer() {
 
     youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
     enemyPieceSpin.classList.toggle('piece-spin', opponent.isPlaying());
+
+    leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
+    rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
     setTimeout(toggleGrid, 0, true);
 }
