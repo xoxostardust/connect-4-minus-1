@@ -66,6 +66,8 @@ function createSingleplayer() {
     let removeTimeout;
     let nukeOnMove;
 
+    let ended = false;
+
     const grid = createGrid();
 
     const you = new Player(selfId, PlayerTeam.RED);
@@ -107,6 +109,8 @@ function createSingleplayer() {
     }
 
     function win() {
+        ended = true;
+
         // wins++;
 
         clearTimeout(removeTimeout);
@@ -121,6 +125,8 @@ function createSingleplayer() {
     }
 
     function lose() {
+        ended = true;
+
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
@@ -263,7 +269,7 @@ function createSingleplayer() {
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (!you.isPlaying() || removeMode) {
+            if (ended || !you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -344,6 +350,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let removeMode = false;
     let removeTimeout;
 
+    let ended = false;
     let abruptlyEnded = false;
 
     queueRoom.leave();
@@ -383,6 +390,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function win() {
+        ended = true;
         abruptlyEnded = false;
 
         wins++;
@@ -399,6 +407,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function lose() {
+        ended = true;
         abruptlyEnded = false;
 
         clearTimeout(removeTimeout);
@@ -558,7 +567,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (!you.isPlaying() || removeMode) {
+            if (ended || !you.isPlaying() || removeMode) {
                 return;
             }
 
