@@ -115,8 +115,6 @@ function createSingleplayer() {
 
         setTimeout(() => {
             showModal('You win! Game over.').then(value => {
-                console.log('ss')
-
                 leave();
             });
         }, 500);
@@ -129,8 +127,6 @@ function createSingleplayer() {
 
         setTimeout(() => {
             showModal('You lose! Game over.').then(value => {
-                console.log('ss')
-
                 leave();
             });
         }, 500);
