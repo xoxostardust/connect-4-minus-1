@@ -114,10 +114,12 @@ function createSingleplayer() {
         playSound('victory');
 
         setTimeout(() => {
-            alert('You win! Game over.');
+            showModal('You win! Game over.').then(value => {
+                console.log('ss')
 
-            leave();
-        }, 1000);
+                leave();
+            });
+        }, 500);
     }
 
     function lose() {
@@ -126,10 +128,12 @@ function createSingleplayer() {
         playSound('glassbreak');
 
         setTimeout(() => {
-            alert('You lost! Game over.');
+            showModal('You lose! Game over.').then(value => {
+                console.log('ss')
 
-            leave();
-        }, 1000);
+                leave();
+            });
+        }, 500);
     }
 
     you.played(() => {
@@ -385,7 +389,11 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         playSound('victory');
 
-        setTimeout(leave, 1000);
+        setTimeout(() => {
+            showModal('You win! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     function lose() {
@@ -395,7 +403,11 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         playSound('glassbreak');
 
-        setTimeout(leave, 1000);
+        setTimeout(() => {
+            showModal('You lose! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     getPiecePlaced((column, peerId) => {
@@ -619,6 +631,28 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         // alert('Your opponent has left the game. Game over!');
 
         setInterval(leave, 0);
+    });
+}
+
+function showModal(text) {
+    const win = byId('win');
+    const modal = win.parentElement;
+    const ok = byId('ok');
+
+    win.innerText = text;
+
+    modal.classList.toggle('hide', false);
+
+    return new Promise((resolve, reject) => {
+        ok.addEventListener(
+            'click',
+            () => {
+                modal.classList.toggle('hide', true);
+
+                resolve();
+            },
+            { once: true }
+        );
     });
 }
 
