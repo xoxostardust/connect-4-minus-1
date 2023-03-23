@@ -12,7 +12,7 @@ let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
-let wins = 5;
+let wins = 0;
 
 // Testing
 let testing = false;
@@ -73,7 +73,7 @@ function createSingleplayer() {
     const you = new Player(selfId, PlayerTeam.RED);
 
     const opponentList = [
-        // ['Timmy', Timmy, () => wins <= 3],
+        ['Timmy', Timmy, () => wins <= 3],
         ['Jason', Jason, () => wins > 3 && wins <= 7],
         ['Mr. Quick', MrQuick, () => wins > 8]
     ];
@@ -1035,11 +1035,18 @@ function joinQueue() {
 function joinMainMenu() {
     const mainMenu = byId('main-menu');
     const online = byId('online');
+    const count = byId('count');
 
     mainMenu.classList.toggle('hide', false);
 
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
+
+    if (wins > 0) {
+        count.parentElement.classList.toggle('hide', false);
+
+        count.innerText = wins;
+    }
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
