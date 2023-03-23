@@ -992,7 +992,7 @@ function joinMainMenu() {
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
-        const numberOfPeers = mainMenuRoom.getPeers().length;
+        const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
         console.log(`${peerId} has joined the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
 
@@ -1002,7 +1002,7 @@ function joinMainMenu() {
     });
 
     mainMenuRoom.onPeerLeave(peerId => {
-        const numberOfPeers = mainMenuRoom.getPeers().length;
+        const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
         console.log(`${peerId} has left the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
 
@@ -1016,7 +1016,7 @@ function joinMainMenu() {
 
 // Updates the online count
 function updateOnline() {
-    const numberOfPeers = mainMenuRoom.getPeers().length;
+    const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
     online.innerText = `${numberOfPeers} ${numberOfPeers == 1 ? 'player is' : 'players are'} online.`;
 }
