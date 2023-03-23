@@ -311,6 +311,12 @@ function createSingleplayer() {
     youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
     enemyPieceSpin.classList.toggle('piece-spin', opponent.isPlaying());
 
+    leftStats.classList.toggle('red-stats-active', false);
+    leftStats.classList.toggle('yellow-stats-active', false);
+
+    rightStats.classList.toggle('red-stats-active', false);
+    rightStats.classList.toggle('yellow-stats-active', false);
+
     leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
     rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
@@ -610,6 +616,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
         enemyPieceSpin.classList.toggle('piece-spin', enemyPlayer.isPlaying());
+
+        leftStats.classList.toggle('red-stats-active', false);
+        leftStats.classList.toggle('yellow-stats-active', false);
+
+        rightStats.classList.toggle('red-stats-active', false);
+        rightStats.classList.toggle('yellow-stats-active', false);
 
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
