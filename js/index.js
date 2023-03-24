@@ -64,7 +64,6 @@ function createSingleplayer() {
 
     let removeMode = false;
     let removeTimeout;
-    let nukeOnMove;
 
     let ended = false;
 
@@ -72,23 +71,7 @@ function createSingleplayer() {
 
     const you = new Player(selfId, PlayerTeam.RED);
 
-    const opponentList = [
-        ['Timmy', Timmy, () => wins <= 3],
-        ['Jason', Jason, () => wins > 3 && wins <= 7],
-        ['Mr. Quick', MrQuick, () => wins > 8]
-    ];
-
-    let selectedOpponent;
-
-    for (const opp of opponentList) {
-        if (opp[2]()) {
-            selectedOpponent = opp;
-
-            break;
-        }
-    }
-
-    const opponent = new selectedOpponent[1](selectedOpponent[0], PlayerTeam.YELLOW);
+    const opponent = new Jason('Jason', PlayerTeam.YELLOW);
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
@@ -241,8 +224,6 @@ function createSingleplayer() {
             removeMode = false;
         }, 0);
 
-        document.removeEventListener('mousemove', moveAndNuke);
-
         remove.classList.toggle('reset-used', true);
 
         remove.removeEventListener('click', clickReset);
@@ -253,18 +234,11 @@ function createSingleplayer() {
             return;
         }
 
-        document.addEventListener('mousemove', moveAndNuke);
-
         you.remove();
 
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
-    }
-
-    function moveAndNuke(p) {
-        nuke([p.pageX, p.pageY]);
-        console.log(p.pageX, p.pageY);
     }
 
     for (const gridColumn of gridColumns) {

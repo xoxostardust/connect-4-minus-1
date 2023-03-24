@@ -177,10 +177,8 @@ export class Timmy extends AI {
     playMove(grid) {
         const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
 
-        // console.log(randomColumn);
-
         if (grid.getColumn(randomColumn).isFull) {
-            this.play(grid);
+            this.playMove(grid);
 
             return;
         }
@@ -196,13 +194,140 @@ export class Jason extends AI {
 
     getPlacements(grid) {
         const array = grid.asArray();
+
+        const largestColumn = grid
+            .asArray()
+            .sort((a, b) => a.length > b.length)
+            .shift();
+
+        const allMatches = [];
+
+        for (let i = 0; i < array.length; i++) {
+            const column = array[i];
+
+            for (let j = 0; j < column.length; j++) {
+                const space = column[j];
+
+                if (space == null) {
+                    continue;
+                }
+
+                const matches = [];
+
+                for (let k = j + 1; k < j + 4; k++) {
+                    const nextSpace = column[k];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType && nextSpace.pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                        matches.push([i + 1, k + 1]);
+                    }
+                }
+
+                if (matches.length >= 2) {
+                    allMatches.push([i + 1, j + 1], ...matches);
+                }
+            }
+        }
+
+        for (let i = 0; i < largestColumn.length; i++) {
+            for (let j = 0; j < array.length; j++) {
+                const space = array[j][i];
+
+                if (!space) {
+                    continue;
+                }
+
+                const matches = [];
+
+                for (let k = j + 1; k < j + 4; k++) {
+                    if (array[k] == undefined) {
+                        continue;
+                    }
+
+                    const nextSpace = array[k][i];
+
+                    if (nextSpace && space.pieceType == nextSpace.pieceType && nextSpace.pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                        matches.push([k + 1, i + 1]);
+                    }
+                }
+
+                if (matches.length >= 2) {
+                    allMatches.push([j + 1, i + 1], ...matches);
+                }
+            }
+        }
+
+        return allMatches;
     }
 
     playMove(grid) {
+        const array = grid.asArray();
+
+        const placements = this.getPlacements(grid);
+
         const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
 
+        if (placements.length > 0) {
+            let c;
+            let r;
+
+            for (const [column, row] of placements) {
+                c = c == undefined ? column : Math.abs(column - c);
+                r = r == undefined ? row : Math.abs(row - r);
+            }
+
+            if (!c > 0) {
+                c = 1;
+            }
+
+            if (!r > 0) {
+                r = 1;
+            }
+
+            const column = array[c - 1];
+
+            if (column[r - 2] && column[r - 2].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED) && column[r] == null) {
+                if (this.canRemovePiece()) {
+                    this.remove();
+
+                    this.removePiece(grid, c, r);
+
+                    setTimeout(() => this.placePiece(grid, c), 1000);
+
+                    return;
+                }
+            }
+
+            if (column[r - 2] && column[r] && column[r - 1].pieceType == column[r - 2].pieceType && column[r - 1].pieceType == column[r].pieceType) {
+                this.placePiece(grid, c);
+
+                return;
+            }
+
+            if ((array[c - 3] && array[c + 1] && array[c - 3][r - 1] == null && array[c + 1][r - 1] == null) || (array[c - 3] && array[c - 3][r - 1] == null && array[c - 2] && array[c - 2][r - 1] != null) || (array[c + 1] && array[c + 1][r - 1] == null && array[c] && array[c][r - 1] != null)) {
+                if (this.canRemovePiece() && column[r - 1].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                    this.remove();
+
+                    this.removePiece(grid, c, r);
+
+                    setTimeout(() => this.placePiece(grid, randomColumn), 1000);
+
+                    return;
+                } else {
+                    this.placePiece(grid, c);
+                }
+            }
+
+            if (grid.getColumn(randomColumn).isFull) {
+                this.playMove(grid);
+
+                return;
+            }
+
+            this.placePiece(grid, randomColumn);
+        }
+
         if (grid.getColumn(randomColumn).isFull) {
-            this.play(grid);
+            this.playMove(grid);
 
             return;
         }
