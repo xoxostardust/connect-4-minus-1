@@ -302,6 +302,8 @@ html {
 .red-stats-active,
 .yellow-stats-active {
     background: transparent;
+    opacity: 1;
+    animation: fadeIn 1s cubic-bezier(0.075, 0.82, 0.165, 1) 1;
 }
 
 .game-stats-you.red-stats-active {
@@ -347,6 +349,15 @@ html {
     }
     to {
         transform: rotateY(225deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
 

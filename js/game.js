@@ -298,9 +298,11 @@ export class Jason extends AI {
             }
 
             if (column[r - 2] && column[r] && column[r - 1].pieceType == column[r - 2].pieceType && column[r - 1].pieceType == column[r].pieceType) {
-                this.placePiece(grid, c);
+                if (!grid.getColumn(c).isFull) {
+                    this.placePiece(grid, c);
 
-                return;
+                    return;
+                }
             }
 
             if ((array[c - 3] && array[c + 1] && array[c - 3][r - 1] == null && array[c + 1][r - 1] == null) || (array[c - 3] && array[c - 3][r - 1] == null && array[c - 2] && array[c - 2][r - 1] != null) || (array[c + 1] && array[c + 1][r - 1] == null && array[c] && array[c][r - 1] != null)) {
@@ -313,17 +315,13 @@ export class Jason extends AI {
 
                     return;
                 } else {
-                    this.placePiece(grid, c);
+                    if (!grid.getColumn(c).isFull) {
+                        this.placePiece(grid, c);
+
+                        return;
+                    }
                 }
             }
-
-            if (grid.getColumn(randomColumn).isFull) {
-                this.playMove(grid);
-
-                return;
-            }
-
-            this.placePiece(grid, randomColumn);
         }
 
         if (grid.getColumn(randomColumn).isFull) {
