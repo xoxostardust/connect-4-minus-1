@@ -71,7 +71,15 @@ function createSingleplayer() {
 
     const you = new Player(selfId, PlayerTeam.RED);
 
-    const opponent = new Jason('Jason', PlayerTeam.YELLOW);
+    let opponent;
+
+    if (wins >= 7) {
+        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+    } else if (wins < 7 && wins > 3) {
+        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+    } else {
+        opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+    }
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
