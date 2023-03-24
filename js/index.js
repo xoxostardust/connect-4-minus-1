@@ -102,7 +102,7 @@ function createSingleplayer() {
     function win() {
         ended = true;
 
-        // wins++;
+        wins++;
 
         clearTimeout(removeTimeout);
 
@@ -232,6 +232,9 @@ function createSingleplayer() {
             removeMode = false;
         }, 0);
 
+        document.removeEventListener('mousemove', moveNuclear);
+        toggleNuclear(false);
+
         remove.classList.toggle('reset-used', true);
 
         remove.removeEventListener('click', clickReset);
@@ -241,6 +244,9 @@ function createSingleplayer() {
         if (!you.canRemovePiece() || !you.isPlaying()) {
             return;
         }
+
+        toggleNuclear(true);
+        document.addEventListener('mousemove', moveNuclear);
 
         you.remove();
 
@@ -627,10 +633,26 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         clearTimeout(removeTimeout);
 
-        // alert('Your opponent has left the game. Game over!');
-
-        setInterval(leave, 0);
+        showModal('Your opponent has left the game. Game over!').then(value => {
+            setInterval(leave, 0);
+        });
     });
+}
+
+function moveNuclear(ev) {
+    const nuclear = byId('nuclear');
+
+    const pageX = ev.pageX;
+    const pageY = ev.pageY;
+
+    nuclear.style.left = pageX + 'px';
+    nuclear.style.top = pageY + 'px';
+}
+
+function toggleNuclear(toggle) {
+    const nuclear = byId('nuclear');
+
+    nuclear.classList.toggle('hide', !toggle);
 }
 
 function showModal(text) {
@@ -1073,12 +1095,14 @@ function showConnecting() {
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
     const online = byId('online');
+    const count = byId('count');
 
     connecting.innerText = 'Looking for players...';
 
     playerSelect.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', true);
     online.parentElement.classList.toggle('hide', true);
+    count.parentElement.classList.toggle('hide', true);
     connecting.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
 }
@@ -1108,6 +1132,7 @@ function showStart() {
     const connecting = byId('connecting');
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
+    const count = byId('count');
 
     connecting.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', true);
@@ -1115,6 +1140,7 @@ function showStart() {
     goBack.classList.toggle('go-back-to-player-select', false);
     start.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', false);
 }
 
 // Setup default event listeners for the main menu

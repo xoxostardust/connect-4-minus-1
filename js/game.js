@@ -304,7 +304,7 @@ export class Jason extends AI {
             }
 
             if ((array[c - 3] && array[c + 1] && array[c - 3][r - 1] == null && array[c + 1][r - 1] == null) || (array[c - 3] && array[c - 3][r - 1] == null && array[c - 2] && array[c - 2][r - 1] != null) || (array[c + 1] && array[c + 1][r - 1] == null && array[c] && array[c][r - 1] != null)) {
-                if (this.canRemovePiece() && column[r - 1].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                if (this.canRemovePiece() && column[r - 1] && column[r - 1].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
                     this.remove();
 
                     this.removePiece(grid, c, r);
