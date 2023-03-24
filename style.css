@@ -420,3 +420,24 @@ html {
     font-size: 20px;
     border-radius:25% ;
 }
+
+.cursor-symbol {
+    aspect-ratio: 1;
+    width: 7vw;
+    animation: nuclearSpin 3s linear infinite;
+}
+
+@keyframes nuclearSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* .remove-button {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+} */
