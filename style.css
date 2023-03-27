@@ -5,7 +5,17 @@
 
 body {
     background-color: #fff9e9;
-    background-image: url(/img/Frame\ 17.svg); 
+    background-image: url(/img/Frame\ 12.svg); 
+    animation: backgroundMove 20s linear infinite;
+}
+
+@keyframes backgroundMove {
+    0% {
+        background-position: 0px 0px;
+    }
+    100% {
+        background-position: 2485px 2485px;
+    }
 }
 
 * {
