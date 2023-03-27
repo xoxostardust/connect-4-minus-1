@@ -5,7 +5,8 @@
 
 body {
     background-color: #fff9e9;
-    background-image: url(/img/Frame\ 17.svg); 
+    background-attachment: fixed;
+    background-image: url(/img/Frame\ 17.svg);
     background-repeat: repeat;
     animation: backgroundMove 60s linear infinite;
 }
@@ -429,7 +430,7 @@ html {
     padding: 0.5em;
     border-radius: 0.5em;
     color: white;
-    box-shadow: 0 3px 9px #FFF9e950;
+    box-shadow: 0 3px 9px #fff9e950;
     gap: 0.2em;
 }
 
@@ -441,7 +442,7 @@ html {
     background-color: #b0d3ef;
     font-family: 'Avant Garde Gothic';
     font-size: 20px;
-    border-radius:25% ;
+    border-radius: 25%;
 }
 
 .cursor-symbol {
@@ -468,24 +469,24 @@ html {
     justify-content: center;
     align-items: center;
     text-align: center;
-} 
+}
 
 #reveal {
-    width:100%;
+    width: 100%;
 }
 
 #first {
     margin-top: 25em;
-    margin-bottom:2em;
+    margin-bottom: 2em;
     /* help i am having trouble with blocks and stacking so iam leaving it as margin but i will ask in class  */
     text-align: center;
     font-size: 4vh;
-} 
+}
 
 #last {
     text-align: center;
-    font-size:4vh;
-    margin:2em;
+    font-size: 4vh;
+    margin: 2em;
 }
 
 .credit {
