@@ -1111,6 +1111,7 @@ function showConnecting() {
 function showPlayerSelect() {
     const connecting = byId('connecting');
     const start = byId('start');
+    const reveal = byId('reveal');
     const ruleBook = byId('rule-book');
     const rules = byId('rules');
     const playerSelect = byId('player-select');
@@ -1118,6 +1119,7 @@ function showPlayerSelect() {
 
     connecting.classList.toggle('hide', true);
     start.classList.toggle('hide', true);
+    reveal.classList.toggle('hide', true)
     rules.classList.toggle('hide', true);
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
@@ -1128,6 +1130,7 @@ function showPlayerSelect() {
 // Show start screen
 function showStart() {
     const start = byId('start');
+    const reveal = byId('reveal');
     const ruleBook = byId('rule-book');
     const connecting = byId('connecting');
     const playerSelect = byId('player-select');
@@ -1139,6 +1142,7 @@ function showStart() {
     goBack.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', false);
     start.classList.toggle('hide', false);
+    reveal.classList.toggle('hide',false)
     ruleBook.classList.toggle('hide', false);
     count.parentElement.classList.toggle('hide', false);
 }
