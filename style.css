@@ -5,8 +5,9 @@
 
 body {
     background-color: #fff9e9;
-    background-image: url(/img/Frame\ 12.svg); 
-    animation: backgroundMove 20s linear infinite;
+    background-image: url(/img/Frame\ 17.svg); 
+    background-repeat: repeat;
+    animation: backgroundMove 60s linear infinite;
 }
 
 @keyframes backgroundMove {
