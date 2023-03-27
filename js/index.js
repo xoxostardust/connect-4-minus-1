@@ -55,6 +55,7 @@ function createSingleplayer() {
     const youPieceCount = byId('you-piece-count');
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -64,6 +65,8 @@ function createSingleplayer() {
 
     let removeMode = false;
     let removeTimeout;
+    let countdown = 10;
+    let countdownInterval;
 
     let ended = false;
 
@@ -105,6 +108,7 @@ function createSingleplayer() {
 
         wins++;
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('victory');
@@ -119,6 +123,7 @@ function createSingleplayer() {
     function lose() {
         ended = true;
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
@@ -254,6 +259,13 @@ function createSingleplayer() {
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
+        countdownInterval = setInterval(() => {
+            nuclearCountdown.innerText = --countdown;
+
+            if (countdown < 4) {
+                nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+        }, 1000);
     }
 
     for (const gridColumn of gridColumns) {
@@ -329,6 +341,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const youPieceCount = byId('you-piece-count');
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -338,6 +351,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     let removeMode = false;
     let removeTimeout;
+    let countdown = 10;
+    let countdownInterval;
 
     let ended = false;
     let abruptlyEnded = false;
@@ -385,6 +400,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         wins++;
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('victory');
@@ -400,6 +416,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         ended = true;
         abruptlyEnded = false;
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
@@ -423,11 +440,22 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         player.removePiece(grid, column, row);
     });
 
-    nuking(([x, y], peerId) => {
+    nuking(([c, x, y], peerId) => {
+        clearInterval(countdownInterval)
+
+        nuclearCountdown.classList.toggle('countdown-red', false)
+
         const nuclear = byId('nuclear');
+
+        nuclearCountdown.innerText = c
+        if (c < 4) {
+            nuclearCountdown.classList.toggle('countdown-red', true)
+        }
 
         nuclear.style.left = x + 'px';
         nuclear.style.top = y + 'px';
+        nuclearCountdown.style.left = x + 'px';
+        nuclearCountdown.style.top = y + 'px';
     });
 
     nukeToggled((toggle, peerId) => {
@@ -543,7 +571,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     function replicateMove(ev) {
         moveNuclear(ev);
 
-        nuke([ev.pageX, ev.pageY]);
+        nuke([countdown, ev.pageX, ev.pageY]);
     }
 
     function disableRemove() {
@@ -574,6 +602,13 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
+        countdownInterval = setInterval(() => {
+            nuclearCountdown.innerText = --countdown;
+
+            if (countdown < 4) {
+                nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+        }, 1000);
     }
 
     for (const gridColumn of gridColumns) {
@@ -664,18 +699,24 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
 function moveNuclear(ev) {
     const nuclear = byId('nuclear');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     const pageX = ev.pageX;
     const pageY = ev.pageY;
 
     nuclear.style.left = pageX + 'px';
     nuclear.style.top = pageY + 'px';
+    nuclearCountdown.style.left = pageX + 'px';
+    nuclearCountdown.style.top = pageY + 'px';
 }
 
 function toggleNuclear(toggle) {
     const nuclear = byId('nuclear');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     nuclear.classList.toggle('hide', !toggle);
+    nuclearCountdown.classList.toggle('countdown-red', false);
+    nuclearCountdown.classList.toggle('hide', !toggle);
 }
 
 function showModal(text) {

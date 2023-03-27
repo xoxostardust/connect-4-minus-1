@@ -25,6 +25,7 @@ body {
     padding: 0;
     border: 0;
     box-sizing: border-box;
+    user-select: none;
 }
 
 html {
@@ -454,6 +455,23 @@ html {
     width: 7vw;
     pointer-events: none;
     animation: nuclearSpin 3s linear infinite;
+}
+
+.countdown {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 3vw;
+    color: #E8BF28;
+    translate: -175% -150%;
+    text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000, 1px 1px #000, -1px -1px #000, 1px -1px #000, -1px 1px #000;
+    pointer-events: none;
+    transition: color 250ms ease-in-out;
+    z-index: 2;
+}
+
+.countdown-red {
+    color: red;
 }
 
 @keyframes nuclearSpin {
