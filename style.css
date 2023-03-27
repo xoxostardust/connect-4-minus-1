@@ -5,7 +5,7 @@
 
 body {
     background-color: #fff9e9;
-    background-image: url(/img/Frame\ 12.svg);
+    background-image: url(/img/Frame\ 12.svg); 
 }
 
 * {
@@ -509,3 +509,46 @@ html {
     height: 20em; */
     /* align-items: center;   */
 }
+
+/* .background-test {
+    overflow: hidden;
+}
+
+.repeating-bg {
+    background-image:url(/img/Frame\ 12.svg);
+    background-repeat: repeat;
+    animation: repeat 30s infinite;
+    height:1500px;
+    width:100%;
+    display:flex;
+}
+
+.repeating-bg-2 {
+    background-image:url(/img/Frame\ 12.svg);
+    background-repeat: repeat;
+    animation: test 30s infinite;
+    height:1500px;
+    width:100%;
+    display:flex;
+}
+
+
+@keyframes repeat {
+    0% {
+        transform: translate(0, 0);
+	}
+
+	100% {
+		transform: translate(500px, 3000px);
+    }
+}
+
+@keyframes test {
+    0% {
+        transform: translate(0, 0);
+	}
+
+	100% {
+		transform: translate(-500px, -3000px);
+    }
+} */
