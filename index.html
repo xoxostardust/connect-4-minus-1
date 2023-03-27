@@ -5,12 +5,20 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/c4_favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/c4_favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/c4_favicon/favicon-16x16.png">
+    <link rel="manifest" href="img/c4_favicon/site.webmanifest">
     <title>Connect 4 Minus 1</title>
     <script type="module" src="js/index.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <!-- <div class="background-test">
+        <div class="repeating-bg"></div>
+        <div class="repeating-bg-2"></div>
+    </div> -->
     <img id="rules" class="rules-text hide" src="img/rulebook_draft.png" alt="connect 4 minus 1 game rules">
     <section id="main-menu">
         <button class="rules" id="rule-book">
@@ -25,6 +33,13 @@
         <div class="online-count flex hide">
             <img class="power-button" src="/img/Frame 8.svg" alt="power-button">
             <div class="player-count" id="online"></div>
+        </div>
+
+        <div class="win-count flex hide">
+            <img class="win-trophy" src="/img/Frame 15.svg" alt="trophy">
+            <p id="count">
+                1
+            </p>
         </div>
 
         <img class="game-logo" src="img/game_logo_v3.png" alt="Connect 4 Minus 1 logo">
@@ -110,7 +125,11 @@
             </div>
         </div>
 
-        <div class="game-stats-you">
+
+        <b id="nuclear-countdown" class="countdown hide">10</b>
+        <img class="cursor-symbol hide" src="/img/nuclear.svg" alt="Nuclear Symbol" id="nuclear">
+
+        <div id="left-stats" class="game-stats-you">
             <div class="left-stats-counter">
                 <div class="you" id="you">You</div>
                 <div id="you-move-tool" class="red-move-tool flex">
@@ -123,11 +142,14 @@
         <button id="reset" class="hide">
             <img src="img/restart_logo.png" id="reset-logo" alt="restart button">
         </button>
+
         <button id="remove">
-            <img src="img/remove_logo.png" id="remove-logo" alt="connect 4 piece crossed out">
+            <img class="remove-button flex" src="img/remove_logo.png" id="remove-logo"
+                alt="connect 4 piece crossed out">
+            <!-- 10 -->
         </button>
 
-        <div class="game-stats-enemy">
+        <div id="right-stats" class="game-stats-enemy">
             <div class="right-stats-counter">
                 <div class="enemy" id="enemy">Enemy</div>
                 <div id="enemy-move-tool" class="yellow-move-tool flex">
@@ -137,6 +159,21 @@
             </div>
         </div>
     </div>
+
+    <section id="reveal">
+        <h2 id="first">This project was created by:</h2>
+            <div class="credit">
+        <a href="https://github.com/ForgeMaster5925" target="_blank">Ethan R.</p>
+        <a href="https://github.com/xoxostardust" target="_blank">Gabrielle Y.</a>
+        <a href="https://github.com/paulziolkowskiCART" target="_blank">Paul Z.</a>
+    </div>
+        <div id="avatars">
+            <img src="img/avatar-1.gif">
+            <img src="img/avatar-2.gif">
+            <img src="img/avatar-3.gif">
+        </div>
+        <h2 id="last">at the Center for Advanced Research and Technology.</h2>
+    </section> 
 
 </body>
 

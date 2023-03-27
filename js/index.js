@@ -1,23 +1,27 @@
 import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
-import { AI, Player } from './game.js';
+import { AI, Jason, MrQuick, Player, Timmy } from './game.js';
 import { Grid } from './grid.js';
 
+// Trystero config
 const config = { appId: 'connect-4-minus-1' };
 
+// Trystero rooms
 let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
 let wins = 0;
 
-let testing = true;
+// Testing
+let testing = false;
 
 const byId = document.getElementById.bind(document);
 
 console.log(`My name is ${selfId}!`);
 
+// Plays a sound given a name
 function playSound(name) {
     const sound = sounds[name];
 
@@ -40,14 +44,18 @@ function playSound(name) {
     }
 }
 
+// Creates a local singleplayer game
 function createSingleplayer() {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
+    const leftStats = byId('left-stats');
+    const rightStats = byId('right-stats');
     const youMoveTool = byId('you-move-tool');
     const enemyMoveTool = byId('enemy-move-tool');
     const youPieceCount = byId('you-piece-count');
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -57,11 +65,25 @@ function createSingleplayer() {
 
     let removeMode = false;
     let removeTimeout;
+    let countdown = 10;
+    let countdownInterval;
+
+    let ended = false;
 
     const grid = createGrid();
 
     const you = new Player(selfId, PlayerTeam.RED);
-    const opponent = new AI(Math.random() < 0.99 ? 'Jason' : 'Mr. Quick', PlayerTeam.YELLOW);
+
+    let opponent;
+
+    if (wins >= 7) {
+        // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
+        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+    } else if (wins < 7 && wins > 3) {
+        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+    } else {
+        opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+    }
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
@@ -82,29 +104,35 @@ function createSingleplayer() {
     }
 
     function win() {
-        // wins++;
+        ended = true;
 
+        wins++;
+
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('victory');
 
         setTimeout(() => {
-            alert('You win! Game over.');
-
-            leave();
-        }, 1000);
+            showModal('You win! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     function lose() {
+        ended = true;
+
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
 
         setTimeout(() => {
-            alert('You lost! Game over.');
-
-            leave();
-        }, 1000);
+            showModal('You lose! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     you.played(() => {
@@ -114,6 +142,9 @@ function createSingleplayer() {
 
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
+        rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
 
         playSound('kerplunk');
 
@@ -135,14 +166,11 @@ function createSingleplayer() {
 
         opponent.play();
 
-        setTimeout(
-            () => {
-                opponent.playRandom(grid);
+        setTimeout(() => {
+            opponent.playMove(grid);
 
-                playSound('kerplunk');
-            },
-            testing ? 100 : 1000 + Math.floor(Math.random() * 3000)
-        );
+            playSound('kerplunk');
+        }, 1000);
     });
 
     you.removed(() => {
@@ -170,6 +198,9 @@ function createSingleplayer() {
 
         youPieceSpin.classList.toggle('piece-spin', true);
         enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+        rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
 
         playSound('kerplunk');
 
@@ -207,6 +238,9 @@ function createSingleplayer() {
             removeMode = false;
         }, 0);
 
+        document.removeEventListener('mousemove', moveNuclear);
+        toggleNuclear(false);
+
         remove.classList.toggle('reset-used', true);
 
         remove.removeEventListener('click', clickReset);
@@ -217,16 +251,26 @@ function createSingleplayer() {
             return;
         }
 
+        toggleNuclear(true);
+        document.addEventListener('mousemove', moveNuclear);
+
         you.remove();
 
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
+        countdownInterval = setInterval(() => {
+            nuclearCountdown.innerText = --countdown;
+
+            if (countdown < 4) {
+                nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+        }, 1000);
     }
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (!you.isPlaying() || removeMode) {
+            if (ended || !you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -274,17 +318,30 @@ function createSingleplayer() {
     youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
     enemyPieceSpin.classList.toggle('piece-spin', opponent.isPlaying());
 
+    leftStats.classList.toggle('red-stats-active', false);
+    leftStats.classList.toggle('yellow-stats-active', false);
+
+    rightStats.classList.toggle('red-stats-active', false);
+    rightStats.classList.toggle('yellow-stats-active', false);
+
+    leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
+    rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
+
     setTimeout(toggleGrid, 0, true);
 }
 
+// Creates a P2P multiplayer game
 function createMultiplayer(firstPlayer, secondPlayer) {
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
+    const leftStats = byId('left-stats');
+    const rightStats = byId('right-stats');
     const youMoveTool = byId('you-move-tool');
     const enemyMoveTool = byId('enemy-move-tool');
     const youPieceCount = byId('you-piece-count');
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
+    const nuclearCountdown = byId('nuclear-countdown');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -294,12 +351,19 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     let removeMode = false;
     let removeTimeout;
+    let countdown = 10;
+    let countdownInterval;
+
+    let ended = false;
+    let abruptlyEnded = false;
 
     queueRoom.leave();
 
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
 
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('place');
+    const [nuke, nuking] = gameRoom.makeAction('nuke');
+    const [toggleNuke, nukeToggled] = gameRoom.makeAction('toggle');
     const [removePiece, getPieceRemoved] = gameRoom.makeAction('remove');
 
     const grid = createGrid();
@@ -331,21 +395,37 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     }
 
     function win() {
+        ended = true;
+        abruptlyEnded = false;
+
         wins++;
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('victory');
 
-        setTimeout(leave, 1000);
+        setTimeout(() => {
+            showModal('You win! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     function lose() {
+        ended = true;
+        abruptlyEnded = false;
+
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
         playSound('glassbreak');
 
-        setTimeout(leave, 1000);
+        setTimeout(() => {
+            showModal('You lose! Game over.').then(value => {
+                leave();
+            });
+        }, 500);
     }
 
     getPiecePlaced((column, peerId) => {
@@ -358,6 +438,28 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         const player = playerOne.name == peerId ? playerOne : playerTwo;
 
         player.removePiece(grid, column, row);
+    });
+
+    nuking(([c, x, y], peerId) => {
+        clearInterval(countdownInterval)
+
+        nuclearCountdown.classList.toggle('countdown-red', false)
+
+        const nuclear = byId('nuclear');
+
+        nuclearCountdown.innerText = c
+        if (c < 4) {
+            nuclearCountdown.classList.toggle('countdown-red', true)
+        }
+
+        nuclear.style.left = x + 'px';
+        nuclear.style.top = y + 'px';
+        nuclearCountdown.style.left = x + 'px';
+        nuclearCountdown.style.top = y + 'px';
+    });
+
+    nukeToggled((toggle, peerId) => {
+        toggleNuclear(toggle);
     });
 
     playerOne.played(() => {
@@ -400,6 +502,9 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         youPieceSpin.classList.toggle('piece-spin', false);
         enemyPieceSpin.classList.toggle('piece-spin', true);
 
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+
         if (winner != null) {
             if (you.team == winner) {
                 win();
@@ -413,15 +518,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     you.removed(() => {
         disableRemove();
-    });
 
-    enemyPlayer.played(() => {
         const winner = getWinner(grid);
-
-        enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
-
-        youPieceSpin.classList.toggle('piece-spin', true);
-        enemyPieceSpin.classList.toggle('piece-spin', false);
 
         if (winner != null) {
             if (you.team == winner) {
@@ -434,10 +532,56 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }
     });
 
+    enemyPlayer.played(() => {
+        const winner = getWinner(grid);
+
+        enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
+
+        youPieceSpin.classList.toggle('piece-spin', true);
+        enemyPieceSpin.classList.toggle('piece-spin', false);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, true);
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+    });
+
+    enemyPlayer.removed(() => {
+        const winner = getWinner(grid);
+
+        if (winner != null) {
+            if (you.team == winner) {
+                win();
+            } else {
+                lose();
+            }
+
+            return;
+        }
+    });
+
+    function replicateMove(ev) {
+        moveNuclear(ev);
+
+        nuke([countdown, ev.pageX, ev.pageY]);
+    }
+
     function disableRemove() {
         setTimeout(() => {
             removeMode = false;
         }, 0);
+
+        document.removeEventListener('mousemove', replicateMove);
+        toggleNuclear(false);
+        toggleNuke(false);
 
         remove.classList.toggle('reset-used', true);
 
@@ -449,16 +593,27 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             return;
         }
 
+        toggleNuclear(true);
+        toggleNuke(true);
+        document.addEventListener('mousemove', replicateMove);
+
         you.remove();
 
         removeMode = true;
 
         removeTimeout = setTimeout(disableRemove, 10000);
+        countdownInterval = setInterval(() => {
+            nuclearCountdown.innerText = --countdown;
+
+            if (countdown < 4) {
+                nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+        }, 1000);
     }
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (!you.isPlaying() || removeMode) {
+            if (ended || !you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -517,24 +672,82 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         youPieceSpin.classList.toggle('piece-spin', you.isPlaying());
         enemyPieceSpin.classList.toggle('piece-spin', enemyPlayer.isPlaying());
 
+        leftStats.classList.toggle('red-stats-active', false);
+        leftStats.classList.toggle('yellow-stats-active', false);
+
+        rightStats.classList.toggle('red-stats-active', false);
+        rightStats.classList.toggle('yellow-stats-active', false);
+
+        leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
+        rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
+
         setTimeout(toggleGrid, 0, true);
     });
 
     gameRoom.onPeerLeave(() => {
+        if (!abruptlyEnded) {
+            return;
+        }
+
         clearTimeout(removeTimeout);
 
-        // alert('Your opponent has left the game. Game over!');
+        showModal('Your opponent has left the game. Game over!').then(value => {
+            setInterval(leave, 0);
+        });
+    });
+}
 
-        setInterval(leave, 0);
+function moveNuclear(ev) {
+    const nuclear = byId('nuclear');
+    const nuclearCountdown = byId('nuclear-countdown');
+
+    const pageX = ev.pageX;
+    const pageY = ev.pageY;
+
+    nuclear.style.left = pageX + 'px';
+    nuclear.style.top = pageY + 'px';
+    nuclearCountdown.style.left = pageX + 'px';
+    nuclearCountdown.style.top = pageY + 'px';
+}
+
+function toggleNuclear(toggle) {
+    const nuclear = byId('nuclear');
+    const nuclearCountdown = byId('nuclear-countdown');
+
+    nuclear.classList.toggle('hide', !toggle);
+    nuclearCountdown.classList.toggle('countdown-red', false);
+    nuclearCountdown.classList.toggle('hide', !toggle);
+}
+
+function showModal(text) {
+    const win = byId('win');
+    const modal = win.parentElement;
+    const ok = byId('ok');
+
+    win.innerText = text;
+
+    modal.classList.toggle('hide', false);
+
+    return new Promise((resolve, reject) => {
+        ok.addEventListener(
+            'click',
+            () => {
+                modal.classList.toggle('hide', true);
+
+                resolve();
+            },
+            { once: true }
+        );
     });
 }
 
 function toggleAlert(toggle) {
     const win = byId('win');
 
-    win.parentElement.classList.toggle('hide', !toggle)
+    win.parentElement.classList.toggle('hide', !toggle);
 }
 
+// Checks the grid for a win and returns the determined winner if there happens to be one
 function getWinner(grid) {
     const win = checkGrid(grid);
 
@@ -547,6 +760,7 @@ function getWinner(grid) {
     return;
 }
 
+// Used by getWinner to determine the winner
 function determineWinner(win) {
     const gridSpaces = document.getElementsByClassName('grid-space');
 
@@ -559,6 +773,7 @@ function determineWinner(win) {
     }
 }
 
+// Function that spins the winning pieces on the grid
 function showWin(win) {
     const gridSpaces = document.getElementsByClassName('grid-space');
 
@@ -737,6 +952,7 @@ function toggleGrid(toggle) {
     gridContainer.classList.toggle('hide', !toggle);
 }
 
+// Clears the grid of pieces and removes all active event listeners
 function resetGrid() {
     const grid = byId('grid');
 
@@ -753,6 +969,7 @@ function resetGrid() {
     }
 }
 
+// Creates the grid and sets up connections for placing and removing pieces on the grid
 function createGrid() {
     const grid = new Grid();
 
@@ -763,6 +980,7 @@ function createGrid() {
 
         const column = grid.getColumn(columnData);
 
+        // The grid will reflect a piece placed on the Grid class
         column.onPiecePlaced((piece, row) => {
             const space = gridColumn.querySelector(`[data-row='${row}']`);
 
@@ -782,6 +1000,7 @@ function createGrid() {
             }
         });
 
+        // The grid will reflect a piece removed on the Grid class
         column.onPieceRemoved((s, piece) => {
             const columnArray = column.asArray();
 
@@ -817,64 +1036,89 @@ function createGrid() {
         });
     }
 
+    // Return the grid to be used in games
     return grid;
 }
 
+// Leave the queue and return to the main menu
 function leaveQueue() {
     queueRoom.leave();
 
     joinMainMenu();
 }
 
+// Joins a multiplayer queue
 function joinQueue() {
     const connecting = byId('connecting');
     const goBack = byId('go-back');
 
+    // Join the queue room
     queueRoom = joinRoom(config, 'queue');
 
+    // Make an action for queuing
     const [queue, queued] = queueRoom.makeAction('queue');
 
+    // Creates a timestamp to determine who plays first
     const now = Date.now();
 
+    // Stores other players queuing with the timestamp they first queued
     let queuing = {};
 
+    // When another player queues
     queued((timestamp, peerId) => {
+        // Do not flood our queue with duplicates
         if (queuing[peerId]) {
             return;
         }
 
+        // Put the player in the queue with their queue timestamp
         queuing[peerId] = timestamp;
 
+        // Get the first player who queued first
         const [firstPlayer, firstTimestamp] = Object.entries(queuing)
             .sort((a, b) => a[a.length - 1] - b[b.length - 1])
             .shift();
 
+        // Determine who is player one and player two
         const playerOne = now < firstTimestamp ? selfId : firstPlayer;
         const playerTwo = playerOne == selfId ? firstPlayer : selfId;
 
+        // Create the multiplayer game for the two players
         setTimeout(createMultiplayer, 100, playerOne, playerTwo);
     });
 
+    // When another player joins the queue
     queueRoom.onPeerJoin(peerId => {
         console.log(`${peerId} has joined the queue.`);
 
         connecting.innerText = 'Joining...';
         goBack.classList.toggle('hide', true);
 
+        // Join the queue
         queue(now);
     });
 }
 
+// Joins the main menu room
 function joinMainMenu() {
     const mainMenu = byId('main-menu');
     const online = byId('online');
+    const count = byId('count');
 
     mainMenu.classList.toggle('hide', false);
 
+    // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
+    if (wins > 0) {
+        count.parentElement.classList.toggle('hide', false);
+
+        count.innerText = wins;
+    }
+
+    // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
-        const numberOfPeers = mainMenuRoom.getPeers().length;
+        const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
         console.log(`${peerId} has joined the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
 
@@ -884,7 +1128,7 @@ function joinMainMenu() {
     });
 
     mainMenuRoom.onPeerLeave(peerId => {
-        const numberOfPeers = mainMenuRoom.getPeers().length;
+        const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
         console.log(`${peerId} has left the room. ${numberOfPeers} ${numberOfPeers == 1 ? 'peer is' : 'peers are'} online.`);
 
@@ -896,8 +1140,9 @@ function joinMainMenu() {
     });
 }
 
+// Updates the online count
 function updateOnline() {
-    const numberOfPeers = mainMenuRoom.getPeers().length;
+    const numberOfPeers = Object.keys(mainMenuRoom.getPeers()).length;
 
     online.innerText = `${numberOfPeers} ${numberOfPeers == 1 ? 'player is' : 'players are'} online.`;
 }
@@ -908,24 +1153,29 @@ function toggleRules() {
     rules.classList.toggle('hide');
 }
 
+// Show the connecting screen
 function showConnecting() {
     const connecting = byId('connecting');
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
     const online = byId('online');
+    const count = byId('count');
 
     connecting.innerText = 'Looking for players...';
 
     playerSelect.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', true);
     online.parentElement.classList.toggle('hide', true);
+    count.parentElement.classList.toggle('hide', true);
     connecting.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
 }
 
+// Show the player select screen
 function showPlayerSelect() {
     const connecting = byId('connecting');
     const start = byId('start');
+    const reveal = byId('reveal');
     const ruleBook = byId('rule-book');
     const rules = byId('rules');
     const playerSelect = byId('player-select');
@@ -933,6 +1183,7 @@ function showPlayerSelect() {
 
     connecting.classList.toggle('hide', true);
     start.classList.toggle('hide', true);
+    reveal.classList.toggle('hide', true);
     rules.classList.toggle('hide', true);
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
@@ -940,21 +1191,27 @@ function showPlayerSelect() {
     goBack.classList.toggle('go-back-to-player-select', false);
 }
 
+// Show start screen
 function showStart() {
     const start = byId('start');
+    const reveal = byId('reveal');
     const ruleBook = byId('rule-book');
     const connecting = byId('connecting');
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
+    const count = byId('count');
 
     connecting.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', true);
     goBack.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', false);
     start.classList.toggle('hide', false);
+    reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', false);
 }
 
+// Setup default event listeners for the main menu
 const start = byId('start');
 const ruleBook = byId('rule-book');
 const onePlayer = byId('one-player');
@@ -1003,6 +1260,7 @@ goBack.addEventListener('click', () => {
     playSound('button');
 });
 
-win.addEventListener('click', () => toggleWin(false));
+ok.addEventListener('click', () => toggleAlert(false));
 
+// Join the main menu
 joinMainMenu();
