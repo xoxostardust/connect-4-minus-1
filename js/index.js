@@ -74,6 +74,7 @@ function createSingleplayer() {
     let opponent;
 
     if (wins >= 7) {
+        // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
     } else if (wins < 7 && wins > 3) {
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
@@ -347,6 +348,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('place');
     const [nuke, nuking] = gameRoom.makeAction('nuke');
+    const [toggleNuke, nukeToggled] = gameRoom.makeAction('toggle');
     const [removePiece, getPieceRemoved] = gameRoom.makeAction('remove');
 
     const grid = createGrid();
@@ -421,8 +423,15 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         player.removePiece(grid, column, row);
     });
 
-    nuking(([x, y]) => {
-        console.log(x, y);
+    nuking(([x, y], peerId) => {
+        const nuclear = byId('nuclear');
+
+        nuclear.style.left = x + 'px';
+        nuclear.style.top = y + 'px';
+    });
+
+    nukeToggled((toggle, peerId) => {
+        toggleNuclear(toggle);
     });
 
     playerOne.played(() => {
@@ -531,10 +540,20 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }
     });
 
+    function replicateMove(ev) {
+        moveNuclear(ev);
+
+        nuke([ev.pageX, ev.pageY]);
+    }
+
     function disableRemove() {
         setTimeout(() => {
             removeMode = false;
         }, 0);
+
+        document.removeEventListener('mousemove', replicateMove);
+        toggleNuclear(false);
+        toggleNuke(false);
 
         remove.classList.toggle('reset-used', true);
 
@@ -545,6 +564,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         if (!you.canRemovePiece() || !you.isPlaying()) {
             return;
         }
+
+        toggleNuclear(true);
+        toggleNuke(true);
+        document.addEventListener('mousemove', replicateMove);
 
         you.remove();
 
@@ -1119,7 +1142,7 @@ function showPlayerSelect() {
 
     connecting.classList.toggle('hide', true);
     start.classList.toggle('hide', true);
-    reveal.classList.toggle('hide', true)
+    reveal.classList.toggle('hide', true);
     rules.classList.toggle('hide', true);
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
@@ -1142,7 +1165,7 @@ function showStart() {
     goBack.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', false);
     start.classList.toggle('hide', false);
-    reveal.classList.toggle('hide',false)
+    reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
     count.parentElement.classList.toggle('hide', false);
 }
