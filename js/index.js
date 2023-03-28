@@ -258,6 +258,8 @@ function createSingleplayer() {
 
         removeMode = true;
 
+        nuclearCountdown.innerText = countdown;
+
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
             nuclearCountdown.innerText = --countdown;
@@ -441,15 +443,15 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     nuking(([c, x, y], peerId) => {
-        clearInterval(countdownInterval)
+        clearInterval(countdownInterval);
 
-        nuclearCountdown.classList.toggle('countdown-red', false)
+        nuclearCountdown.classList.toggle('countdown-red', false);
 
         const nuclear = byId('nuclear');
 
-        nuclearCountdown.innerText = c
+        nuclearCountdown.innerText = c;
         if (c < 4) {
-            nuclearCountdown.classList.toggle('countdown-red', true)
+            nuclearCountdown.classList.toggle('countdown-red', true);
         }
 
         nuclear.style.left = x + 'px';
