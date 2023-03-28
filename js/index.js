@@ -586,6 +586,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }, 0);
 
         document.removeEventListener('mousemove', replicateMove);
+
+        clearTimeout(removeTimeout);
+        clearInterval(countdownInterval);
+
         toggleNuclear(false);
         toggleNuke(false);
 
@@ -606,6 +610,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         you.remove();
 
         removeMode = true;
+
+        nuclearCountdown.innerText = countdown;
 
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
