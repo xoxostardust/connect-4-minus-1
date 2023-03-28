@@ -267,6 +267,10 @@ function createSingleplayer() {
             if (countdown < 4) {
                 nuclearCountdown.classList.toggle('countdown-red', true);
             }
+
+            if (countdown < 1) {
+                clearInterval(countdownInterval);
+            }
         }, 1000);
     }
 
@@ -609,6 +613,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
             if (countdown < 4) {
                 nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+
+            if (countdown < 1) {
+                clearInterval(countdownInterval);
             }
         }, 1000);
     }
