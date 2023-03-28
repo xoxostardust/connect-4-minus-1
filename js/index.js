@@ -258,12 +258,18 @@ function createSingleplayer() {
 
         removeMode = true;
 
+        nuclearCountdown.innerText = countdown;
+
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
             nuclearCountdown.innerText = --countdown;
 
             if (countdown < 4) {
                 nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+
+            if (countdown < 1) {
+                clearInterval(countdownInterval);
             }
         }, 1000);
     }
@@ -299,7 +305,7 @@ function createSingleplayer() {
         });
     }
 
-    remove.addEventListener('click', clickReset);
+    remove.addEventListener('click', clickReset, { once: true });
 
     you.play();
 
@@ -441,15 +447,15 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     });
 
     nuking(([c, x, y], peerId) => {
-        clearInterval(countdownInterval)
+        clearInterval(countdownInterval);
 
-        nuclearCountdown.classList.toggle('countdown-red', false)
+        nuclearCountdown.classList.toggle('countdown-red', false);
 
         const nuclear = byId('nuclear');
 
-        nuclearCountdown.innerText = c
+        nuclearCountdown.innerText = c;
         if (c < 4) {
-            nuclearCountdown.classList.toggle('countdown-red', true)
+            nuclearCountdown.classList.toggle('countdown-red', true);
         }
 
         nuclear.style.left = x + 'px';
@@ -601,12 +607,18 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         removeMode = true;
 
+        nuclearCountdown.innerText = countdown;
+
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
             nuclearCountdown.innerText = --countdown;
 
             if (countdown < 4) {
                 nuclearCountdown.classList.toggle('countdown-red', true);
+            }
+
+            if (countdown < 1) {
+                clearInterval(countdownInterval);
             }
         }, 1000);
     }
@@ -646,7 +658,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         });
     }
 
-    remove.addEventListener('click', clickReset);
+    remove.addEventListener('click', clickReset, { once: true });
 
     playerOne.play();
 
