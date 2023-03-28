@@ -378,7 +378,7 @@ html {
 }
 
 .online-count {
-    position: absolute;
+    position: fixed;
     left: 0;
     bottom: 0;
     font-size: 2vh;
@@ -405,7 +405,7 @@ html {
 }
 
 .win-count {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     justify-content: left;
     gap: 1rem;
@@ -540,6 +540,11 @@ html {
 #avatars img {
     height: 20em;
     /* align-items: center;   */
+}
+
+.no-overflow {
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 /* .background-test {

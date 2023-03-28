@@ -46,6 +46,7 @@ function playSound(name) {
 
 // Creates a local singleplayer game
 function createSingleplayer() {
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
@@ -333,11 +334,14 @@ function createSingleplayer() {
     leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
     rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
+    body.classList.toggle('no-overflow', true);
+
     setTimeout(toggleGrid, 0, true);
 }
 
 // Creates a P2P multiplayer game
 function createMultiplayer(firstPlayer, secondPlayer) {
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
@@ -696,6 +700,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
+
+        body.classList.toggle('no-overflow', true);
 
         setTimeout(toggleGrid, 0, true);
     });
@@ -1117,11 +1123,14 @@ function joinQueue() {
 
 // Joins the main menu room
 function joinMainMenu() {
+    const body = document.body
     const mainMenu = byId('main-menu');
     const online = byId('online');
     const count = byId('count');
 
     mainMenu.classList.toggle('hide', false);
+
+    body.classList.toggle('no-overflow', false);
 
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
