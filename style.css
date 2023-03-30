@@ -395,7 +395,8 @@ html {
 .connecting {
     position: absolute;
     bottom: 0;
-    font-size: 50px;
+    font-size: 3vh;
+    text-align: center;
     align-items: center;
     bottom: 25%;
 }
