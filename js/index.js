@@ -1123,7 +1123,7 @@ function joinQueue() {
 
 // Joins the main menu room
 function joinMainMenu() {
-    const body = document.body
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const online = byId('online');
     const count = byId('count');
@@ -1135,11 +1135,9 @@ function joinMainMenu() {
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    if (wins > 0) {
-        count.parentElement.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', wins > 0);
 
-        count.innerText = wins;
-    }
+    count.innerText = wins;
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
@@ -1233,7 +1231,7 @@ function showStart() {
     start.classList.toggle('hide', false);
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    count.parentElement.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', wins > 0);
 }
 
 // Setup default event listeners for the main menu
