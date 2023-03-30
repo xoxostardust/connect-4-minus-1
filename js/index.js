@@ -1135,7 +1135,7 @@ function joinMainMenu() {
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    count.parentElement.classList.toggle('hide', wins > 0);
+    count.parentElement.classList.toggle('hide', !wins > 0);
 
     count.innerText = wins;
 
@@ -1231,7 +1231,7 @@ function showStart() {
     start.classList.toggle('hide', false);
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    count.parentElement.classList.toggle('hide', wins > 0);
+    count.parentElement.classList.toggle('hide', !wins > 0);
 }
 
 // Setup default event listeners for the main menu
