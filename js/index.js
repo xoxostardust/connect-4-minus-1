@@ -365,7 +365,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let countdownInterval;
 
     let ended = false;
-    let abruptlyEnded = false;
+    let abruptlyEnded = true;
 
     queueRoom.leave();
 
@@ -711,11 +711,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             return;
         }
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
-        showModal('Your opponent has left the game. Game over!').then(value => {
-            setInterval(leave, 0);
-        });
+        setTimeout(() => {
+            showModal('Your opponent has left the game. Game over!').then(() => leave());
+        }, 500);
     });
 }
 
