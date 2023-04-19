@@ -46,6 +46,7 @@ function playSound(name) {
 
 // Creates a local singleplayer game
 function createSingleplayer() {
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
@@ -333,11 +334,14 @@ function createSingleplayer() {
     leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
     rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
+    body.classList.toggle('no-overflow', true);
+
     setTimeout(toggleGrid, 0, true);
 }
 
 // Creates a P2P multiplayer game
 function createMultiplayer(firstPlayer, secondPlayer) {
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
@@ -361,7 +365,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let countdownInterval;
 
     let ended = false;
-    let abruptlyEnded = false;
+    let abruptlyEnded = true;
 
     queueRoom.leave();
 
@@ -586,6 +590,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }, 0);
 
         document.removeEventListener('mousemove', replicateMove);
+
+        clearTimeout(removeTimeout);
+        clearInterval(countdownInterval);
+
         toggleNuclear(false);
         toggleNuke(false);
 
@@ -693,6 +701,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
 
+        body.classList.toggle('no-overflow', true);
+
         setTimeout(toggleGrid, 0, true);
     });
 
@@ -701,11 +711,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             return;
         }
 
+        clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
 
-        showModal('Your opponent has left the game. Game over!').then(value => {
-            setInterval(leave, 0);
-        });
+        setTimeout(() => {
+            showModal('Your opponent has left the game. Game over!').then(() => leave());
+        }, 500);
     });
 }
 
@@ -1113,20 +1124,21 @@ function joinQueue() {
 
 // Joins the main menu room
 function joinMainMenu() {
+    const body = document.body;
     const mainMenu = byId('main-menu');
     const online = byId('online');
     const count = byId('count');
 
     mainMenu.classList.toggle('hide', false);
 
+    body.classList.toggle('no-overflow', false);
+
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    if (wins > 0) {
-        count.parentElement.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', !wins > 0);
 
-        count.innerText = wins;
-    }
+    count.innerText = wins;
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
@@ -1220,7 +1232,7 @@ function showStart() {
     start.classList.toggle('hide', false);
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    count.parentElement.classList.toggle('hide', false);
+    count.parentElement.classList.toggle('hide', !wins > 0);
 }
 
 // Setup default event listeners for the main menu
