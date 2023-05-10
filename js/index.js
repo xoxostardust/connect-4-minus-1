@@ -77,7 +77,7 @@ function createSingleplayer() {
 
     let opponent;
 
-    if (wins >= 7) {
+    if (wins >= 12) {
         // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
     } else if (wins < 7 && wins > 3) {
@@ -136,6 +136,21 @@ function createSingleplayer() {
         }, 500);
     }
 
+    function stalemate(customText = '') {
+        ended = true;
+
+        clearInterval(countdownInterval);
+        clearTimeout(removeTimeout);
+
+        setTimeout(() => {
+            playSound('glassbreak');
+
+            showModal(customText.length > 0 ? customText : 'No contest.').then(value => {
+                leave();
+            });
+        }, 2000);
+    }
+
     you.played(() => {
         const winner = getWinner(grid);
 
@@ -150,7 +165,7 @@ function createSingleplayer() {
         playSound('kerplunk');
 
         if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
-            lose();
+            stalemate();
 
             return;
         }
@@ -204,6 +219,12 @@ function createSingleplayer() {
         rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
 
         playSound('kerplunk');
+
+        if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
+            stalemate(`${opponent.name} has had enough!`);
+
+            return;
+        }
 
         if (winner != null) {
             if (you.team == winner) {
