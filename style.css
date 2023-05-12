@@ -213,6 +213,29 @@ html {
     animation: popUp 550ms cubic-bezier(0.175, 0.885, 0.32, 1.225);
 }
 
+.select-ai-select {
+    position: absolute;
+    bottom: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+label {
+    font-size: 1.25em;
+    margin-inline-end: 0.5em;
+    vertical-align: middle;
+}
+
+select {
+    background-color: black;
+    color: white;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    font-family: inherit;
+    box-shadow: 0 0 0 0.2em white, 0 0 0 0.4em black;
+}
+
 @keyframes popUp {
     0% {
         transform: translateY(100%);

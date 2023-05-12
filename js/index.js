@@ -12,12 +12,14 @@ let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
-let wins = 0;
-
 // Testing
 let testing = false;
 
 const byId = document.getElementById.bind(document);
+
+if (localStorage.getItem('wins') === null) {
+    localStorage.setItem('wins', 0);
+}
 
 console.log(`My name is ${selfId}!`);
 
@@ -77,6 +79,8 @@ function createSingleplayer() {
 
     let opponent;
 
+    const wins = parseInt(localStorage.getItem('wins'));
+
     if (wins >= 12) {
         // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
@@ -107,7 +111,7 @@ function createSingleplayer() {
     function win() {
         ended = true;
 
-        wins++;
+        incrementWin();
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
@@ -429,7 +433,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         ended = true;
         abruptlyEnded = false;
 
-        wins++;
+        incrementWin();
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
@@ -739,6 +743,14 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             showModal('Your opponent has left the game. Game over!').then(() => leave());
         }, 500);
     });
+}
+
+function incrementWin() {
+    return localStorage.setItem('wins', parseInt(localStorage.getItem('wins')) + 1);
+}
+
+function deleteWins() {
+    return localStorage.setItem('wins', 0);
 }
 
 function moveNuclear(ev) {
@@ -1157,9 +1169,9 @@ function joinMainMenu() {
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    count.parentElement.classList.toggle('hide', !wins > 0);
+    count.parentElement.classList.toggle('hide', !parseInt(localStorage.getItem('wins')) > 0);
 
-    count.innerText = wins;
+    count.innerText = localStorage.getItem('wins');
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
@@ -1205,6 +1217,7 @@ function showConnecting() {
     const goBack = byId('go-back');
     const online = byId('online');
     const count = byId('count');
+    const selectAiSetting = byId('selectaisetting');
 
     connecting.innerText = 'Looking for players...';
 
@@ -1213,6 +1226,7 @@ function showConnecting() {
     online.parentElement.classList.toggle('hide', true);
     count.parentElement.classList.toggle('hide', true);
     connecting.classList.toggle('hide', false);
+    selectAiSetting.classList.toggle('hide', true);
     goBack.classList.toggle('hide', false);
 }
 
@@ -1225,6 +1239,7 @@ function showPlayerSelect() {
     const rules = byId('rules');
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
+    const selectAiSetting = byId('selectaisetting');
 
     connecting.classList.toggle('hide', true);
     start.classList.toggle('hide', true);
@@ -1233,6 +1248,7 @@ function showPlayerSelect() {
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
+    selectAiSetting.classList.toggle('hide', false);
     goBack.classList.toggle('go-back-to-player-select', false);
 }
 
@@ -1245,6 +1261,7 @@ function showStart() {
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
     const count = byId('count');
+    const selectAiSetting = byId('selectaisetting');
 
     connecting.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', true);
@@ -1253,7 +1270,8 @@ function showStart() {
     start.classList.toggle('hide', false);
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    count.parentElement.classList.toggle('hide', !wins > 0);
+    selectAiSetting.classList.toggle('hide', true);
+    count.parentElement.classList.toggle('hide', !parseInt(localStorage.getItem('wins')) > 0);
 }
 
 // Setup default event listeners for the main menu
