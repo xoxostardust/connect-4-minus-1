@@ -80,7 +80,7 @@ function createSingleplayer() {
     if (wins >= 12) {
         // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
-    } else if (wins < 7 && wins > 3) {
+    } else if (wins < 12 && wins > 3) {
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
     } else {
         opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
