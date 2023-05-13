@@ -26,6 +26,8 @@ body {
     border: 0;
     box-sizing: border-box;
     user-select: none;
+    user-drag: none;
+    -webkit-user-drag: none;
 }
 
 html {
@@ -36,23 +38,23 @@ html {
     position: absolute;
     top: 50%;
     left: 50%;
-    translate: -50% -66.666%;
+    translate: -50% calc(-50% - min(10vw, 10vh));
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto;
     background-color: #3a71b5;
-    width: 50%;
-    max-width: 720px;
-    padding: 1%;
-    border-radius: 1em;
-    box-shadow: 0 1em 3em rgba(0, 0, 0, 0.5);
+    width: min(75vw, 75vh);
+    /* max-width: 720px; */
+    padding: min(1vw, 1vh);
+    border-radius: min(1vw, 1vh);
+    box-shadow: 0 min(1vw, 1vh) min(2vw, 2vh) rgba(0, 0, 0, 0.5);
 }
 
 .grid-column {
     display: grid;
     /* min-height: max-content; */
     grid-template-rows: auto auto auto auto auto auto;
-    transition: background-color 200ms ease;
-    border-radius: 1rem;
+    transition: background-color 250ms ease;
+    border-radius: min(0.5vw, 0.5vh);
 }
 
 .grid-column:hover {
@@ -60,15 +62,25 @@ html {
 }
 
 .grid-space {
-    margin: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: min(0.5vw, 0.5vh);
     border-radius: 50%;
     aspect-ratio: 1;
     background-color: #fff9e9;
-    transition: box-shadow 100ms ease;
+    transition: box-shadow 125ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.grid-space > div {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    aspect-ratio: 1;
 }
 
 .grid-space:hover {
-    box-shadow: 0 0 0 0.125rem white;
+    box-shadow: 0 0 0 min(0.5vw, 0.5vh) #fff9e9;
 }
 
 /* .grid-space:hover::after {
@@ -133,7 +145,7 @@ html {
     width: 100%;
     display: flex;
     justify-content: center;
-    gap: 5vw;
+    gap: min(9vw, 9vh);
 }
 
 .type-select {
@@ -148,11 +160,11 @@ html {
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
-    border-radius: 4vh;
+    box-shadow: 0 0 0 0.075em white, 0 0 0 0.15em black;
+    border-radius: 0.525em;
     padding: 0.25em 0.5em;
-    font-size: 7vh;
-    transition: transform 120ms ease-out;
+    font-size: min(7vh, 7vw);
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
     bottom: 10%;
     left: 50%;
     translate: -50% -50%;
@@ -170,13 +182,13 @@ html {
     position: absolute;
     top: 1em;
     left: 1em;
-    font-size: 2.5vh;
+    font-size: min(2.5vh, 2.5vw);
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
-    border-radius: 4vh;
-    transition: transform 120ms ease-out;
+    box-shadow: 0 0 0 0.15em white, 0 0 0 0.3em black;
+    border-radius: 1.25em;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .back:hover {
@@ -188,14 +200,14 @@ html {
     justify-content: center;
     align-items: center;
     gap: 0.5em;
-    font-size: 4vh;
+    font-size: min(4vh, 4vw);
     padding: 0.5em;
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
-    border-radius: 4vh;
-    transition: transform 120ms ease-out;
+    box-shadow: 0 0 0 0.125em white, 0 0 0 0.25em black;
+    border-radius: 1em;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .players .img-container {
@@ -207,33 +219,61 @@ html {
 
 .img-container > * {
     width: 100%;
+    height: 100%;
 }
 
 .players:hover .img-container > * {
-    animation: popUp 550ms cubic-bezier(0.175, 0.885, 0.32, 1.225);
+    animation: popUp 400ms cubic-bezier(0.075, 0.82, 0.165, 1.125);
+}
+
+.players:hover #eXh43kHR5bj4_to {
+    animation: eXh43kHR5bj4_to__to 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards;
+    animation-delay: 50ms;
+}
+
+.players:hover #eXh43kHR5bj5_to {
+    animation: eXh43kHR5bj5_to__to 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards;
+    animation-delay: 50ms;
+}
+
+.players:hover #eXh43kHR5bj10_to {
+    animation: eXh43kHR5bj10_to__to 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards;
+    animation-delay: 50ms;
+}
+
+.players:hover #eXh43kHR5bj11_to {
+    animation: eXh43kHR5bj11_to__to 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards;
+    animation-delay: 50ms;
+}
+
+.players:hover #eXh43kHR5bj16_to {
+    animation: eXh43kHR5bj16_to__to 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1 forwards;
+    animation-delay: 50ms;
 }
 
 .select-ai-select {
     position: absolute;
-    bottom: 4rem;
+    bottom: 5vh;
     left: 50%;
+    font-size: min(2.5vw, 2vh);
     transform: translateX(-50%);
     white-space: nowrap;
 }
 
 label {
-    font-size: 1.25em;
+    font-size: inherit;
     margin-inline-end: 0.5em;
     vertical-align: middle;
 }
 
 select {
+    font-size: inherit;
     background-color: black;
     color: white;
-    padding: 0.5em;
-    border-radius: 0.5em;
+    padding: 0.4em 1em;
+    border-radius: 0.666em;
     font-family: inherit;
-    box-shadow: 0 0 0 0.2em white, 0 0 0 0.4em black;
+    box-shadow: 0 0 0 0.15em white, 0 0 0 0.3em black;
 }
 
 @keyframes popUp {
@@ -258,9 +298,9 @@ select {
 .rules .rule-default,
 .rules .rule-hover,
 .back .back-arrow {
-    height: 12vh;
+    height: min(10vh, 10vw);
     aspect-ratio: 1;
-    padding: 2vh;
+    padding: 0.75em;
 }
 
 .rules:hover {
@@ -280,15 +320,16 @@ select {
 }
 
 #remove {
+    position: absolute;
+    right: 0;
     background-color: transparent;
-    padding-block: 0.5em;
-    padding-inline: 1em;
-    float: right;
+    font-size: min(9vw, 9vh);
+    padding: 0.1em;
 }
 
 #remove-logo,
 #reset-logo {
-    height: 9em;
+    width: 1em;
 }
 
 .rules-text {
@@ -309,20 +350,21 @@ select {
 
 .game-stats-you {
     position: absolute;
-    padding: 2rem 25% 2rem 2rem;
+    padding: min(3vw, 3vh) 25% min(3vw, 3vh) min(3vw, 3vh);
     bottom: 0;
     left: 0;
+    font-size: min(3vw, 3vh);
 }
 
 .yellow-move-tool {
     align-items: center;
-    gap: 1rem;
+    gap: min(1vw, 1vh);
     justify-content: end;
 }
 
 .red-move-tool {
     align-items: center;
-    gap: 1rem;
+    gap: min(1vw, 1vh);
     justify-content: start;
 }
 
@@ -347,44 +389,85 @@ select {
 
 .left-stats-counter {
     align-items: center;
-    gap: 1rem;
-    font-size: 80px;
+    gap: 1em;
+    font-size: min(7vw, 7vh);
 }
 
 .game-stats-enemy {
     position: absolute;
-    padding: 2rem 2rem 2rem 25%;
+    padding: min(3vw, 3vh) min(3vw, 3vh) min(3vw, 3vh) 25%;
     bottom: 0;
     right: 0;
+    font-size: min(3vw, 3vh);
 }
 
-.red-stats-active,
-.yellow-stats-active {
+.red-stats-active::before,
+.yellow-stats-active::before {
     background: transparent;
     opacity: 1;
-    animation: fadeIn 2s cubic-bezier(0.075, 0.82, 0.165, 1) 1;
+    animation: fadeIn 250ms cubic-bezier(0.075, 0.82, 0.165, 1) 1;
 }
 
-.game-stats-you.red-stats-active {
-    background: linear-gradient(90deg, #d15d5d75, transparent);
+.game-stats-you.red-stats-active::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: linear-gradient(90deg, rgba(209, 93, 93, 0.666), transparent);
+    background-size: cover;
+    /* background-position: center; */
 }
 
-.game-stats-you.yellow-stats-active {
-    background: linear-gradient(90deg, #eabc6475, transparent);
+.game-stats-you.yellow-stats-active::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: linear-gradient(90deg, rgba(234, 187, 100, 0.666), transparent);
+    background-size: cover;
+    /* background-position: center; */
 }
 
-.game-stats-enemy.red-stats-active {
-    background: linear-gradient(270deg, #d15d5d75, transparent);
+.game-stats-enemy.red-stats-active::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: linear-gradient(270deg, rgba(209, 93, 93, 0.666), transparent);
+    background-size: cover;
+    /* background-position: center; */
 }
 
-.game-stats-enemy.yellow-stats-active {
-    background: linear-gradient(270deg, #eabc6475, transparent);
+.game-stats-enemy.yellow-stats-active::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: linear-gradient(270deg, rgba(234, 187, 100, 0.666), transparent);
+    background-size: cover;
+    /* background-position: center; */
 }
 
 .right-stats-counter {
     align-items: center;
-    gap: 1rem;
-    font-size: 80px;
+    gap: 1em;
+    font-size: min(7vw, 7vh);
 }
 
 .removing {
@@ -394,12 +477,18 @@ select {
 
 .piece-spin {
     display: flex;
-    animation: pieceSpin 1s linear infinite;
+    perspective: 19vw;
+    animation: pieceSpin 750ms linear infinite;
+    transition: box-shadow 100ms cubic-bezier(0.175, 0.885, 0.32, 2);
+}
+
+.grid-space .piece-spin {
+    box-shadow: 0 0 0 calc(min(0.5vw, 0.5vh)) #fff9e9;
 }
 
 .red-move-tool,
 .yellow-move-tool {
-    font-size: 40px;
+    font-size: min(4vw, 4vh);
 }
 
 @keyframes pieceSpin {
@@ -425,7 +514,7 @@ select {
     left: 0;
     bottom: 0;
     font-size: 2vh;
-    padding: 1rem 3rem;
+    padding: 0.25em 3rem;
     justify-content: center;
     align-items: center;
     gap: 1vh;
@@ -452,9 +541,10 @@ select {
     position: fixed;
     bottom: 0;
     justify-content: left;
-    gap: 1rem;
-    padding: 1rem;
-    font-size: 4rem;
+    gap: 1vh;
+    font-size: min(3vh, 3vw);
+    bottom: 0.25em;
+    left: 0.25em;
 }
 
 .win-trophy {
@@ -462,34 +552,41 @@ select {
 }
 
 .victory {
-    font-size: 36px;
+    font-size: min(2vw, 2vh);
     flex-direction: column;
     justify-content: center;
     text-align: center;
     top: 1.5%;
     position: absolute;
     z-index: 2;
-    background: rgb(63, 101, 148);
+    /* background: rgb(63, 101, 148); */
+    background: black;
     width: fit-content;
     margin: 0 auto;
     left: 50%;
     transform: translateX(-50%);
-    padding: 0.5em;
-    border-radius: 0.5em;
+    padding: 0.75em;
+    border-radius: 0.75em;
     color: white;
-    box-shadow: 0 3px 9px #fff9e950;
-    gap: 0.2em;
+    /* box-shadow: 0 3px 9px #fff9e950; */
+    box-shadow: 0 0 0 0.15em white, 0 0 0 0.3em black;
+    gap: 0.5em;
 }
 
 .ok-button {
-    padding: 0.9rem;
+    padding: 0.5em;
     align-self: center;
-    cursor: pointer;
     text-align: center;
     background-color: #b0d3ef;
+    /* background: white; */
     font-family: 'Avant Garde Gothic';
-    font-size: 20px;
-    border-radius: 25%;
+    font-size: min(1.75vw, 1.75vh);
+    border-radius: 0.5em;
+    transition: background 125ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.ok-button:hover {
+    background-color: white;
 }
 
 .cursor-symbol {
@@ -498,7 +595,7 @@ select {
     top: 0;
     translate: -50% -50%;
     aspect-ratio: 1;
-    width: 7vw;
+    width: min(13vw, 13vh);
     pointer-events: none;
     animation: nuclearSpin 3s linear infinite;
 }
@@ -507,9 +604,9 @@ select {
     position: absolute;
     left: 0;
     top: 0;
-    font-size: 3vw;
+    font-size: min(5vw, 5vh);
     color: #e8bf28;
-    translate: -175% -150%;
+    translate: -200% -150%;
     text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000, 1px 1px #000, -1px -1px #000, 1px -1px #000, -1px 1px #000;
     pointer-events: none;
     transition: color 250ms ease-in-out;
@@ -571,7 +668,7 @@ select {
     border-radius: 4vh;
     padding: 0.25em 0.5em;
     font-size: 4vh;
-    transition: transform 120ms ease-out;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
     bottom: 10%;
     left: 50%;
 }
@@ -633,3 +730,53 @@ select {
 		transform: translate(-500px, -3000px);
     }
 } */
+
+@keyframes eXh43kHR5bj4_to__to {
+    0% {
+        transform: translate(36px, 36px);
+    }
+
+    100% {
+        transform: translate(43px, 36px);
+    }
+}
+
+@keyframes eXh43kHR5bj5_to__to {
+    0% {
+        transform: translate(36px, 36px);
+    }
+
+    100% {
+        transform: translate(43px, 36px);
+    }
+}
+
+@keyframes eXh43kHR5bj10_to__to {
+    0% {
+        transform: translate(36px, 36px);
+    }
+
+    100% {
+        transform: translate(29px, 36px);
+    }
+}
+
+@keyframes eXh43kHR5bj11_to__to {
+    0% {
+        transform: translate(36px, 36px);
+    }
+
+    100% {
+        transform: translate(29px, 36px);
+    }
+}
+
+@keyframes eXh43kHR5bj16_to__to {
+    0% {
+        transform: translate(36px, 31.5px);
+    }
+
+    100% {
+        transform: translate(29px, 31.5px);
+    }
+}

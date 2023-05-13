@@ -50,6 +50,7 @@ function playSound(name) {
 function createSingleplayer() {
     const body = document.body;
     const mainMenu = byId('main-menu');
+    const youElem = byId('you');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
     const rightStats = byId('right-stats');
@@ -59,6 +60,7 @@ function createSingleplayer() {
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
     const nuclearCountdown = byId('nuclear-countdown');
+    const selectAi = byId('select-ai');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -82,13 +84,29 @@ function createSingleplayer() {
     const wins = parseInt(localStorage.getItem('wins'));
 
     if (wins >= 12) {
-        // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
-        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+        switch (selectAi.selectedOptions[0].value) {
+            case 'MrQuick':
+                opponent = new Jason('Jason', PlayerTeam.YELLOW);
+                break;
+
+            case 'Jason':
+                opponent = new Jason('Jason', PlayerTeam.YELLOW);
+                break;
+
+            case 'Timmy':
+                opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+                break;
+
+            default:
+                break;
+        }
     } else if (wins < 12 && wins > 3) {
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
     } else {
         opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
     }
+
+    document.title = `You (🏆${wins}) vs. ${opponent.name} (AI)`;
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
@@ -335,6 +353,7 @@ function createSingleplayer() {
 
     you.play();
 
+    youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
     enemy.innerText = opponent.name;
 
     mainMenu.classList.toggle('hide', true);
@@ -408,6 +427,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     const you = playerOne.name == selfId ? playerOne : playerTwo;
     const enemyPlayer = you == playerOne ? playerTwo : playerOne;
+
+    const wins = parseInt(localStorage.getItem('wins'));
 
     const youTeam = you.team;
     const enemyTeam = enemyPlayer.team;
@@ -700,11 +721,16 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     gameRoom.onPeerJoin(peerId => {
         mainMenu.classList.toggle('hide', true);
 
+        let truncName;
+
         if (peerId instanceof Uint8Array) {
-            enemy.innerText = new TextDecoder().decode(peerId).substring(0, 5);
+            truncName = new TextDecoder().decode(peerId).substring(0, 5);
         } else {
-            enemy.innerText = peerId.substring(0, 5);
+            truncName = peerId.substring(0, 5);
         }
+
+        enemy.innerText = truncName;
+        document.title = `You (🏆${wins}) vs. ${truncName}`;
 
         youPieceCount.innerText = you.getRemainingPieces().length;
         enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
@@ -818,11 +844,11 @@ function getWinner(grid) {
 
 // Used by getWinner to determine the winner
 function determineWinner(win) {
-    const gridSpaces = document.getElementsByClassName('grid-space');
+    const gridSpaces = document.querySelectorAll('.grid-space>div');
 
     for (const [gridColumn, row] of win) {
         for (const gridSpace of gridSpaces) {
-            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+            if (gridSpace.parentElement.parentElement.dataset.column == gridColumn && gridSpace.parentElement.dataset.row == row) {
                 return gridSpace.classList.contains('red-piece') ? PlayerTeam.RED : PlayerTeam.YELLOW;
             }
         }
@@ -831,11 +857,11 @@ function determineWinner(win) {
 
 // Function that spins the winning pieces on the grid
 function showWin(win) {
-    const gridSpaces = document.getElementsByClassName('grid-space');
+    const gridSpaces = document.querySelectorAll('.grid-space>div');
 
     for (const [gridColumn, row] of win) {
         for (const gridSpace of gridSpaces) {
-            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+            if (gridSpace.parentElement.parentElement.dataset.column == gridColumn && gridSpace.parentElement.dataset.row == row) {
                 gridSpace.classList.toggle('piece-spin', true);
             }
         }
@@ -1018,10 +1044,10 @@ function resetGrid() {
         const clone = gridColumn.cloneNode(true);
 
         gridColumn.parentElement.replaceChild(clone, gridColumn);
+    }
 
-        for (const space of clone.children) {
-            space.classList.remove('red-piece', 'yellow-piece', 'piece-spin');
-        }
+    for (const space of document.querySelectorAll('.grid-space>div')) {
+        space.classList.remove('red-piece', 'yellow-piece', 'piece-spin');
     }
 }
 
@@ -1038,7 +1064,7 @@ function createGrid() {
 
         // The grid will reflect a piece placed on the Grid class
         column.onPiecePlaced((piece, row) => {
-            const space = gridColumn.querySelector(`[data-row='${row}']`);
+            const space = gridColumn.querySelector(`[data-row='${row}']>div`);
 
             const classList = space.classList;
 
@@ -1061,7 +1087,7 @@ function createGrid() {
             const columnArray = column.asArray();
 
             for (let i = 0; i < columnArray.length; i++) {
-                const space = gridColumn.querySelector(`[data-row='${i + 1}']`);
+                const space = gridColumn.querySelector(`[data-row='${i + 1}']>div`);
 
                 const classList = space.classList;
 
@@ -1148,6 +1174,7 @@ function joinQueue() {
         console.log(`${peerId} has joined the queue.`);
 
         connecting.innerText = 'Joining...';
+        document.title = 'Joining...';
         goBack.classList.toggle('hide', true);
 
         // Join the queue
@@ -1169,7 +1196,7 @@ function joinMainMenu() {
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    count.parentElement.classList.toggle('hide', !parseInt(localStorage.getItem('wins')) > 0);
+    count.parentElement.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 0));
 
     count.innerText = localStorage.getItem('wins');
 
@@ -1195,6 +1222,8 @@ function joinMainMenu() {
 
         updateOnline();
     });
+
+    document.title = 'Connect 4 Minus 1';
 }
 
 // Updates the online count
@@ -1220,6 +1249,7 @@ function showConnecting() {
     const selectAiSetting = byId('selectaisetting');
 
     connecting.innerText = 'Looking for players...';
+    document.title = 'Looking for players...';
 
     playerSelect.classList.toggle('hide', true);
     goBack.classList.toggle('go-back-to-player-select', true);
@@ -1248,7 +1278,7 @@ function showPlayerSelect() {
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
-    selectAiSetting.classList.toggle('hide', false);
+    selectAiSetting.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) >= 12));
     goBack.classList.toggle('go-back-to-player-select', false);
 }
 
@@ -1271,7 +1301,7 @@ function showStart() {
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
     selectAiSetting.classList.toggle('hide', true);
-    count.parentElement.classList.toggle('hide', !parseInt(localStorage.getItem('wins')) > 0);
+    count.parentElement.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 0));
 }
 
 // Setup default event listeners for the main menu
