@@ -510,14 +510,15 @@ select {
 }
 
 .online-count {
+    display: flex;
     position: fixed;
-    left: 0;
-    bottom: 0;
-    font-size: 2vh;
-    padding: 0.25em 3rem;
+    left: 50%;
+    bottom: 0.5em;
+    transform: translateX(-50%);
+    font-size: min(1.5vw, 1.5vh);
     justify-content: center;
     align-items: center;
-    gap: 1vh;
+    gap: min(0.5vw, 0.5vh);
 }
 
 .power-button {
@@ -541,7 +542,7 @@ select {
     position: fixed;
     bottom: 0;
     justify-content: left;
-    gap: 1vh;
+    gap: min(1vw, 1vh);
     font-size: min(3vh, 3vw);
     bottom: 0.25em;
     left: 0.25em;
