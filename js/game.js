@@ -175,15 +175,43 @@ export class Timmy extends AI {
     }
 
     playMove(grid) {
-        const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
+        const random = 1 + Math.floor(Math.random() * grid.columns);
+        const previous = random - 1;
+        const next = random + 1;
 
-        if (grid.getColumn(randomColumn).isFull) {
+        const randomColumn = grid.getColumn(random);
+        const previousColumn = grid.getColumn(previous);
+        const nextColumn = grid.getColumn(next);
+
+        if (randomColumn.isFull) {
             this.playMove(grid);
 
             return;
         }
 
-        this.placePiece(grid, randomColumn);
+        if (randomColumn.asArray().filter(p => p !== null && p.pieceType != this.team).length > 0) {
+            if (previousColumn !== undefined && !previousColumn.isFull && nextColumn !== undefined && !nextColumn.isFull) {
+                this.placePiece(grid, Math.random() > 0.333 ? (Math.random() > 0.5 ? previous : next) : random);
+
+                return;
+            } else if (previousColumn !== undefined && !previousColumn.isFull) {
+                this.placePiece(grid, Math.random() > 0.5 ? random : previous);
+
+                return;
+            } else if (nextColumn !== undefined && !nextColumn.isFull) {
+                this.placePiece(grid, Math.random() > 0.5 ? random : next);
+
+                return;
+            } else {
+                this.placePiece(grid, random);
+
+                return;
+            }
+        } else {
+            this.playMove(grid);
+
+            return;
+        }
     }
 }
 
