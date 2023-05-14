@@ -8,7 +8,9 @@ body {
     background-attachment: fixed;
     background-image: url(/img/Frame\ 17.svg);
     background-repeat: repeat;
-    animation: backgroundMove 60s linear infinite;
+    background-position: center;
+    animation: backgroundMove 45s linear infinite;
+    overflow-y: hidden;
 }
 
 @keyframes backgroundMove {
@@ -47,6 +49,7 @@ html {
     padding: min(1vw, 1vh);
     border-radius: min(1vw, 1vh);
     box-shadow: 0 min(1vw, 1vh) min(2vw, 2vh) rgba(0, 0, 0, 0.5);
+    transition: top 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .grid-column {
@@ -153,6 +156,14 @@ html {
     bottom: 10%;
     left: 50%;
     translate: -50% -50%;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), translate 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.type-select.hide {
+    display: flex !important;
+    translate: -50% -100%;
+    transform: scaleY(0);
+    opacity: 0;
 }
 
 .start {
@@ -164,10 +175,17 @@ html {
     border-radius: 0.525em;
     padding: 0.25em 0.5em;
     font-size: min(7vh, 7vw);
-    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), translate 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
     bottom: 10%;
     left: 50%;
     translate: -50% -50%;
+}
+
+.start.hide {
+    display: initial !important;
+    transform: scaleY(0);
+    translate: -50% 0%;
+    opacity: 0;
 }
 
 /* .start B {
@@ -179,10 +197,10 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    top: 1em;
-    left: 1em;
-    font-size: min(2.5vh, 2.5vw);
+    position: fixed;
+    top: 0.75em;
+    left: 0.75em;
+    font-size: min(2vh, 2vw);
     background-color: black;
     color: white;
     font-family: 'Avant Garde Gothic';
@@ -298,9 +316,9 @@ select {
 .rules .rule-default,
 .rules .rule-hover,
 .back .back-arrow {
-    height: min(10vh, 10vw);
+    height: min(8vh, 8vw);
     aspect-ratio: 1;
-    padding: 0.75em;
+    padding: 0.625em;
 }
 
 .rules:hover {
@@ -321,10 +339,15 @@ select {
 
 #remove {
     position: absolute;
-    right: 0;
+    top: 0.1em;
+    right: 0.1em;
     background-color: transparent;
-    font-size: min(9vw, 9vh);
-    padding: 0.1em;
+    font-size: min(10vw, 16vh);
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+#remove:not(.reset-used):hover {
+    transform: scale(1.1);
 }
 
 #remove-logo,
@@ -333,13 +356,20 @@ select {
 }
 
 .rules-text {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    max-height: 50vh;
-    max-width: 75vw;
+    width: max(66.666vw, 66.666vh);
+    transform: scaleX(1);
     z-index: 2;
+    transition: top 250ms cubic-bezier(0.075, 0.82, 0.165, 1.1), transform 150ms cubic-bezier(0.075, 0.82, 0.165, 1.5) 25ms;
+}
+
+.rules-text.hide {
+    display: initial !important;
+    top: -50%;
+    transform: scaleX(0) scaleY(0.5);
 }
 
 .start:hover,
@@ -405,7 +435,7 @@ select {
 .yellow-stats-active::before {
     background: transparent;
     opacity: 1;
-    animation: fadeIn 250ms cubic-bezier(0.075, 0.82, 0.165, 1) 1;
+    animation: fadeIn 1s cubic-bezier(0.075, 0.82, 0.165, 1) 1;
 }
 
 .game-stats-you.red-stats-active::before {
@@ -500,6 +530,15 @@ select {
     }
 }
 
+@keyframes rainbow {
+    from {
+        filter: hue-rotate(0deg);
+    }
+    to {
+        filter: hue-rotate(359deg);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -519,6 +558,13 @@ select {
     justify-content: center;
     align-items: center;
     gap: min(0.5vw, 0.5vh);
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.online-count.hide {
+    display: flex !important;
+    transform: translateX(-50%) translateY(50%) scaleY(0);
+    opacity: 0;
 }
 
 .power-button {
@@ -528,10 +574,34 @@ select {
 .connecting {
     position: absolute;
     bottom: 0;
-    font-size: 3vh;
+    font-size: min(3vw, 3vh);
     text-align: center;
     align-items: center;
-    bottom: 25%;
+    bottom: calc(25% - 1em);
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.connecting.hide {
+    display: flex !important;
+    transform: scaleY(0);
+    opacity: 0;
+}
+
+.connecting::before {
+    content: '';
+    position: absolute;
+    display: block;
+    bottom: 2em;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    background: url(img/Frame\ 6.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    z-index: -1;
+    filter: hue-rotate(90deg);
+    animation: pieceSpin 500ms linear infinite, rainbow 10s linear infinite;
 }
 
 .reset-used {
@@ -546,6 +616,13 @@ select {
     font-size: min(3vh, 3vw);
     bottom: 0.25em;
     left: 0.25em;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.win-count.hide {
+    display: flex !important;
+    transform: translateY(50%) scaleY(0);
+    opacity: 0;
 }
 
 .win-trophy {
@@ -553,7 +630,7 @@ select {
 }
 
 .victory {
-    font-size: min(2vw, 2vh);
+    font-size: min(2.5vw, 2.5vh);
     flex-direction: column;
     justify-content: center;
     text-align: center;
@@ -565,13 +642,21 @@ select {
     width: fit-content;
     margin: 0 auto;
     left: 50%;
-    transform: translateX(-50%);
+    translate: -50%;
     padding: 0.75em;
     border-radius: 0.75em;
     color: white;
     /* box-shadow: 0 3px 9px #fff9e950; */
     box-shadow: 0 0 0 0.15em white, 0 0 0 0.3em black;
     gap: 0.5em;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1), translate 250ms cubic-bezier(0.075, 0.82, 0.165, 1), opacity 150ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.victory.hide {
+    display: initial !important;
+    transform: scaleY(0);
+    translate: -50% -50%;
+    opacity: 0;
 }
 
 .ok-button {
@@ -581,9 +666,9 @@ select {
     background-color: #b0d3ef;
     /* background: white; */
     font-family: 'Avant Garde Gothic';
-    font-size: min(1.75vw, 1.75vh);
+    font-size: min(2vw, 2vh);
     border-radius: 0.5em;
-    transition: background 125ms cubic-bezier(0.075, 0.82, 0.165, 1);
+    transition: background-color 125ms ease;
 }
 
 .ok-button:hover {
@@ -598,7 +683,7 @@ select {
     aspect-ratio: 1;
     width: min(13vw, 13vh);
     pointer-events: none;
-    animation: nuclearSpin 3s linear infinite;
+    animation: nuclearSpin 2.5s linear infinite;
 }
 
 .countdown {
@@ -634,54 +719,62 @@ select {
 }
 
 #reveal {
+    position: absolute;
+    top: 100vh;
     width: 100%;
+    height: fit-content;
+    padding-bottom: min(10vw, 10vh);
+    scroll-snap-align: end;
 }
 
 #first {
-    margin-top: 25em;
-    margin-bottom: 2em;
     /* help i am having trouble with blocks and stacking so iam leaving it as margin but i will ask in class  */
     text-align: center;
-    font-size: 4vh;
+    font-size: min(2.5vw, 2.5vh);
+    margin-block-end: 1em;
+}
+
+.credits {
+    display: flex;
+    justify-content: center;
+    gap: min(4vw, 4vh);
+    margin: 1em auto;
+    font-size: min(3vw, 3vh);
+}
+
+.credits a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    gap: 0.5em;
+}
+
+.credits a h3 {
+    /* display: inline; */
+    margin-bottom: 0.5em;
+    background: black;
+    color: white;
+    padding: 0.333em 0.5em;
+    border-radius: 0.75em;
+    box-shadow: 0 0 0 0.1em white, 0 0 0 0.2em black;
+    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.credits a:hover h3 {
+    transform: scale(1.1);
+}
+
+.credits a img {
+    /* width: 20vw; */
+    width: 50%;
 }
 
 #last {
     text-align: center;
-    font-size: 4vh;
-    margin: 2em;
-}
-
-.credit {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    gap: 0.5em;
-    font-size: 4vh;
-    padding: 0.5em;
-}
-
-#reveal a {
-    background-color: black;
-    text-decoration: none;
-    color: white;
-    font-family: 'Avant Garde Gothic';
-    box-shadow: 0 0 0 0.5vh white, 0 0 0 1vh black;
-    border-radius: 4vh;
-    padding: 0.25em 0.5em;
-    font-size: 4vh;
-    transition: transform 250ms cubic-bezier(0.075, 0.82, 0.165, 1);
-    bottom: 10%;
-    left: 50%;
-}
-
-#avatars {
-    display: flex;
-    justify-content: space-around;
-}
-
-#avatars img {
-    height: 20em;
-    /* align-items: center;   */
+    font-size: min(3vw, 3vh);
+    margin-block-start: 1em;
 }
 
 .no-overflow {

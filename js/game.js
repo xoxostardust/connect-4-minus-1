@@ -175,13 +175,45 @@ export class Timmy extends AI {
     }
 
     playMove(grid) {
+        for (let i = 0; i < 14; i++) {
+            const random = 1 + Math.floor(Math.random() * grid.columns);
+            const previous = random - 1;
+            const next = random + 1;
+
+            const randomColumn = grid.getColumn(random);
+            const previousColumn = grid.getColumn(previous);
+            const nextColumn = grid.getColumn(next);
+
+            if (randomColumn.isFull) {
+                continue;
+            }
+
+            if (randomColumn.asArray().filter(p => p !== null && p.pieceType != this.team).length > 0) {
+                if (previousColumn !== undefined && !previousColumn.isFull && nextColumn !== undefined && !nextColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.333 ? (Math.random() > 0.5 ? previous : next) : random);
+
+                    return;
+                } else if (previousColumn !== undefined && !previousColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.5 ? random : previous);
+
+                    return;
+                } else if (nextColumn !== undefined && !nextColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.5 ? random : next);
+
+                    return;
+                } else {
+                    this.placePiece(grid, random);
+
+                    return;
+                }
+            } else {
+                continue;
+            }
+        }
+
         const random = 1 + Math.floor(Math.random() * grid.columns);
-        const previous = random - 1;
-        const next = random + 1;
 
         const randomColumn = grid.getColumn(random);
-        const previousColumn = grid.getColumn(previous);
-        const nextColumn = grid.getColumn(next);
 
         if (randomColumn.isFull) {
             this.playMove(grid);
@@ -189,29 +221,7 @@ export class Timmy extends AI {
             return;
         }
 
-        if (randomColumn.asArray().filter(p => p !== null && p.pieceType != this.team).length > 0) {
-            if (previousColumn !== undefined && !previousColumn.isFull && nextColumn !== undefined && !nextColumn.isFull) {
-                this.placePiece(grid, Math.random() > 0.333 ? (Math.random() > 0.5 ? previous : next) : random);
-
-                return;
-            } else if (previousColumn !== undefined && !previousColumn.isFull) {
-                this.placePiece(grid, Math.random() > 0.5 ? random : previous);
-
-                return;
-            } else if (nextColumn !== undefined && !nextColumn.isFull) {
-                this.placePiece(grid, Math.random() > 0.5 ? random : next);
-
-                return;
-            } else {
-                this.placePiece(grid, random);
-
-                return;
-            }
-        } else {
-            this.playMove(grid);
-
-            return;
-        }
+        this.placePiece(grid, random);
     }
 }
 
@@ -228,8 +238,6 @@ export class Jason extends AI {
             .sort((a, b) => a.length > b.length)
             .shift();
 
-        const allMatches = [];
-
         for (let i = 0; i < array.length; i++) {
             const column = array[i];
 
@@ -240,18 +248,27 @@ export class Jason extends AI {
                     continue;
                 }
 
-                const matches = [];
+                let matches = [];
+                let outlier = null;
+                let pieceType = null;
 
                 for (let k = j + 1; k < j + 4; k++) {
                     const nextSpace = column[k];
 
-                    if (nextSpace && space.pieceType == nextSpace.pieceType && nextSpace.pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
                         matches.push([i + 1, k + 1]);
+                        pieceType = space.pieceType;
+                    } else if (nextSpace && space.pieceType != nextSpace.pieceType && outlier == null) {
+                        outlier = [i + 1, k + 1];
+                        pieceType = space.pieceType;
+                    } else {
+                        matches = [];
+                        pieceType = null;
                     }
                 }
 
-                if (matches.length >= 2) {
-                    allMatches.push([i + 1, j + 1], ...matches);
+                if (matches.length > 0 && pieceType == this.team) {
+                    return outlier;
                 }
             }
         }
@@ -264,7 +281,9 @@ export class Jason extends AI {
                     continue;
                 }
 
-                const matches = [];
+                let matches = [];
+                let outlier = null;
+                let pieceType = null;
 
                 for (let k = j + 1; k < j + 4; k++) {
                     if (array[k] == undefined) {
@@ -273,92 +292,89 @@ export class Jason extends AI {
 
                     const nextSpace = array[k][i];
 
-                    if (nextSpace && space.pieceType == nextSpace.pieceType && nextSpace.pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
+                    if (nextSpace && space.pieceType == nextSpace.pieceType) {
                         matches.push([k + 1, i + 1]);
+                        pieceType = space.pieceType;
+                    } else if (nextSpace && space.pieceType != nextSpace.pieceType && outlier == null) {
+                        outlier = [i + 1, k + 1];
+                        pieceType = space.pieceType;
+                    } else {
+                        matches = [];
+                        pieceType = null;
                     }
                 }
 
-                if (matches.length >= 2) {
-                    allMatches.push([j + 1, i + 1], ...matches);
+                if (matches.length > 0 && pieceType == this.team) {
+                    return outlier;
                 }
             }
         }
-
-        return allMatches;
     }
 
     playMove(grid) {
-        const array = grid.asArray();
+        for (let i = 0; i < 23; i++) {
+            const random = 1 + Math.floor(Math.random() * grid.columns);
+            const previous = random - 1;
+            const next = random + 1;
 
-        const placements = this.getPlacements(grid);
+            const randomColumn = grid.getColumn(random);
+            const previousColumn = grid.getColumn(previous);
+            const nextColumn = grid.getColumn(next);
 
-        const randomColumn = 1 + Math.floor(Math.random() * grid.columns);
+            const placements = this.getPlacements(grid);
 
-        if (placements.length > 0) {
-            let c;
-            let r;
-
-            for (const [column, row] of placements) {
-                c = c == undefined ? column : Math.abs(column - c);
-                r = r == undefined ? row : Math.abs(row - r);
+            if (randomColumn.isFull) {
+                continue;
             }
 
-            if (!c > 0) {
-                c = 1;
-            }
-
-            if (!r > 0) {
-                r = 1;
-            }
-
-            const column = array[c - 1];
-
-            if (column[r - 2] && column[r - 2].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED) && column[r] == null) {
+            if (placements != undefined) {
                 if (this.canRemovePiece()) {
-                    this.remove();
+                    console.log(placements);
 
-                    this.removePiece(grid, c, r);
+                    this.removePiece(grid, placements[0], placements[1]);
 
-                    setTimeout(() => this.placePiece(grid, c), 1000);
-
-                    return;
-                }
-            }
-
-            if (column[r - 2] && column[r] && column[r - 1].pieceType == column[r - 2].pieceType && column[r - 1].pieceType == column[r].pieceType) {
-                if (!grid.getColumn(c).isFull) {
-                    this.placePiece(grid, c);
+                    setTimeout(() => {
+                        this.playMove(grid);
+                    }, 1000);
 
                     return;
                 }
             }
 
-            if ((array[c - 3] && array[c + 1] && array[c - 3][r - 1] == null && array[c + 1][r - 1] == null) || (array[c - 3] && array[c - 3][r - 1] == null && array[c - 2] && array[c - 2][r - 1] != null) || (array[c + 1] && array[c + 1][r - 1] == null && array[c] && array[c][r - 1] != null)) {
-                if (this.canRemovePiece() && column[r - 1] && column[r - 1].pieceType == (this.team == PlayerTeam.RED ? PieceType.YELLOW : PieceType.RED)) {
-                    this.remove();
+            if (randomColumn.asArray().filter(p => p !== null && p.pieceType != this.team).length > 0) {
+                if (previousColumn !== undefined && !previousColumn.isFull && nextColumn !== undefined && !nextColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.5 ? (Math.random() > 0.5 ? previous : next) : random);
 
-                    this.removePiece(grid, c, r);
+                    return;
+                } else if (previousColumn !== undefined && !previousColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.666 ? random : previous);
 
-                    setTimeout(() => this.placePiece(grid, randomColumn), 1000);
+                    return;
+                } else if (nextColumn !== undefined && !nextColumn.isFull) {
+                    this.placePiece(grid, Math.random() > 0.666 ? random : next);
 
                     return;
                 } else {
-                    if (!grid.getColumn(c).isFull) {
-                        this.placePiece(grid, c);
+                    this.placePiece(grid, random);
 
-                        return;
-                    }
+                    return;
                 }
+            } else {
+                continue;
             }
         }
 
-        if (grid.getColumn(randomColumn).isFull) {
+        const random = 1 + Math.floor(Math.random() * grid.columns);
+
+        const randomColumn = grid.getColumn(random);
+
+        if (randomColumn.isFull) {
             this.playMove(grid);
 
             return;
         }
 
-        this.placePiece(grid, randomColumn);
+        this.placePiece(grid, random);
     }
 }
 
