@@ -381,7 +381,12 @@ function createSingleplayer() {
 
     you.play();
 
-    youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
+    if (wins > 0) {
+        youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
+    } else {
+        youElem.innerText = 'You';
+    }
+
     enemy.innerText = opponent.name;
 
     mainMenu.classList.toggle('hide', true);
