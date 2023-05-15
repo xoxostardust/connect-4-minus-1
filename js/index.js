@@ -210,7 +210,11 @@ function createSingleplayer() {
         rightStats.classList.add('Timmy');
     }
 
-    document.title = `You (🏆${wins}) vs. ${opponent.name}`;
+    if (wins > 0) {
+        document.title = `You (🏆${wins}) vs. ${opponent.name}`;
+    } else {
+        document.title = `You vs. ${opponent.name}`;
+    }
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
