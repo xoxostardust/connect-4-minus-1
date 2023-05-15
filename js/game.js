@@ -323,7 +323,7 @@ export class Jason extends AI {
         }
     }
 
-    playMove(grid) {
+    playMove(grid, replaceInterval = 1000) {
         for (let i = 0; i < 56; i++) {
             const random = 1 + Math.floor(Math.random() * grid.columns);
             const previous = random - 1;
@@ -349,11 +349,9 @@ export class Jason extends AI {
                         }
 
                         this.playMove(grid);
-                    }, 1000);
+                    }, replaceInterval);
 
                     return;
-                } else {
-                    console.log(placements);
                 }
             }
 
@@ -461,11 +459,17 @@ export class MrQuick extends Jason {
 
     playMove(grid) {
         if (this.getRemainingPieces().length == (this.team == PlayerTeam.RED ? RED_PIECE_COUNT : YELLOW_PIECE_COUNT)) {
-            this.placePiece(grid, Math.ceil(grid.columns / 2));
+            setTimeout(() => {
+                if (this.stoppedPlaying()) {
+                    return;
+                }
+
+                this.placePiece(grid, Math.ceil(grid.columns / 2));
+            }, 273);
 
             return;
         }
 
-        super.playMove(grid);
+        super.playMove(grid, 273 * 1.5);
     }
 }
