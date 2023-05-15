@@ -101,8 +101,6 @@ function createSingleplayer() {
                         }
 
                         opponent.playMove(grid);
-
-                        playSound('kerplunk');
                     }, 273 * 1.5);
                 });
 
@@ -124,8 +122,6 @@ function createSingleplayer() {
                         }
 
                         opponent.playMove(grid);
-
-                        playSound('kerplunk');
                     }, 1000);
                 });
 
@@ -147,8 +143,6 @@ function createSingleplayer() {
                         }
 
                         opponent.playMove(grid);
-
-                        playSound('kerplunk');
                     }, 1250);
                 });
 
@@ -173,8 +167,6 @@ function createSingleplayer() {
                 }
 
                 opponent.playMove(grid);
-
-                playSound('kerplunk');
             }, 273 * 1.5);
         });
 
@@ -193,8 +185,6 @@ function createSingleplayer() {
                 }
 
                 opponent.playMove(grid);
-
-                playSound('kerplunk');
             }, 1000);
         });
 
@@ -213,8 +203,6 @@ function createSingleplayer() {
                 }
 
                 opponent.playMove(grid);
-
-                playSound('kerplunk');
             }, 1250);
         });
 
