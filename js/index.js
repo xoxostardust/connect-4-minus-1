@@ -501,6 +501,7 @@ function createSingleplayer() {
 function createMultiplayer(firstPlayer, secondPlayer) {
     const body = document.body;
     const mainMenu = byId('main-menu');
+    const youElem = byId('you');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
     const rightStats = byId('right-stats');
@@ -532,6 +533,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
 
+    const [sendWins, winsReceived] = gameRoom.makeAction('wins');
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('place');
     const [nuke, nuking] = gameRoom.makeAction('nuke');
     const [toggleNuke, nukeToggled] = gameRoom.makeAction('toggle');
@@ -614,6 +616,35 @@ function createMultiplayer(firstPlayer, secondPlayer) {
             });
         }, 500);
     }
+
+    winsReceived((w, peerId) => {
+        let truncName;
+        let titleText = `You `;
+
+        if (peerId instanceof Uint8Array) {
+            truncName = new TextDecoder().decode(peerId).substring(0, 5);
+        } else {
+            truncName = peerId.substring(0, 5);
+        }
+
+        if (wins > 0) {
+            titleText = titleText + `(🏆${wins}) vs. `;
+        } else {
+            titleText = titleText + 'vs. ';
+        }
+
+        if (w > 0) {
+            enemy.innerHTML = `<span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${w})</span> ${truncName}`;
+
+            titleText = titleText + `${truncName} (🏆${w})`;
+        } else {
+            enemy.innerText = truncName;
+
+            titleText = titleText + truncName;
+        }
+
+        document.title = titleText;
+    });
 
     getPiecePlaced((column, peerId) => {
         const player = playerOne.name == peerId ? playerOne : playerTwo;
@@ -867,16 +898,16 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     gameRoom.onPeerJoin(peerId => {
         mainMenu.classList.toggle('hide', true);
 
-        let truncName;
+        sendWins(wins);
 
-        if (peerId instanceof Uint8Array) {
-            truncName = new TextDecoder().decode(peerId).substring(0, 5);
+        if (wins > 0) {
+            youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
         } else {
-            truncName = peerId.substring(0, 5);
+            youElem.innerText = 'You';
         }
 
-        enemy.innerText = truncName;
-        document.title = `You (🏆${wins}) vs. ${truncName}`;
+        // enemy.innerText = truncName;
+        // document.title = `You (🏆${wins}) vs. ${truncName}`;
 
         youPieceCount.innerText = you.getRemainingPieces().length;
         enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
