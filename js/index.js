@@ -12,12 +12,14 @@ let mainMenuRoom;
 let queueRoom;
 let gameRoom;
 
-let wins = 0;
-
 // Testing
 let testing = false;
 
 const byId = document.getElementById.bind(document);
+
+if (localStorage.getItem('wins') === null) {
+    localStorage.setItem('wins', 0);
+}
 
 console.log(`My name is ${selfId}!`);
 
@@ -48,6 +50,7 @@ function playSound(name) {
 function createSingleplayer() {
     const body = document.body;
     const mainMenu = byId('main-menu');
+    const youElem = byId('you');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
     const rightStats = byId('right-stats');
@@ -57,6 +60,9 @@ function createSingleplayer() {
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
     const nuclearCountdown = byId('nuclear-countdown');
+    const selectAi = byId('select-ai');
+    const goBack = byId('go-back');
+    const removeLogo = byId('remove-logo');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -70,26 +76,154 @@ function createSingleplayer() {
     let countdownInterval;
 
     let ended = false;
+    let ending = false;
 
     const grid = createGrid();
 
-    const you = new Player(selfId, PlayerTeam.RED);
+    let you;
 
     let opponent;
 
-    if (wins >= 7) {
-        // opponent = new MrQuick('Mr. Quick', PlayerTeam.YELLOW)
+    const wins = parseInt(localStorage.getItem('wins'));
+
+    if (wins > 13) {
+        switch (selectAi.selectedOptions[0].value) {
+            case 'MrQuick':
+                you = new Player(selfId, PlayerTeam.YELLOW);
+                opponent = new MrQuick('Mr. Quick', PlayerTeam.RED);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+                    }, 273 * 1.5);
+                });
+
+                rightStats.classList.remove('Timmy', 'Jason');
+                rightStats.classList.add('MrQuick');
+
+                break;
+
+            case 'Jason':
+                you = new Player(selfId, PlayerTeam.RED);
+                opponent = new Jason('Jason', PlayerTeam.YELLOW);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+                    }, 1000);
+                });
+
+                rightStats.classList.remove('Timmy', 'MrQuick');
+                rightStats.classList.add('Jason');
+
+                break;
+
+            case 'Timmy':
+                you = new Player(selfId, PlayerTeam.RED);
+                opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+                    }, 1250);
+                });
+
+                rightStats.classList.remove('Jason', 'MrQuick');
+                rightStats.classList.add('Timmy');
+
+                break;
+
+            default:
+                break;
+        }
+    } else if (wins === 13) {
+        you = new Player(selfId, PlayerTeam.YELLOW);
+        opponent = new MrQuick('Mr. Quick', PlayerTeam.RED);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+            }, 273 * 1.5);
+        });
+
+        rightStats.classList.remove('Timmy', 'Jason');
+        rightStats.classList.add('MrQuick');
+    } else if (wins < 13 && wins > 3) {
+        you = new Player(selfId, PlayerTeam.RED);
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
-    } else if (wins < 7 && wins > 3) {
-        opponent = new Jason('Jason', PlayerTeam.YELLOW);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+            }, 1000);
+        });
+
+        rightStats.classList.remove('Timmy', 'MrQuick');
+        rightStats.classList.add('Jason');
     } else {
+        you = new Player(selfId, PlayerTeam.RED);
         opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+            }, 1250);
+        });
+
+        rightStats.classList.remove('Jason', 'MrQuick');
+        rightStats.classList.add('Timmy');
     }
+
+    document.title = `You (🏆${wins}) vs. ${opponent.name}`;
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
 
-    function leave() {
+    function leave(pressedBack = true) {
+        ending = true;
+
+        if (pressedBack) {
+            clearTimeout(removeTimeout);
+            clearInterval(countdownInterval);
+            toggleNuclear(false);
+        }
+
         remove.removeEventListener('click', clickReset);
         remove.classList.toggle('reset-used', false);
 
@@ -101,39 +235,60 @@ function createSingleplayer() {
 
         joinMainMenu();
 
+        hideModal();
+
         showStart();
+
+        ended = true;
     }
 
     function win() {
-        ended = true;
+        ending = true;
 
-        wins++;
+        incrementWin();
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         playSound('victory');
 
         setTimeout(() => {
-            showModal('You win! Game over.').then(value => {
-                leave();
+            showModal('You win! Game over.').then(() => {
+                leave(false);
             });
         }, 500);
     }
 
     function lose() {
-        ended = true;
+        ending = true;
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         playSound('glassbreak');
 
         setTimeout(() => {
-            showModal('You lose! Game over.').then(value => {
-                leave();
+            showModal('You lose! Game over.').then(() => {
+                leave(false);
             });
         }, 500);
+    }
+
+    function stalemate(customText = '') {
+        ending = true;
+
+        clearInterval(countdownInterval);
+        clearTimeout(removeTimeout);
+
+        setTimeout(() => {
+            playSound('glassbreak');
+
+            showModal(customText.length > 0 ? customText : 'No contest.').then(() => {
+                leave(false);
+            });
+        }, 2000);
     }
 
     you.played(() => {
@@ -150,7 +305,7 @@ function createSingleplayer() {
         playSound('kerplunk');
 
         if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
-            lose();
+            stalemate();
 
             return;
         }
@@ -166,12 +321,6 @@ function createSingleplayer() {
         }
 
         opponent.play();
-
-        setTimeout(() => {
-            opponent.playMove(grid);
-
-            playSound('kerplunk');
-        }, 1000);
     });
 
     you.removed(() => {
@@ -193,6 +342,10 @@ function createSingleplayer() {
     });
 
     opponent.played(() => {
+        if (ending) {
+            return;
+        }
+
         const winner = getWinner(grid);
 
         enemyPieceCount.innerText = opponent.getRemainingPieces().length;
@@ -204,6 +357,12 @@ function createSingleplayer() {
         rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, false);
 
         playSound('kerplunk');
+
+        if (you.getRemainingPieces().length == 0 && opponent.getRemainingPieces().length == 0) {
+            stalemate(`${opponent.name} has had enough!`);
+
+            return;
+        }
 
         if (winner != null) {
             if (you.team == winner) {
@@ -219,6 +378,10 @@ function createSingleplayer() {
     });
 
     opponent.removed(() => {
+        if (ending) {
+            return;
+        }
+
         const winner = getWinner(grid);
 
         playSound('collide');
@@ -261,23 +424,31 @@ function createSingleplayer() {
 
         nuclearCountdown.innerText = countdown;
 
+        let currentTime = Date.now();
+
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
-            nuclearCountdown.innerText = --countdown;
+            const deltaTime = (Date.now() - currentTime) / 1000;
 
-            if (countdown < 4) {
-                nuclearCountdown.classList.toggle('countdown-red', true);
-            }
+            countdown = countdown - deltaTime;
 
-            if (countdown < 1) {
+            const ceil = Math.ceil(countdown);
+
+            nuclearCountdown.innerText = ceil;
+
+            nuclearCountdown.classList.toggle('countdown-red', ceil > 0 && ceil < 4);
+
+            if (countdown <= 0) {
                 clearInterval(countdownInterval);
             }
-        }, 1000);
+
+            currentTime = Date.now();
+        }, 3);
     }
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (ended || !you.isPlaying() || removeMode) {
+            if (ending || !you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -308,7 +479,17 @@ function createSingleplayer() {
 
     remove.addEventListener('click', clickReset, { once: true });
 
-    you.play();
+    if (you.team == PlayerTeam.RED) {
+        you.play();
+    } else {
+        opponent.play();
+    }
+
+    if (wins > 0) {
+        youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
+    } else {
+        youElem.innerText = 'You';
+    }
 
     enemy.innerText = opponent.name;
 
@@ -334,15 +515,25 @@ function createSingleplayer() {
     leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
     rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
+    removeLogo.classList.remove('rainbow');
+    if (Math.ceil(Math.random() * 100) === 42) {
+        removeLogo.classList.add('rainbow');
+    }
+
+    goBack.removeEventListener('click', goBackToPlayerSelect);
+    goBack.removeEventListener('click', showStart);
+    goBack.addEventListener('click', leave, { once: true });
+
     body.classList.toggle('no-overflow', true);
 
-    setTimeout(toggleGrid, 0, true);
+    toggleGrid(true);
 }
 
 // Creates a P2P multiplayer game
 function createMultiplayer(firstPlayer, secondPlayer) {
     const body = document.body;
     const mainMenu = byId('main-menu');
+    const youElem = byId('you');
     const enemy = byId('enemy');
     const leftStats = byId('left-stats');
     const rightStats = byId('right-stats');
@@ -352,6 +543,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const enemyPieceCount = byId('enemy-piece-count');
     const remove = byId('remove');
     const nuclearCountdown = byId('nuclear-countdown');
+    const goBack = byId('go-back');
+    const removeLogo = byId('remove-logo');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -363,14 +556,17 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let removeTimeout;
     let countdown = 10;
     let countdownInterval;
+    let nukingInterval;
 
     let ended = false;
-    let abruptlyEnded = true;
+    let ending = false;
+    let endingAbruptly = true;
 
     queueRoom.leave();
 
     gameRoom = joinRoom(config, firstPlayer + secondPlayer);
 
+    const [sendWins, winsReceived] = gameRoom.makeAction('wins');
     const [placePiece, getPiecePlaced] = gameRoom.makeAction('place');
     const [nuke, nuking] = gameRoom.makeAction('nuke');
     const [toggleNuke, nukeToggled] = gameRoom.makeAction('toggle');
@@ -384,10 +580,20 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const you = playerOne.name == selfId ? playerOne : playerTwo;
     const enemyPlayer = you == playerOne ? playerTwo : playerOne;
 
+    const wins = parseInt(localStorage.getItem('wins'));
+
     const youTeam = you.team;
     const enemyTeam = enemyPlayer.team;
 
-    function leave() {
+    function leave(pressedBack = true) {
+        ending = true;
+
+        if (pressedBack) {
+            clearTimeout(removeTimeout);
+            clearInterval(countdownInterval);
+            toggleNuclear(false);
+        }
+
         gameRoom.leave();
 
         remove.removeEventListener('click', clickReset);
@@ -401,42 +607,77 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         joinMainMenu();
 
+        hideModal();
+
         showStart();
+
+        ended = true;
     }
 
     function win() {
-        ended = true;
-        abruptlyEnded = false;
+        ending = true;
+        endingAbruptly = false;
 
-        wins++;
+        incrementWin();
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         playSound('victory');
 
         setTimeout(() => {
-            showModal('You win! Game over.').then(value => {
-                leave();
+            showModal('You win! Game over.').then(() => {
+                leave(false);
             });
         }, 500);
     }
 
     function lose() {
-        ended = true;
-        abruptlyEnded = false;
+        ending = true;
+        endingAbruptly = false;
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         playSound('glassbreak');
 
         setTimeout(() => {
-            showModal('You lose! Game over.').then(value => {
-                leave();
+            showModal('You lose! Game over.').then(() => {
+                leave(false);
             });
         }, 500);
     }
+
+    winsReceived((w, peerId) => {
+        let truncName;
+        let titleText = `You `;
+
+        if (peerId instanceof Uint8Array) {
+            truncName = new TextDecoder().decode(peerId).substring(0, 5);
+        } else {
+            truncName = peerId.substring(0, 5);
+        }
+
+        if (wins > 0) {
+            titleText = titleText + `(🏆${wins}) vs. `;
+        } else {
+            titleText = titleText + 'vs. ';
+        }
+
+        if (w > 0) {
+            enemy.innerHTML = `<span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${w})</span> ${truncName}`;
+
+            titleText = titleText + `${truncName} (🏆${w})`;
+        } else {
+            enemy.innerText = truncName;
+
+            titleText = titleText + truncName;
+        }
+
+        document.title = titleText;
+    });
 
     getPiecePlaced((column, peerId) => {
         const player = playerOne.name == peerId ? playerOne : playerTwo;
@@ -453,19 +694,20 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     nuking(([c, x, y], peerId) => {
         clearInterval(countdownInterval);
 
-        nuclearCountdown.classList.toggle('countdown-red', false);
+        const ceil = Math.ceil(c);
+
+        nuclearCountdown.classList.toggle('countdown-red', ceil > 0 && ceil < 4);
 
         const nuclear = byId('nuclear');
 
-        nuclearCountdown.innerText = c;
-        if (c < 4) {
-            nuclearCountdown.classList.toggle('countdown-red', true);
-        }
+        nuclearCountdown.innerText = ceil;
 
-        nuclear.style.left = x + 'px';
-        nuclear.style.top = y + 'px';
-        nuclearCountdown.style.left = x + 'px';
-        nuclearCountdown.style.top = y + 'px';
+        if (x !== undefined && y !== undefined) {
+            nuclear.style.left = x + 'px';
+            nuclear.style.top = y + 'px';
+            nuclearCountdown.style.left = x + 'px';
+            nuclearCountdown.style.top = y + 'px';
+        }
     });
 
     nukeToggled((toggle, peerId) => {
@@ -578,10 +820,14 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }
     });
 
-    function replicateMove(ev) {
-        moveNuclear(ev);
+    function replicateMove(ev = undefined) {
+        if (ev !== undefined) {
+            moveNuclear(ev);
 
-        nuke([countdown, ev.pageX, ev.pageY]);
+            nuke([countdown, ev.pageX, ev.pageY]);
+        } else {
+            nuke([countdown]);
+        }
     }
 
     function disableRemove() {
@@ -590,6 +836,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }, 0);
 
         document.removeEventListener('mousemove', replicateMove);
+        clearInterval(nukingInterval);
 
         clearTimeout(removeTimeout);
         clearInterval(countdownInterval);
@@ -610,6 +857,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         toggleNuclear(true);
         toggleNuke(true);
         document.addEventListener('mousemove', replicateMove);
+        nukingInterval = setInterval(replicateMove, 3);
 
         you.remove();
 
@@ -617,23 +865,31 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         nuclearCountdown.innerText = countdown;
 
+        let currentTime = Date.now();
+
         removeTimeout = setTimeout(disableRemove, 10000);
         countdownInterval = setInterval(() => {
-            nuclearCountdown.innerText = --countdown;
+            const deltaTime = (Date.now() - currentTime) / 1000;
 
-            if (countdown < 4) {
-                nuclearCountdown.classList.toggle('countdown-red', true);
-            }
+            countdown = countdown - deltaTime;
 
-            if (countdown < 1) {
+            const ceil = Math.ceil(countdown);
+
+            nuclearCountdown.innerText = ceil;
+
+            nuclearCountdown.classList.toggle('countdown-red', ceil > 0 && ceil < 4);
+
+            if (countdown <= 0) {
                 clearInterval(countdownInterval);
             }
-        }, 1000);
+
+            currentTime = Date.now();
+        }, 3);
     }
 
     for (const gridColumn of gridColumns) {
         gridColumn.addEventListener('click', () => {
-            if (ended || !you.isPlaying() || removeMode) {
+            if (ending || !you.isPlaying() || removeMode) {
                 return;
             }
 
@@ -675,11 +931,16 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     gameRoom.onPeerJoin(peerId => {
         mainMenu.classList.toggle('hide', true);
 
-        if (peerId instanceof Uint8Array) {
-            enemy.innerText = new TextDecoder().decode(peerId).substring(0, 5);
+        sendWins(wins);
+
+        if (wins > 0) {
+            youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
         } else {
-            enemy.innerText = peerId.substring(0, 5);
+            youElem.innerText = 'You';
         }
+
+        // enemy.innerText = truncName;
+        // document.title = `You (🏆${wins}) vs. ${truncName}`;
 
         youPieceCount.innerText = you.getRemainingPieces().length;
         enemyPieceCount.innerText = enemyPlayer.getRemainingPieces().length;
@@ -698,26 +959,48 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         rightStats.classList.toggle('red-stats-active', false);
         rightStats.classList.toggle('yellow-stats-active', false);
 
+        rightStats.classList.remove('MrQuick', 'Jason', 'Timmy');
+
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
 
+        removeLogo.classList.remove('rainbow');
+        if (Math.ceil(Math.random() * 100) === 42) {
+            removeLogo.classList.add('rainbow');
+        }
+
+        goBack.removeEventListener('click', goBackToPlayerSelect);
+        goBack.removeEventListener('click', showStart);
+        goBack.addEventListener('click', leave, { once: true });
+
         body.classList.toggle('no-overflow', true);
 
-        setTimeout(toggleGrid, 0, true);
+        toggleGrid(true);
     });
 
     gameRoom.onPeerLeave(() => {
-        if (!abruptlyEnded) {
+        if (!endingAbruptly) {
             return;
         }
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         setTimeout(() => {
+            ending = true;
+
             showModal('Your opponent has left the game. Game over!').then(() => leave());
         }, 500);
     });
+}
+
+function incrementWin() {
+    return localStorage.setItem('wins', parseInt(localStorage.getItem('wins')) + 1);
+}
+
+function deleteWins() {
+    return localStorage.setItem('wins', 0);
 }
 
 function moveNuclear(ev) {
@@ -764,6 +1047,13 @@ function showModal(text) {
     });
 }
 
+function hideModal() {
+    const win = byId('win');
+    const modal = win.parentElement;
+
+    modal.classList.toggle('hide', true);
+}
+
 function toggleAlert(toggle) {
     const win = byId('win');
 
@@ -785,11 +1075,11 @@ function getWinner(grid) {
 
 // Used by getWinner to determine the winner
 function determineWinner(win) {
-    const gridSpaces = document.getElementsByClassName('grid-space');
+    const gridSpaces = document.querySelectorAll('.grid-space>div');
 
     for (const [gridColumn, row] of win) {
         for (const gridSpace of gridSpaces) {
-            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+            if (gridSpace.parentElement.parentElement.dataset.column == gridColumn && gridSpace.parentElement.dataset.row == row) {
                 return gridSpace.classList.contains('red-piece') ? PlayerTeam.RED : PlayerTeam.YELLOW;
             }
         }
@@ -798,11 +1088,11 @@ function determineWinner(win) {
 
 // Function that spins the winning pieces on the grid
 function showWin(win) {
-    const gridSpaces = document.getElementsByClassName('grid-space');
+    const gridSpaces = document.querySelectorAll('.grid-space>div');
 
     for (const [gridColumn, row] of win) {
         for (const gridSpace of gridSpaces) {
-            if (gridSpace.parentElement.dataset.column == gridColumn && gridSpace.dataset.row == row) {
+            if (gridSpace.parentElement.parentElement.dataset.column == gridColumn && gridSpace.parentElement.dataset.row == row) {
                 gridSpace.classList.toggle('piece-spin', true);
             }
         }
@@ -985,10 +1275,10 @@ function resetGrid() {
         const clone = gridColumn.cloneNode(true);
 
         gridColumn.parentElement.replaceChild(clone, gridColumn);
+    }
 
-        for (const space of clone.children) {
-            space.classList.remove('red-piece', 'yellow-piece', 'piece-spin');
-        }
+    for (const space of document.querySelectorAll('.grid-space>div')) {
+        space.classList.remove('red-piece', 'yellow-piece', 'piece-spin');
     }
 }
 
@@ -1005,7 +1295,7 @@ function createGrid() {
 
         // The grid will reflect a piece placed on the Grid class
         column.onPiecePlaced((piece, row) => {
-            const space = gridColumn.querySelector(`[data-row='${row}']`);
+            const space = gridColumn.querySelector(`[data-row='${row}']>div`);
 
             const classList = space.classList;
 
@@ -1028,7 +1318,7 @@ function createGrid() {
             const columnArray = column.asArray();
 
             for (let i = 0; i < columnArray.length; i++) {
-                const space = gridColumn.querySelector(`[data-row='${i + 1}']`);
+                const space = gridColumn.querySelector(`[data-row='${i + 1}']>div`);
 
                 const classList = space.classList;
 
@@ -1073,7 +1363,6 @@ function leaveQueue() {
 // Joins a multiplayer queue
 function joinQueue() {
     const connecting = byId('connecting');
-    const goBack = byId('go-back');
 
     // Join the queue room
     queueRoom = joinRoom(config, 'queue');
@@ -1115,7 +1404,8 @@ function joinQueue() {
         console.log(`${peerId} has joined the queue.`);
 
         connecting.innerText = 'Joining...';
-        goBack.classList.toggle('hide', true);
+        document.title = 'Joining...';
+        // goBack.classList.toggle('hide', true);
 
         // Join the queue
         queue(now);
@@ -1136,9 +1426,9 @@ function joinMainMenu() {
     // Join the corresponding trystero room
     mainMenuRoom = joinRoom(config, 'main-menu');
 
-    count.parentElement.classList.toggle('hide', !wins > 0);
+    count.parentElement.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 0));
 
-    count.innerText = wins;
+    count.innerText = localStorage.getItem('wins');
 
     // Update players online when players join or leave the room
     mainMenuRoom.onPeerJoin(peerId => {
@@ -1162,6 +1452,10 @@ function joinMainMenu() {
 
         updateOnline();
     });
+
+    document.addEventListener('wheel', fullScroll, false);
+
+    document.title = 'Connect 4 Minus 1';
 }
 
 // Updates the online count
@@ -1177,6 +1471,27 @@ function toggleRules() {
     rules.classList.toggle('hide');
 }
 
+function goBackToPlayerSelect() {
+    leaveQueue();
+    showPlayerSelect();
+}
+
+function fullScroll(ev) {
+    const direction = Math.floor(ev.deltaY / Math.abs(ev.deltaY));
+
+    if (direction == 1) {
+        scroll({
+            top: 10000,
+            behavior: 'smooth'
+        });
+    } else {
+        scroll({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+}
+
 // Show the connecting screen
 function showConnecting() {
     const connecting = byId('connecting');
@@ -1184,14 +1499,19 @@ function showConnecting() {
     const goBack = byId('go-back');
     const online = byId('online');
     const count = byId('count');
+    const selectAiSetting = byId('selectaisetting');
 
     connecting.innerText = 'Looking for players...';
+    document.title = 'Looking for players...';
+
+    goBack.removeEventListener('click', showStart);
+    goBack.addEventListener('click', goBackToPlayerSelect);
 
     playerSelect.classList.toggle('hide', true);
-    goBack.classList.toggle('go-back-to-player-select', true);
     online.parentElement.classList.toggle('hide', true);
     count.parentElement.classList.toggle('hide', true);
     connecting.classList.toggle('hide', false);
+    selectAiSetting.classList.toggle('hide', true);
     goBack.classList.toggle('hide', false);
 }
 
@@ -1204,6 +1524,11 @@ function showPlayerSelect() {
     const rules = byId('rules');
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
+    const selectAiSetting = byId('selectaisetting');
+
+    document.removeEventListener('wheel', fullScroll, false);
+    goBack.removeEventListener('click', goBackToPlayerSelect);
+    goBack.addEventListener('click', showStart);
 
     connecting.classList.toggle('hide', true);
     start.classList.toggle('hide', true);
@@ -1212,7 +1537,7 @@ function showPlayerSelect() {
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
-    goBack.classList.toggle('go-back-to-player-select', false);
+    selectAiSetting.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 13));
 }
 
 // Show start screen
@@ -1224,15 +1549,19 @@ function showStart() {
     const playerSelect = byId('player-select');
     const goBack = byId('go-back');
     const count = byId('count');
+    const selectAiSetting = byId('selectaisetting');
+
+    document.removeEventListener('wheel', fullScroll, false);
+    document.addEventListener('wheel', fullScroll, false);
 
     connecting.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', true);
     goBack.classList.toggle('hide', true);
-    goBack.classList.toggle('go-back-to-player-select', false);
     start.classList.toggle('hide', false);
     reveal.classList.toggle('hide', false);
     ruleBook.classList.toggle('hide', false);
-    count.parentElement.classList.toggle('hide', !wins > 0);
+    selectAiSetting.classList.toggle('hide', true);
+    count.parentElement.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 0));
 }
 
 // Setup default event listeners for the main menu
@@ -1274,13 +1603,6 @@ twoPlayers.addEventListener('click', () => {
 });
 
 goBack.addEventListener('click', () => {
-    if (goBack.classList.contains('go-back-to-player-select')) {
-        leaveQueue();
-        showPlayerSelect();
-    } else {
-        showStart();
-    }
-
     playSound('button');
 });
 
