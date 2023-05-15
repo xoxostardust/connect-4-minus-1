@@ -85,7 +85,7 @@ function createSingleplayer() {
 
     const wins = parseInt(localStorage.getItem('wins'));
 
-    if (wins >= 12) {
+    if (wins > 13) {
         switch (selectAi.selectedOptions[0].value) {
             case 'MrQuick':
                 you = new Player(selfId, PlayerTeam.YELLOW);
@@ -147,7 +147,24 @@ function createSingleplayer() {
             default:
                 break;
         }
-    } else if (wins < 12 && wins > 3) {
+    } else if (wins === 13) {
+        you = new Player(selfId, PlayerTeam.YELLOW);
+        opponent = new MrQuick('Mr. Quick', PlayerTeam.RED);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+
+                playSound('kerplunk');
+            }, 273 * 1.5);
+        });
+    } else if (wins < 13 && wins > 3) {
         you = new Player(selfId, PlayerTeam.RED);
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
 
@@ -1323,7 +1340,6 @@ function leaveQueue() {
 // Joins a multiplayer queue
 function joinQueue() {
     const connecting = byId('connecting');
-    const goBack = byId('go-back');
 
     // Join the queue room
     queueRoom = joinRoom(config, 'queue');
@@ -1498,7 +1514,7 @@ function showPlayerSelect() {
     ruleBook.classList.toggle('hide', true);
     playerSelect.classList.toggle('hide', false);
     goBack.classList.toggle('hide', false);
-    selectAiSetting.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) >= 12));
+    selectAiSetting.classList.toggle('hide', !(parseInt(localStorage.getItem('wins')) > 13));
 }
 
 // Show start screen
