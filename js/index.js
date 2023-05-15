@@ -222,6 +222,8 @@ function createSingleplayer() {
 
         setTimeout(() => {
             if (ending) {
+                opponent.stopPlaying();
+
                 return;
             }
 
@@ -250,6 +252,10 @@ function createSingleplayer() {
     });
 
     opponent.played(() => {
+        if (ending) {
+            return;
+        }
+
         const winner = getWinner(grid);
 
         enemyPieceCount.innerText = opponent.getRemainingPieces().length;
@@ -282,6 +288,10 @@ function createSingleplayer() {
     });
 
     opponent.removed(() => {
+        if (ending) {
+            return;
+        }
+
         const winner = getWinner(grid);
 
         playSound('collide');
@@ -445,6 +455,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     let removeTimeout;
     let countdown = 10;
     let countdownInterval;
+    let nukingInterval;
 
     let ended = false;
     let ending = false;
@@ -560,10 +571,12 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         nuclearCountdown.innerText = ceil;
 
-        nuclear.style.left = x + 'px';
-        nuclear.style.top = y + 'px';
-        nuclearCountdown.style.left = x + 'px';
-        nuclearCountdown.style.top = y + 'px';
+        if (x !== undefined && y !== undefined) {
+            nuclear.style.left = x + 'px';
+            nuclear.style.top = y + 'px';
+            nuclearCountdown.style.left = x + 'px';
+            nuclearCountdown.style.top = y + 'px';
+        }
     });
 
     nukeToggled((toggle, peerId) => {
@@ -676,10 +689,14 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }
     });
 
-    function replicateMove(ev) {
-        moveNuclear(ev);
+    function replicateMove(ev = undefined) {
+        if (ev !== undefined) {
+            moveNuclear(ev);
 
-        nuke([countdown, ev.pageX, ev.pageY]);
+            nuke([countdown, ev.pageX, ev.pageY]);
+        } else {
+            nuke([countdown]);
+        }
     }
 
     function disableRemove() {
@@ -688,6 +705,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         }, 0);
 
         document.removeEventListener('mousemove', replicateMove);
+        clearInterval(nukingInterval);
 
         clearTimeout(removeTimeout);
         clearInterval(countdownInterval);
@@ -708,6 +726,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         toggleNuclear(true);
         toggleNuke(true);
         document.addEventListener('mousemove', replicateMove);
+        nukingInterval = setInterval(replicateMove, 3);
 
         you.remove();
 
@@ -828,6 +847,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         clearInterval(countdownInterval);
         clearTimeout(removeTimeout);
+        toggleNuclear(false);
 
         setTimeout(() => {
             ending = true;

@@ -162,8 +162,20 @@ export class Player {
 }
 
 export class AI extends Player {
+    #stopPlaying;
+
     constructor(name = 'AI', team) {
         super(name, team);
+
+        this.#stopPlaying = false;
+    }
+
+    stopPlaying() {
+        this.#stopPlaying = true;
+    }
+
+    stoppedPlaying() {
+        return this.#stopPlaying;
     }
 
     playMove(grid) {}
@@ -296,7 +308,7 @@ export class Jason extends AI {
                         matches.push([k + 1, i + 1]);
                         pieceType = space.pieceType;
                     } else if (nextSpace && space.pieceType != nextSpace.pieceType && outlier == null) {
-                        outlier = [i + 1, k + 1];
+                        outlier = [k + 1, i + 1];
                         pieceType = space.pieceType;
                     } else {
                         matches = [];
@@ -312,7 +324,7 @@ export class Jason extends AI {
     }
 
     playMove(grid) {
-        for (let i = 0; i < 23; i++) {
+        for (let i = 0; i < 56; i++) {
             const random = 1 + Math.floor(Math.random() * grid.columns);
             const previous = random - 1;
             const next = random + 1;
@@ -327,17 +339,77 @@ export class Jason extends AI {
                 continue;
             }
 
-            if (placements != undefined) {
+            if (placements !== undefined && placements !== null) {
                 if (this.canRemovePiece()) {
                     console.log(placements);
 
                     this.removePiece(grid, placements[0], placements[1]);
 
                     setTimeout(() => {
+                        if (this.stoppedPlaying()) {
+                            return;
+                        }
+
                         this.playMove(grid);
                     }, 1000);
 
                     return;
+                } else {
+                    console.log(placements);
+                }
+            }
+
+            if (randomColumn.asArray().filter(p => p !== null && p.pieceType != this.team).length === 3 && randomColumn.asArray().filter(p => p !== null && p.pieceType == this.team).length === 0) {
+                this.placePiece(grid, random);
+
+                return;
+            } else {
+                if (i < 11) {
+                    continue;
+                }
+            }
+
+            if (randomColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === randomColumn.asArray().length - 1) {
+                if (nextColumn !== undefined && previousColumn !== undefined) {
+                    if (nextColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === nextColumn.asArray().length - 1) {
+                        const nextNext = next + 1;
+                        const nextNextColumn = grid.getColumn(nextNext);
+
+                        if (nextNextColumn !== undefined && !nextNextColumn.isFull) {
+                            if (nextNextColumn.asArray().findIndex(p => p !== null && p.pieceType == this.team) === -1 && nextNextColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === -1) {
+                                console.log('next');
+
+                                this.placePiece(grid, nextNext);
+
+                                return;
+                            }
+
+                            if (i < 23) {
+                                continue;
+                            }
+                        }
+                    } else if (previousColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) == previousColumn.asArray().length - 1) {
+                        const previousPrevious = previous - 1;
+                        const previousPreviousColumn = grid.getColumn(previousPrevious);
+
+                        if (previousPreviousColumn !== undefined && !previousPreviousColumn.isFull) {
+                            if (previousPreviousColumn.asArray().findIndex(p => p !== null && p.pieceType == this.team) === -1 && previousPreviousColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === -1) {
+                                console.log('previous');
+
+                                this.placePiece(grid, previousPrevious);
+
+                                return;
+                            }
+
+                            if (i < 23) {
+                                continue;
+                            }
+                        }
+                    } else {
+                        if (i < 23) {
+                            continue;
+                        }
+                    }
                 }
             }
 
@@ -347,11 +419,11 @@ export class Jason extends AI {
 
                     return;
                 } else if (previousColumn !== undefined && !previousColumn.isFull) {
-                    this.placePiece(grid, Math.random() > 0.666 ? random : previous);
+                    this.placePiece(grid, Math.random() > 0.8 ? random : previous);
 
                     return;
                 } else if (nextColumn !== undefined && !nextColumn.isFull) {
-                    this.placePiece(grid, Math.random() > 0.666 ? random : next);
+                    this.placePiece(grid, Math.random() > 0.8 ? random : next);
 
                     return;
                 } else {
