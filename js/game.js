@@ -459,13 +459,7 @@ export class MrQuick extends Jason {
 
     playMove(grid) {
         if (this.getRemainingPieces().length == (this.team == PlayerTeam.RED ? RED_PIECE_COUNT : YELLOW_PIECE_COUNT)) {
-            setTimeout(() => {
-                if (this.stoppedPlaying()) {
-                    return;
-                }
-
-                this.placePiece(grid, Math.ceil(grid.columns / 2));
-            }, 273);
+            this.placePiece(grid, Math.ceil(grid.columns / 2));
 
             return;
         }
