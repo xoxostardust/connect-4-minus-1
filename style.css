@@ -411,12 +411,12 @@ select {
     aspect-ratio: 1;
 }
 
-.jason {
+/* .jason {
     background: center / contain no-repeat url('img/jason.jpg');
     height: 1em;
     aspect-ratio: 1;
     border-radius: 50%;
-}
+} */
 
 .left-stats-counter {
     align-items: center;
@@ -430,6 +430,57 @@ select {
     bottom: 0;
     right: 0;
     font-size: min(3vw, 3vh);
+}
+
+.game-stats-enemy.Timmy,
+.game-stats-enemy.Jason,
+.game-stats-enemy.MrQuick {
+    padding-right: min(9vw, 9vh);
+}
+
+.game-stats-enemy.Timmy::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: url(img/timmy.png);
+    z-index: -1;
+    background-position: 106%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+}
+
+.game-stats-enemy.Jason::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: url(img/jason.png);
+    z-index: -1;
+    background-position: 113% 40%;
+    background-size: 33%;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+}
+
+.game-stats-enemy.MrQuick::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: url(img/mrquick.png);
+    z-index: -1;
+    background-position: 130% 35%;
+    background-size: 36%;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
 }
 
 .red-stats-active::before,

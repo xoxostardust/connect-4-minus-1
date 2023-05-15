@@ -104,6 +104,10 @@ function createSingleplayer() {
                         playSound('kerplunk');
                     }, 273 * 1.5);
                 });
+
+                rightStats.classList.remove('Timmy', 'Jason');
+                rightStats.classList.add('MrQuick');
+
                 break;
 
             case 'Jason':
@@ -123,6 +127,10 @@ function createSingleplayer() {
                         playSound('kerplunk');
                     }, 1000);
                 });
+
+                rightStats.classList.remove('Timmy', 'MrQuick');
+                rightStats.classList.add('Jason');
+
                 break;
 
             case 'Timmy':
@@ -142,6 +150,10 @@ function createSingleplayer() {
                         playSound('kerplunk');
                     }, 1250);
                 });
+
+                rightStats.classList.remove('Jason', 'MrQuick');
+                rightStats.classList.add('Timmy');
+
                 break;
 
             default:
@@ -164,6 +176,9 @@ function createSingleplayer() {
                 playSound('kerplunk');
             }, 273 * 1.5);
         });
+
+        rightStats.classList.remove('Timmy', 'Jason');
+        rightStats.classList.add('MrQuick');
     } else if (wins < 13 && wins > 3) {
         you = new Player(selfId, PlayerTeam.RED);
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
@@ -181,6 +196,9 @@ function createSingleplayer() {
                 playSound('kerplunk');
             }, 1000);
         });
+
+        rightStats.classList.remove('Timmy', 'MrQuick');
+        rightStats.classList.add('Jason');
     } else {
         you = new Player(selfId, PlayerTeam.RED);
         opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
@@ -198,9 +216,12 @@ function createSingleplayer() {
                 playSound('kerplunk');
             }, 1250);
         });
+
+        rightStats.classList.remove('Jason', 'MrQuick');
+        rightStats.classList.add('Timmy');
     }
 
-    document.title = `You (🏆${wins}) vs. ${opponent.name} (AI)`;
+    document.title = `You (🏆${wins}) vs. ${opponent.name}`;
 
     const youTeam = you.team;
     const opponentTeam = opponent.team;
@@ -942,6 +963,8 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         rightStats.classList.toggle('red-stats-active', false);
         rightStats.classList.toggle('yellow-stats-active', false);
+
+        rightStats.classList.remove('MrQuick', 'Jason', 'Timmy');
 
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
