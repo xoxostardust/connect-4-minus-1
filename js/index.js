@@ -79,7 +79,7 @@ function createSingleplayer() {
 
     const grid = createGrid();
 
-    const you = new Player(selfId, PlayerTeam.RED);
+    let you;
 
     let opponent;
 
@@ -88,24 +88,99 @@ function createSingleplayer() {
     if (wins >= 12) {
         switch (selectAi.selectedOptions[0].value) {
             case 'MrQuick':
-                opponent = new Jason('Jason', PlayerTeam.YELLOW);
+                you = new Player(selfId, PlayerTeam.YELLOW);
+                opponent = new MrQuick('Mr. Quick', PlayerTeam.RED);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+
+                        playSound('kerplunk');
+                    }, 273 * 1.5);
+                });
                 break;
 
             case 'Jason':
+                you = new Player(selfId, PlayerTeam.RED);
                 opponent = new Jason('Jason', PlayerTeam.YELLOW);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+
+                        playSound('kerplunk');
+                    }, 1000);
+                });
                 break;
 
             case 'Timmy':
+                you = new Player(selfId, PlayerTeam.RED);
                 opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+
+                opponent.onPlaying(() => {
+                    setTimeout(() => {
+                        if (ending) {
+                            opponent.stopPlaying();
+
+                            return;
+                        }
+
+                        opponent.playMove(grid);
+
+                        playSound('kerplunk');
+                    }, 1250);
+                });
                 break;
 
             default:
                 break;
         }
     } else if (wins < 12 && wins > 3) {
+        you = new Player(selfId, PlayerTeam.RED);
         opponent = new Jason('Jason', PlayerTeam.YELLOW);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+
+                playSound('kerplunk');
+            }, 1000);
+        });
     } else {
+        you = new Player(selfId, PlayerTeam.RED);
         opponent = new Timmy('Timmy', PlayerTeam.YELLOW);
+
+        opponent.onPlaying(() => {
+            setTimeout(() => {
+                if (ending) {
+                    opponent.stopPlaying();
+
+                    return;
+                }
+
+                opponent.playMove(grid);
+
+                playSound('kerplunk');
+            }, 1250);
+        });
     }
 
     document.title = `You (🏆${wins}) vs. ${opponent.name} (AI)`;
@@ -152,7 +227,7 @@ function createSingleplayer() {
         playSound('victory');
 
         setTimeout(() => {
-            showModal('You win! Game over.').then(value => {
+            showModal('You win! Game over.').then(() => {
                 leave(false);
             });
         }, 500);
@@ -168,7 +243,7 @@ function createSingleplayer() {
         playSound('glassbreak');
 
         setTimeout(() => {
-            showModal('You lose! Game over.').then(value => {
+            showModal('You lose! Game over.').then(() => {
                 leave(false);
             });
         }, 500);
@@ -183,7 +258,7 @@ function createSingleplayer() {
         setTimeout(() => {
             playSound('glassbreak');
 
-            showModal(customText.length > 0 ? customText : 'No contest.').then(value => {
+            showModal(customText.length > 0 ? customText : 'No contest.').then(() => {
                 leave(false);
             });
         }, 2000);
@@ -219,18 +294,6 @@ function createSingleplayer() {
         }
 
         opponent.play();
-
-        setTimeout(() => {
-            if (ending) {
-                opponent.stopPlaying();
-
-                return;
-            }
-
-            opponent.playMove(grid);
-
-            playSound('kerplunk');
-        }, 1000);
     });
 
     you.removed(() => {
@@ -389,7 +452,11 @@ function createSingleplayer() {
 
     remove.addEventListener('click', clickReset);
 
-    you.play();
+    if (you.team == PlayerTeam.RED) {
+        you.play();
+    } else {
+        opponent.play();
+    }
 
     if (wins > 0) {
         youElem.innerHTML = `You <span style="font-size: 0.375em; vertical-align: middle">(<img src="/img/Frame 15.svg" alt="" style="height: 1em; vertical-align: -0.1em"> ${wins})</span>`;
@@ -525,7 +592,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         playSound('victory');
 
         setTimeout(() => {
-            showModal('You win! Game over.').then(value => {
+            showModal('You win! Game over.').then(() => {
                 leave(false);
             });
         }, 500);
@@ -542,7 +609,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         playSound('glassbreak');
 
         setTimeout(() => {
-            showModal('You lose! Game over.').then(value => {
+            showModal('You lose! Game over.').then(() => {
                 leave(false);
             });
         }, 500);

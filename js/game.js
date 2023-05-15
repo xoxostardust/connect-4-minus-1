@@ -341,8 +341,6 @@ export class Jason extends AI {
 
             if (placements !== undefined && placements !== null) {
                 if (this.canRemovePiece()) {
-                    console.log(placements);
-
                     this.removePiece(grid, placements[0], placements[1]);
 
                     setTimeout(() => {
@@ -356,6 +354,16 @@ export class Jason extends AI {
                     return;
                 } else {
                     console.log(placements);
+                }
+            }
+
+            if (randomColumn.asArray().filter(p => p !== null && p.pieceType == this.team).length === 3 && randomColumn.asArray().filter(p => p !== null)[0].pieceType == this.team) {
+                this.placePiece(grid, random);
+
+                return;
+            } else {
+                if (i < 11) {
+                    continue;
                 }
             }
 
@@ -377,8 +385,6 @@ export class Jason extends AI {
 
                         if (nextNextColumn !== undefined && !nextNextColumn.isFull) {
                             if (nextNextColumn.asArray().findIndex(p => p !== null && p.pieceType == this.team) === -1 && nextNextColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === -1) {
-                                console.log('next');
-
                                 this.placePiece(grid, nextNext);
 
                                 return;
@@ -394,8 +400,6 @@ export class Jason extends AI {
 
                         if (previousPreviousColumn !== undefined && !previousPreviousColumn.isFull) {
                             if (previousPreviousColumn.asArray().findIndex(p => p !== null && p.pieceType == this.team) === -1 && previousPreviousColumn.asArray().findIndex(p => p !== null && p.pieceType != this.team) === -1) {
-                                console.log('previous');
-
                                 this.placePiece(grid, previousPrevious);
 
                                 return;
@@ -450,4 +454,18 @@ export class Jason extends AI {
     }
 }
 
-export class MrQuick extends AI {}
+export class MrQuick extends Jason {
+    constructor(name = 'Mr. Quick', team) {
+        super(name, team);
+    }
+
+    playMove(grid) {
+        if (this.getRemainingPieces().length == (this.team == PlayerTeam.RED ? RED_PIECE_COUNT : YELLOW_PIECE_COUNT)) {
+            this.placePiece(grid, Math.ceil(grid.columns / 2));
+
+            return;
+        }
+
+        super.playMove(grid);
+    }
+}
