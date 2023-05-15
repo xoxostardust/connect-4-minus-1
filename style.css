@@ -770,6 +770,10 @@ select {
     text-align: center;
 }
 
+.remove-button.rainbow {
+    animation: rainbow 500ms linear infinite;
+}
+
 #reveal {
     position: absolute;
     top: 100vh;

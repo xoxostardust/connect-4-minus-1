@@ -62,6 +62,7 @@ function createSingleplayer() {
     const nuclearCountdown = byId('nuclear-countdown');
     const selectAi = byId('select-ai');
     const goBack = byId('go-back');
+    const removeLogo = byId('remove-logo');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -526,6 +527,11 @@ function createSingleplayer() {
     leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
     rightStats.classList.toggle(`${opponentTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, opponent.isPlaying());
 
+    removeLogo.classList.remove('rainbow');
+    if (Math.ceil(Math.random() * 100) === 42) {
+        removeLogo.classList.add('rainbow');
+    }
+
     goBack.removeEventListener('click', goBackToPlayerSelect);
     goBack.removeEventListener('click', showStart);
     goBack.addEventListener('click', leave, { once: true });
@@ -550,6 +556,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
     const remove = byId('remove');
     const nuclearCountdown = byId('nuclear-countdown');
     const goBack = byId('go-back');
+    const removeLogo = byId('remove-logo');
 
     const youPieceSpin = youMoveTool.querySelector('.piece-spin');
     const enemyPieceSpin = enemyMoveTool.querySelector('.piece-spin');
@@ -968,6 +975,11 @@ function createMultiplayer(firstPlayer, secondPlayer) {
 
         leftStats.classList.toggle(`${youTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, you.isPlaying());
         rightStats.classList.toggle(`${enemyTeam == PlayerTeam.RED ? 'red' : 'yellow'}-stats-active`, enemyPlayer.isPlaying());
+
+        removeLogo.classList.remove('rainbow');
+        if (Math.ceil(Math.random() * 100) === 42) {
+            removeLogo.classList.add('rainbow');
+        }
 
         goBack.removeEventListener('click', goBackToPlayerSelect);
         goBack.removeEventListener('click', showStart);
