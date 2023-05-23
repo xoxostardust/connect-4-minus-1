@@ -707,10 +707,10 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         nuclearCountdown.innerText = ceil;
 
         if (x !== undefined && y !== undefined) {
-            nuclear.style.left = x + 'px';
-            nuclear.style.top = y + 'px';
-            nuclearCountdown.style.left = x + 'px';
-            nuclearCountdown.style.top = y + 'px';
+            nuclear.style.left = x + '%';
+            nuclear.style.top = y + '%';
+            nuclearCountdown.style.left = x + '%';
+            nuclearCountdown.style.top = y + '%';
         }
     });
 
@@ -828,7 +828,7 @@ function createMultiplayer(firstPlayer, secondPlayer) {
         if (ev !== undefined) {
             moveNuclear(ev);
 
-            nuke([countdown, ev.pageX, ev.pageY]);
+            nuke([countdown, (ev.pageX / window.innerWidth) * 100, (ev.pageY / window.innerHeight) * 100]);
         } else {
             nuke([countdown]);
         }
@@ -1014,10 +1014,13 @@ function moveNuclear(ev) {
     const pageX = ev.pageX;
     const pageY = ev.pageY;
 
-    nuclear.style.left = pageX + 'px';
-    nuclear.style.top = pageY + 'px';
-    nuclearCountdown.style.left = pageX + 'px';
-    nuclearCountdown.style.top = pageY + 'px';
+    const innerWidth = window.innerWidth;
+    const innerHeight = window.innerHeight;
+
+    nuclear.style.left = (pageX / innerWidth) * 100 + '%';
+    nuclear.style.top = (pageY / innerHeight) * 100 + '%';
+    nuclearCountdown.style.left = (pageX / innerWidth) * 100 + '%';
+    nuclearCountdown.style.top = (pageY / innerHeight) * 100 + '%';
 }
 
 function toggleNuclear(toggle) {
