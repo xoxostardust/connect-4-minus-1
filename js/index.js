@@ -1,7 +1,8 @@
-import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
+// import { joinRoom, selfId } from 'https://cdn.skypack.dev/trystero/ipfs';
+import { joinRoom, selfId } from '../trystero-ipfs.min.js';
 import { sounds } from './constants.js';
 import { PieceType, PlayerTeam } from './enums.js';
-import { AI, Jason, MrQuick, Player, Timmy } from './game.js';
+import { Jason, MrQuick, Player, Timmy } from './game.js';
 import { Grid } from './grid.js';
 
 // Trystero config
